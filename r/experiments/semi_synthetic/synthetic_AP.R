@@ -5,7 +5,7 @@ library(tidyverse)
 library(reticulate)
 library(tidytext)
 
-setwd("~/Documents/TopicSCORE/")
+setwd("~/Documents/topic-modeling/")
 source("./vertex_hunting_functions.R")
 source('./score.R')
 source('./evaluation_metrics.r')
@@ -80,6 +80,21 @@ process_results <- function(Ahat, method, vocab, processingA=TRUE){
   return(temp)
 }
 
+update_error <- function(Ahat, What, A, W, method, error){
+  error_temp <- data.frame(l1_A=matrix_lp_distance(Ahat, A, lp=1),
+                           l2_A=matrix_lp_distance(Ahat, A, lp=2),
+                           l1_W=matrix_lp_distance(What, W, lp=1),
+                           l2_W=matrix_lp_distance(What, W, lp=2),
+                           method = method)
+  if (is.null(error)){
+    return(error_temp)
+  }else{
+    return(rbind(error,
+                 error_temp))
+  }
+  return(error)
+}
+
 run_experiment <- function(dataset, K, N=500, n=100, seed = 1234){
   
   data = synthetic_dataset_generation(dataset,  K, doc_length=500, n=100, seed = 1234)
@@ -94,11 +109,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234){
   
   resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
   resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
-  error <- data.frame(l1_A=matrix_lp_distance(Ahat_lda, data$A, lp=1),
-                      l2_A=matrix_lp_distance(Ahat_lda, data$A, lp=2),
-                      l1_W=matrix_lp_distance(What_lda, data$W, lp=1),
-                      l2_W=matrix_lp_distance(What_lda, data$W, lp=2),
-                      method = "LDA")
+  error <- update_error(Ahat_lda, What_lda, data$A, data$W, method = "LDA", error=NULL)
   
   #### Step 2: Run Tracy's method
   score_recovery <- score(t(data$D), K, normalize = "norm")
@@ -118,6 +129,10 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234){
   Ahat_awr = awr_recovery[[1]]
   resultsA <- rbind(resultsA, 
                     process_results(Ahat_awr, "AWR", data$vocab))
+  What_awr <- compute_W_from_AD(Ahat_awr, D)
+  error <- update_error(Ahat_awr, What_awr, data$A, data$W, method = "AWR", error=error)
+  
+  
   
   ### Step 4: Run TSVD
   
@@ -133,22 +148,29 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234){
                     process_results(Ahat_tsvd$M.hat, "TSVD", data$vocab))
   file.remove(inputPath)
   file.remove(outputPath)
+  What_tsvd <- compute_W_from_AD(Ahat_tsvd, D)
+  error <- update_error(Ahat_tsvd, What_tsvd, data$A, data$W, method = "TSVD", error=error)
+  
   
   ### Step 5: Run Bing's method
   source_python("alternative/Sparse-topic-modelling/code/Sp_Top.py")
   bing_recovery <- Sp_Top(r_to_py(data$D), anchor_group =  r_to_py(c()), C0 = 0.01, C1 = r_to_py(c(1.1)), cv_rep = 50)
   resultsA <- rbind(resultsA, 
-                    process_results(bing_recovery, "TSVD", data$vocab))
+                    process_results(bing_recovery, "Bing", data$vocab))
+  What_bing <- compute_W_from_AD(Ahat_bing, D)
+  error <- update_error(Ahat_bing, What_bing, data$A, data$W, method = "Bing", error=error)
+  
   
   
   #### Step 6: Run method
   score_ours <- score(t(data$D), K, normalize = "threshold")
   resultsA <- rbind(resultsA, 
-                    process_results(score_recovery$A_hat, "TopicScore", data$vocab))
+                    process_results(score_recovery$A_hat, "Ours", data$vocab))
   resultsW <- rbind(resultsW,
-                    process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
+                    process_results(score_recovery$W_hat, "Ours", seq_len(n), processingA=FALSE))
+  error <- update_error(score_ours$A_hat, score_ours$W_hat, data$A, data$W, method = "Ours", error=error)
   
   return(list(resultsA=resultsA, resultsW=resultsW,
-              error))
+              error=error))
   
 }
