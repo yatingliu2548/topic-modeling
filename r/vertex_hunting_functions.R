@@ -38,12 +38,13 @@ vertices_est_SP <- function(R,m){
 }
 
 
-vertices_est <- function(R,K0,m){
+vertices_est <- function(R, K0,m){
   library(quadprog)
   K <- dim(R)[2] + 1
   
   #Step 2a
-  obj <- kmeans(R,m,iter.max=K*100,nstart = K*10)
+  
+  obj <- kmeans(R, min(m, nrow(R)), iter.max=K*100,nstart = K*10)
   
   theta <- as.matrix(obj$centers)
   theta_original <- theta

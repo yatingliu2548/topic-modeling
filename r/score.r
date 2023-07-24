@@ -2,8 +2,8 @@ library('rARPACK')
 library('Matrix')
 library(roxygen2)
 
-source("vertex_hunting_functions.R")
-source("simplex_dist.R")
+source("r/vertex_hunting_functions.R")
+source("r/simplex_dist.R")
 
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
@@ -43,40 +43,54 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   p <- dim(D)[1]
   n <- dim(D)[2]
-  A_hat_final = matrix(0, p, n )
+  print(c(n, p))
+  
+  A_hat_final = matrix(0, p, K )
   M <- rowMeans(D)   #### average number of time each word appears in each document
-  M_trunk <- pmin(M,quantile(M,Mquantile))
+  M_trunk <- pmin(M,quantile(M, Mquantile))
   if(normalize == "norm_score_N"){
       M2 <- rowSums(D/t(matrix(rep(N,p),n,p)))
   }
+  
   if (is.null(K0)){
     K0 <- ceiling(1.5 * K) 
   }
   if (is.null(m)){
     m <- ceiling(10 * K) 
   }
-
-  ### Step 0: Pre-SVD normalization (optional) 
-  if (normalize=="threshold"){
+  
+  ### Step 0: Pre-SVD thresholding and selection of words (optional) 
+  if (threshold){
     threshold_J = alpha * sqrt(log(min(p,n))/(N *n))
+    print(paste0("Threshold: ", threshold_J))
     setJ = which(M > threshold_J)
-    newD = newD[setJ,]
-    print(paste0(p-length(setJ), " words were thresholded (", (p-length(setJ))/p, "%)"))
+    newD = D[setJ,]
+    M = M[setJ]
+    if(normalize == "norm_score_N"){
+      M2 = M2[setJ]
+    }
+    M_trunk = M_trunk[setJ]
+    print(paste0(p-length(setJ), " words were thresholded (", (p-length(setJ))/p * 100, "%)"))
     print(paste0(length(setJ), " words remain"))
     p <- length(setJ)
     
+  }else{
+    newD=D
   }
   
-  newD <- switch(normalize, 
-                 "norm" = sqrt(M_trunk^(-1))*D,
-                 "norm_score_N" = sqrt(M2^(-1))*D,
-                 "threshold" = D%*%t(D) - n/N * M,
-                 "none" = D)
+  #print(c(dim(newD), dim(diag(sqrt(M_trunk^(-1)))) ))
   
-
+  newD <- switch(normalize, 
+                 "norm" = diag(sqrt(M_trunk^(-1))) %*% newD,
+                 "norm_score_N" = diag(sqrt(M2^(-1)))%*% newD,
+                 "huy" = newD %*% t(newD) - n/N * diag(M),
+                 "none" = newD)
+  print("here")
   
   obj <- svds(newD,K)
+  eigenvalues = obj$d
   Xi <- obj$u
+  
   
   #Step 1: SVD
   Xi[,1] <- abs(Xi[,1]) ### to get rid of some small irregularities, but should be positive and bounded away from 0 (this is guaranteed by Perron's theorem)
@@ -111,12 +125,15 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   Pi <- apply(Pi,2,function(x) x/temp)
   
   #Step 3b 
-  A_hat <- switch(normalize, 
-                 "norm" = sqrt(M_trunk)*Xi[,1]*Pi,
-                 "norm_score_N" = sqrt(M2)*Xi[,1]*Pi,
-                 "none" = Xi[,1]*Pi)
-  A_hat <- Xi[,1]*Pi
-  
+  if (normalize %in% c("norm", "norm_score_N" )){
+    A_hat <- switch(normalize, 
+                    "norm" = diag(sqrt(M_trunk)),
+                    "norm_score_N" = diag(sqrt(M2))) %*% (Xi[,1]*Pi)
+    
+  }else{
+    A_hat <- Xi[,1]*Pi
+  }
+
   #Step  3c: normalize each column to have a unit l1 norm
   temp <- colSums(A_hat)
   A_hat <- t(apply(A_hat,1,function(x) x/temp))
@@ -131,7 +148,8 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
 
   #Step 4
   
-  return(list(A_hat=A_hat_final, R=R,V=V, Pi=Pi, theta=theta, W_hat = W_hat))
+  return(list(A_hat=A_hat_final, R=R,V=V, Pi=Pi, theta=theta, W_hat = W_hat,
+              eigenvalues = eigenvalues))
 }
 
 
