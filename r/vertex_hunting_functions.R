@@ -38,13 +38,13 @@ vertices_est_SP <- function(R,m){
 }
 
 
-vertices_est <- function(R, K0,m){
+vertices_est <- function(R, K0, m){
   library(quadprog)
   K <- dim(R)[2] + 1
-  
   #Step 2a
-  
-  obj <- kmeans(R, min(m, nrow(R)), iter.max=K*100,nstart = K*10)
+  print(paste0("min is ", min(m, nrow(R))))
+  print(c(m, dim(R)))
+  obj <- kmeans(R, min(m, nrow(R)), iter.max=K*100, nstart = K*10)
   
   theta <- as.matrix(obj$centers)
   theta_original <- theta
@@ -71,18 +71,26 @@ vertices_est <- function(R, K0,m){
   }
   
   #Step 2b
-  comb <- combn(1:K0, K)
-  max_values <- rep(0, dim(comb)[2])
-  for (i in 1:dim(comb)[2]){
-    for (j in 1:K0){
-      max_values[i] <- max(simplex_dist(as.matrix(theta[j,]), as.matrix(theta[comb[,i],])), max_values[i])
+  if (K0<=K){
+    #plot(theta[,1],theta[,2])
+    #points(theta[comb[,min_index],1],theta[comb[,min_index],2],col=2,pch=2)
+    
+    return(list(V=theta, theta=theta_original))
+  }else{
+    comb <- combn(1:K0, K)
+    max_values <- rep(0, dim(comb)[2])
+    for (i in 1:dim(comb)[2]){
+      for (j in 1:K0){
+        max_values[i] <- max(simplex_dist(as.matrix(theta[j,]), as.matrix(theta[comb[,i],])), max_values[i])
+      }
     }
+    
+    min_index <- which(max_values == min(max_values))
+    
+    #plot(theta[,1],theta[,2])
+    #points(theta[comb[,min_index],1],theta[comb[,min_index],2],col=2,pch=2)
+    
+    return(list(V=theta[comb[,min_index[1]],], theta=theta_original))
   }
-  
-  min_index <- which(max_values == min(max_values))
-  
-  #plot(theta[,1],theta[,2])
-  #points(theta[comb[,min_index],1],theta[comb[,min_index],2],col=2,pch=2)
-  
-  return(list(V=theta[comb[,min_index[1]],], theta=theta_original))
+ 
 }

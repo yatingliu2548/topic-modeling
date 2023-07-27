@@ -8,7 +8,7 @@ source("r/simplex_dist.R")
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
                   Mquantile=0.05, VHMethod = 'SVS', normalize="none",
-                  alpha=0.5){
+                  alpha=0.5, max_K=150){
   #' This function computes the estimates for the A and W matrix based on the algorithm proposed in Ke and Wang's work: https://arxiv.org/pdf/1704.07016.pdf
   #' 
   #'
@@ -43,7 +43,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   p <- dim(D)[1]
   n <- dim(D)[2]
-  print(c(n, p))
+  print(c(n, p, K, N))
   
   A_hat_final = matrix(0, p, K )
   M <- rowMeans(D)   #### average number of time each word appears in each document
@@ -76,19 +76,26 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     
   }else{
     newD=D
+    setJ = 1:length(M)
   }
   
-  #print(c(dim(newD), dim(diag(sqrt(M_trunk^(-1)))) ))
   
   newD <- switch(normalize, 
                  "norm" = diag(sqrt(M_trunk^(-1))) %*% newD,
                  "norm_score_N" = diag(sqrt(M2^(-1)))%*% newD,
                  "huy" = newD %*% t(newD) - n/N * diag(M),
                  "none" = newD)
-  print("here")
-  
-  obj <- svds(newD,K)
-  eigenvalues = obj$d
+  if (K >= min(dim(newD))){
+    obj = svd(newD, min(K, min(dim(newD))))
+  }else{
+    obj = svds(newD, K)
+  }
+  if (max_K >= min(dim(newD))){
+    obj_full = svd(newD, min(max_K, min(dim(newD))))
+  }else{
+    obj_full = svds(newD, max_K)
+  }
+  eigenvalues = obj_full$d
   Xi <- obj$u
   
   
@@ -98,7 +105,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   #Step 2: Post-SVD normalization
   if (VHMethod == 'SVS'){
-    vertices_est_obj <- vertices_est(R,K0,m)
+    vertices_est_obj <- vertices_est(R, K0, m)
     V <- vertices_est_obj$V
     theta <- vertices_est_obj$theta
   } else if (VHMethod == 'SP'){
@@ -149,7 +156,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   #Step 4
   
   return(list(A_hat=A_hat_final, R=R,V=V, Pi=Pi, theta=theta, W_hat = W_hat,
-              eigenvalues = eigenvalues))
+              eigenvalues = eigenvalues, thresholded = 1- length(setJ)/ dim(D)[1]))
 }
 
 
