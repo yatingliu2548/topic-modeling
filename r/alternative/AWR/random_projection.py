@@ -5,12 +5,17 @@ import math
 # lower dimension new_dim
 def Random_Projection(M, new_dim, prng):
     old_dim = M[:, 0].size
+    R = Random_Matrix(int(old_dim), int(new_dim), prng)
+    M_red = np.dot(R, M)
+    return M_red
+
+def Random_Matrix(old_dim, new_dim, prng):
+    new_dim =int(new_dim)
+    old_dim =int(old_dim)
     p = np.array([1./6, 2./3, 1./6])
     c = np.cumsum(p)
-    randdoubles = prng.random_sample(new_dim*old_dim)
+    randdoubles = prng.random_sample(int(new_dim*old_dim))
     R = np.searchsorted(c, randdoubles)
     R = math.sqrt(3)*(R - 1)
     R = np.reshape(R, (new_dim, old_dim))
-    
-    M_red = np.dot(R, M)
-    return M_red
+    return R

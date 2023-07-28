@@ -1,9 +1,11 @@
 #takes in matrix in UCI repository format and outputs a scipy sparse matrix file
 
+import numpy 
+import pyximport
+pyximport.install()
+import read_uci
 import sys
 import scipy.io
-import scipy
-import numpy as np
 
 if len(sys.argv) < 2:
     print "usage: input_matrix output_matrix"
@@ -16,12 +18,5 @@ infile = file(input_matrix)
 num_docs = int(infile.readline())
 num_words = int(infile.readline())
 nnz = int(infile.readline())
-
-output_matrix = scipy.sparse.lil_matrix((num_words, num_docs))
-
-for l in infile:
-    d, w, v = [int(x) for x in l.split()]
-    output_matrix[w-1, d-1] = v
-
+output_matrix = read_uci.readfile(infile, nnz, num_docs, num_words)
 scipy.io.savemat(output_matrix_name, {'M' : output_matrix}, oned_as='column')
-

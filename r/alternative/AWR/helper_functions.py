@@ -4,13 +4,13 @@ import numpy as np
 
 def warn(condition, string):
     if condition == False:
-        print "WARNING: "+string
+        print("WARNING: "+string)
 
 # Normalizes the rows of a matrix M to sum up to 1
 def normalize_rows(M):
     row_sums = M.sum(1)
     return M/row_sums[:, np.newaxis]
-	
+
 # Normalizes the columns of a matrix M to sum up to 1
 def normalize_columns(M):
     col_sums = M.sum(0)
@@ -31,7 +31,7 @@ def L1_diff(A,B):
 def min_error(A, B):
     K = A[0,:].size
     if K != B[0, :].size:
-        print "Matrices have different numbers of columns"
+        print("Matrices have different numbers of columns")
     total_err = 0
     for colA in range(K):
         min_err = float("inf")
@@ -41,12 +41,12 @@ def min_error(A, B):
                 min_err = err
         total_err = total_err + min_err
     return total_err
-    
+
 # Calculates a greedy L1 error between A and B
 def greedy_error(A, B):
     K = A[0,:].size
     if K != B[0, :].size:
-        print "Matrices have different numbers of columns"
+        print("Matrices have different numbers of columns")
     total_err = 0
     columns_B = range(K)
     for colA in range(K):
@@ -65,7 +65,7 @@ def greedy_error(A, B):
 def save_colerrors(A, B, filename):
     K = A[0, :].size
     if K != B[0, :].size:
-        print "Matrices have different numbers of columns"
+        print("Matrices have different numbers of columns")
     errors = np.zeros(K*K)
     for colA in range(K):
         for colB in range(K):
@@ -75,9 +75,9 @@ def save_colerrors(A, B, filename):
 
 # Appends greedy and min L1 errors between the true and recovered topic matrices to the given text file
 def save_L1_errors1(A_proj_estimate, true_A, output_filename, numdocs, seed_W, numwords, time):
-    
+
     file = open(output_filename, 'a')
-    
+
     file.write(str(numdocs))
     file.write('\t')
     file.write(str(seed_W))
@@ -94,15 +94,15 @@ def save_L1_errors1(A_proj_estimate, true_A, output_filename, numdocs, seed_W, n
     file.write('\t')
     file.write(str(time))
     file.write('\n')
-    
+
     file.close()
 
 
 # Appends greedy and min L1 errors between the true and recovered topic matrices to the given text file
 def save_L1_errors(A_proj_estimate, true_A, output_filename, epsilon, numdocs, seed_W, numwords, time):
-    
+
     file = open(output_filename, 'a')
-    
+
     file.write(str(epsilon))
     file.write('\t')
     file.write(str(numdocs))
@@ -121,15 +121,15 @@ def save_L1_errors(A_proj_estimate, true_A, output_filename, epsilon, numdocs, s
     file.write('\t')
     file.write(str(time))
     file.write('\n')
-    
+
     file.close()
 
 
 # Appends greedy and min L1 errors between the true and recovered topic matrices to the given text file
 def save_L1_errors2(A_proj_estimate, true_A, output_filename, epsilon, step, numdocs, seed_W, numwords, time):
-    
+
     file = open(output_filename, 'a')
-    
+
     file.write(str(epsilon))
     file.write('\t')
     file.write(str(step))
@@ -150,5 +150,5 @@ def save_L1_errors2(A_proj_estimate, true_A, output_filename, epsilon, step, num
     file.write('\t')
     file.write(str(time))
     file.write('\n')
-    
+
     file.close()

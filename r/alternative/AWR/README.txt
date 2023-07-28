@@ -77,5 +77,4 @@ Simple Usage:
         Recovered A matrix
         Top words
         topic likelihoods 
-        
 

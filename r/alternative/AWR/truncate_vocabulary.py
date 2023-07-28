@@ -4,7 +4,7 @@ import scipy.io
 import sys
 
 if len(sys.argv) < 3:
-    print "usage: input_matrix vocab_file cutoff"
+    print("usage: input_matrix vocab_file cutoff")
     sys.exit()
 
 input_matrix = sys.argv[1]
@@ -41,10 +41,10 @@ S = scipy.io.loadmat(input_matrix)
 M = S['M']
 
 if M.shape[0] != numwords:
-    print 'Error: vocabulary file has different number of words', M.shape, numwords
+    print('Error: vocabulary file has different number of words', M.shape, numwords)
     sys.exit()
-print 'Number of words is ', numwords
-print 'Number of documents is ', M.shape[1]
+print('Number of words is ', numwords)
+print('Number of documents is ', M.shape[1])
 
 
 M = M.tocsr()
@@ -64,7 +64,7 @@ for i in xrange(M.indptr.size - 1):
         # start and end indices for row i
         start = M.indptr[i]
         end = M.indptr[i + 1]
-        
+
         # if number of distinct documents that this word appears in is >= cutoff
         if (end - start) >= cutoff:
             new_indptr[indptr_counter] = new_indptr[indptr_counter-1] + end - start
@@ -82,8 +82,8 @@ M = scipy.sparse.csr_matrix((new_data, new_indices, new_indptr))
 M = M.tocsc()
 scipy.io.savemat(output_matrix, {'M' : M}, oned_as='column')
 
-print 'New number of words is ', M.shape[0]
-print 'New number of documents is ', M.shape[1]
+print('New number of words is ', M.shape[0])
+print('New number of documents is ', M.shape[1])
 
 # Output the new vocabulary
 output = open(output_vocab, 'w')

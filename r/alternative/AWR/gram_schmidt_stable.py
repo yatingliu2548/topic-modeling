@@ -1,9 +1,9 @@
 from __future__ import division
 import numpy as np
 
-
 def Projection_Find(M_orig, r, candidates):
-
+  
+    r = int(r)
     n = M_orig[:, 0].size
     dim = M_orig[0, :].size
 
@@ -11,7 +11,7 @@ def Projection_Find(M_orig, r, candidates):
     
     # stored recovered anchor words
     anchor_words = np.zeros((r, dim))
-    anchor_indices = np.zeros(r, dtype=np.int)
+    anchor_indices = np.zeros(r, dtype=int)
 
     # store the basis vectors of the subspace spanned by the anchor word vectors
     basis = np.zeros((r-1, dim))
