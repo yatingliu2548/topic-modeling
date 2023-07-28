@@ -23,8 +23,6 @@ TSVD <- function(data, n, K, p, id, matlab_path=DEFAULT_MATLAB){
   command <- sprintf("%s -nodisplay -nosplash -r \"addpath('%s/r/alternative/TSVD'); TSVD('%s', '%s', %d); exit;\"", matlab_path, getwd(), inputPath, outputPath, K)
   system(command)
   Ahat_tsvd <- readMat(outputPath)
-  resultsA <- rbind(resultsA, 
-                    process_results(Ahat_tsvd$M.hat, "TSVD", data$vocab))
   file.remove(inputPath)
   file.remove(outputPath)
   What_tsvd <- compute_W_from_AD(Ahat_tsvd$M.hat, t(data$D))
@@ -324,7 +322,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
 
   
-  return(list(resultsA=resultsA, resultsW=resultsW,
+  return(list(#resultsA=resultsA, resultsW=resultsW,
               error=error, A=data$A, W=data$W, Aoriginal=data$Aoriginal, 
               Woriginal=data$Woriginal, vocab=data$original_vocab,
               Khat_huy=Khat_huy$Khat,
