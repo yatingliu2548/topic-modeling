@@ -6,10 +6,10 @@ library(reticulate)
 library(tidytext)
 
 #setwd("~/Documents/topic-modeling/")
-source("r/vertex_hunting_functions.R")
-source('r/score.R')
-source('r/evaluation_metrics.r')
-source('r/select_K.r')
+source(paste0(getwd(),"/r/vertex_hunting_functions.R"))
+source(paste0(getwd(),'/r/score.R'))
+source(paste0(getwd(),'/r/evaluation_metrics.r'))
+source(paste0(getwd(),'/r/select_K.r'))
 
 use_condaenv("r-reticulate")
 

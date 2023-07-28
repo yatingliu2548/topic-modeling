@@ -7,7 +7,7 @@ error <- c()
 
 
 setwd(args[1])
-source("r/experiments/synthetic_AP.R")
+source("r/experiments/semi_synthetic/synthetic_AP.R")
 
 
 
