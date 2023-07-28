@@ -34,21 +34,21 @@ TSVD <- function(data, n, K, p, id, matlab_path=DEFAULT_MATLAB){
 
 
 Cai <- function(data, C0=0.1, C1=1.1){
-  source_python("r/alternative/Sparse-topic-modelling/code/Sp_Top.py")
+  source_python("r/alternative/Sparse-topic-modelling/Sp_Top.py")
   bing_recovery <- Sp_Top(r_to_py(t(data$D)), anchor_group =  r_to_py(c()), C0 = C0, C1 = r_to_py(c(C1)), cv_rep = 50)
   return(bing_recovery)
 }
 
 
 Bing <- function(data, C0=0.1, C1=1.1){
-  source_python("r/alternative/Sparse-topic-modelling/code/Sp_Top.py")
+  source_python("r/alternative/Sparse-TM-Bing/Sp_Top.py")
   bing_recovery <- Sp_Top(r_to_py(t(data$D)), anchor_group =  r_to_py(c()), C0 = C0, C1 = r_to_py(c(C1)), cv_rep = 50)
   return(bing_recovery)
 }
 
 
 AWR <- function(data){
-  source_python("r/alternative/anchor-word-recovery/learn_topics_function.py")
+  source_python("r/alternative/AWR/learn_topics_function.py")
   awr_recovery <- learn_topics(M=r_to_py(t(data$D)), vocab=data$vocab, 
                                K=K, loss='L2', save2txt=FALSE,
                                new_dim=1000, top_words=10,
