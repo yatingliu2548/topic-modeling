@@ -19,7 +19,7 @@ module load libgmp
 module load R/4.2.0
 module load matlab
 
-MATLAB_PATH="/software/matlab-2023a-el8-x86_64"
+MATLAB_PATH="/software/matlab-2023a-el8-x86_64/bin/matlab"
 result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/topic-modeling/

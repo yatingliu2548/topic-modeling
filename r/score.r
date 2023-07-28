@@ -1,6 +1,7 @@
 library('rARPACK')
 library('Matrix')
 library(roxygen2)
+library(quadprog)
 
 source("r/vertex_hunting_functions.R")
 source("r/simplex_dist.R")
