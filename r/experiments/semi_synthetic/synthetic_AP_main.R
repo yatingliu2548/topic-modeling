@@ -1,12 +1,11 @@
 args = commandArgs(trailingOnly=TRUE)
-seed = ceiling(as.numeric(args[2]))
-result_file = args[3]
-K = ceiling(as.numeric(args[4]))
-matlab_path = args[5]
+seed = ceiling(as.numeric(args[1]))
+result_file = args[2]
+K = ceiling(as.numeric(args[3]))
+matlab_path = args[4]
 error <- c()
 
 
-setwd(args[1])
 source("r/experiments/semi_synthetic/synthetic_AP.R")
 
 
