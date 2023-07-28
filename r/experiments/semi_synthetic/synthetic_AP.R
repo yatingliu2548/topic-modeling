@@ -5,7 +5,7 @@ library(tidyverse)
 library(reticulate)
 library(tidytext)
 
-setwd("~/Documents/topic-modeling/")
+#setwd("~/Documents/topic-modeling/")
 source("r/vertex_hunting_functions.R")
 source('r/score.R')
 source('r/evaluation_metrics.r')
@@ -13,14 +13,14 @@ source('r/select_K.r')
 
 use_condaenv("r-reticulate")
 
+DEFAULT_MATLAB="/Applications/MATLAB_R2023a.app/bin/matlab"
 
-
-TSVD <- function(data, n, K, p, id){
+TSVD <- function(data, n, K, p, id, matlab_path=DEFAULT_MATLAB){
   inputPath <- paste0(getwd(), "/r/experiments/temporary/exp_","n", n, "-K", K, "-p",p , "-id", id,   "arr.mat")
   writeMat(inputPath, arr = t(data$D))
   outputPath <-paste0(getwd(),"/r/experiments/temporary/exp_","n", n, "-K", K, "-p",p , "-id", id,   "arr-result.mat")
   # Construct the MATLAB command
-  command <- sprintf("/Applications/MATLAB_R2023a.app/bin/matlab -nodisplay -nosplash -r \"addpath('%s/r/alternative/TSVD'); TSVD('%s', '%s', %d); exit;\"", getwd(), inputPath, outputPath, K)
+  command <- sprintf("%s -nodisplay -nosplash -r \"addpath('%s/r/alternative/TSVD'); TSVD('%s', '%s', %d); exit;\"", matlab_path, getwd(), inputPath, outputPath, K)
   system(command)
   Ahat_tsvd <- readMat(outputPath)
   resultsA <- rbind(resultsA, 
@@ -173,7 +173,8 @@ update_error <- function(Ahat, What, A, W, method, error, thresholded = 0){
 }
 
 run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
-                           A=NULL, W=NULL, vocab=NULL, plot_data=FALSE){
+                           A=NULL, W=NULL, vocab=NULL, plot_data=FALSE,
+                           matlab_path=DEFAULT_MATLAB){
   
   data = synthetic_dataset_generation(dataset,  K, doc_length=N, n=n, seed = seed,
                                     A=A, W=W, vocab=vocab)
@@ -246,7 +247,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   id = ceiling(runif(n=1, max=1e6))
   resultTSVD <- tryCatch(
-    TSVD(data, n, K, p, id),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+    TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
     error = function(err) {
       # Code to handle the error (e.g., print an error message, log the error, etc.)
       cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
@@ -336,44 +337,44 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
 }
 
 
-error <- c()
-for (exp in 1:100){
-  for (K in c(3, 4, 5, 7, 10, 20, 30, 50, 100)){
-    A = NULL
-    W = NULL
-    vocab = NULL
-    for (n in c(c(100, 250, 500, 250, 1000), 2000, 5000)){
-      for (n_frac in c(0.5, 0.8, 1, 2, 5, 10)){
-        N = ceiling(n_frac * n)
-        test <- run_experiment("AP", K, N=N, n=n, seed = (exp * 1000 +  n  + K  + 0.01 * n_frac)*1000, 
-                               A = A, W=W, vocab=vocab)
-        error_temp = test$error
-        error_temp["Khat_huy"]=test$Khat_huy
-        error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
-        error_temp["Khat_olga"]=test$Khat_olg
-        error_temp["Khat_olga_thresh"] = test$Khat_olga_thresh
-        error_temp["Khat_tracy"]=test$Khat_tracy
-        error_temp["Khat_tracy_thresh"] = test$Khat_tracy_thresh
-        error_temp["N"] = N
-        error_temp["n"] = n
-        error_temp["seed"] =  (exp * 1000 +  n  + K  + 0.01 * n_frac)*1000
-        error_temp["n_frac"] = n_frac
-        error_temp["exp"] = exp
-        error <- rbind(error,
-                       error_temp)
-        write_csv(error, paste0(getwd(), "/r/experiments/semi_synthetic/results_semisynthetic_right_K2.csv"))
-        if (is.null(A)){
-          A = test$Aoriginal
-          W = test$Woriginal
-          vocab=test$vocab
-        }
-      }
-    }
-  }
-}
-
-
-ggplot(error %>% filter(n==100)) +
-  geom_line(aes(x=N, y=l1_A, colour=method))
+# error <- c()
+# for (exp in 1:100){
+#   for (K in c(3, 4, 5, 7, 10, 20, 30, 50, 100)){
+#     A = NULL
+#     W = NULL
+#     vocab = NULL
+#     for (n in c(c(100, 250, 500, 250, 1000), 2000, 5000)){
+#       for (n_frac in c(0.5, 0.8, 1, 2, 5, 10)){
+#         N = ceiling(n_frac * n)
+#         test <- run_experiment("AP", K, N=N, n=n, seed = (exp * 1000 +  n  + K  + 0.01 * n_frac)*1000, 
+#                                A = A, W=W, vocab=vocab)
+#         error_temp = test$error
+#         error_temp["Khat_huy"]=test$Khat_huy
+#         error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
+#         error_temp["Khat_olga"]=test$Khat_olg
+#         error_temp["Khat_olga_thresh"] = test$Khat_olga_thresh
+#         error_temp["Khat_tracy"]=test$Khat_tracy
+#         error_temp["Khat_tracy_thresh"] = test$Khat_tracy_thresh
+#         error_temp["N"] = N
+#         error_temp["n"] = n
+#         error_temp["seed"] =  (exp * 1000 +  n  + K  + 0.01 * n_frac)*1000
+#         error_temp["n_frac"] = n_frac
+#         error_temp["exp"] = exp
+#         error <- rbind(error,
+#                        error_temp)
+#         write_csv(error, paste0(getwd(), "/r/experiments/semi_synthetic/results_semisynthetic_right_K2.csv"))
+#         if (is.null(A)){
+#           A = test$Aoriginal
+#           W = test$Woriginal
+#           vocab=test$vocab
+#         }
+#       }
+#     }
+#   }
+# }
+# 
+# 
+# ggplot(error %>% filter(n==100)) +
+#   geom_line(aes(x=N, y=l1_A, colour=method))
 
 
