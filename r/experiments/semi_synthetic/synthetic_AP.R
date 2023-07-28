@@ -215,81 +215,81 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   # resultsW <- rbind(resultsW,
   #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
   
-  # error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, data$W, method = "TopicScore", error=error,
-  #                       thresholded = 0)
+  error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, data$W, method = "TopicScore", error=error,
+                        thresholded = 0)
 
-  # ### Step 3: Run AWR
-  # Ahat_awr <- tryCatch(
-  #   AWR(data),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-  #   error = function(err) {
-  #     # Code to handle the error (e.g., print an error message, log the error, etc.)
-  #     cat("Error occurred while running AWR:", conditionMessage(err), "\n")
-  #     # Return a default value or NULL to continue with the rest of the code
-  #     return(NULL)
-  #   }
-  # )
+  ### Step 3: Run AWR
+  Ahat_awr <- tryCatch(
+    AWR(data),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+    error = function(err) {
+      # Code to handle the error (e.g., print an error message, log the error, etc.)
+      cat("Error occurred while running AWR:", conditionMessage(err), "\n")
+      # Return a default value or NULL to continue with the rest of the code
+      return(NULL)
+    }
+  )
   
-  # if(is.null(Ahat_awr) == FALSE){
-  #   # resultsA <- rbind(resultsA, 
-  #   #                   process_results(Ahat_awr, "AWR", data$vocab))
-  #   What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
-  #   # resultsW <- rbind(resultsW, 
-  #   #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
-  #   error <- update_error(Ahat_awr, What_awr, data$A, t(data$W), method = "AWR", error=error)
-  # }
+  if(is.null(Ahat_awr) == FALSE){
+    # resultsA <- rbind(resultsA, 
+    #                   process_results(Ahat_awr, "AWR", data$vocab))
+    What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
+    # resultsW <- rbind(resultsW, 
+    #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
+    error <- update_error(Ahat_awr, What_awr, data$A, t(data$W), method = "AWR", error=error)
+  }
 
   
   
   
-  # ### Step 4: Run TSVD
+  ### Step 4: Run TSVD
   
-  # id = ceiling(runif(n=1, max=1e6))
-  # resultTSVD <- tryCatch(
-  #   TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-  #   error = function(err) {
-  #     # Code to handle the error (e.g., print an error message, log the error, etc.)
-  #     cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
-  #     # Return a default value or NULL to continue with the rest of the code
-  #     return(NULL)
-  #   }
-  # )
-  # if (is.null(resultTSVD) == FALSE){
-  #   # resultsA <- rbind(resultsA, 
-  #   #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
-  #   # resultsW <- rbind(resultsW, 
-  #   #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
-  #   error <- update_error(resultTSVD$Ahat$M.hat, resultTSVD$What, data$A, t(data$W), method = "TSVD", error=error)
-  # }
+  id = ceiling(runif(n=1, max=1e6))
+  resultTSVD <- tryCatch(
+    TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+    error = function(err) {
+      # Code to handle the error (e.g., print an error message, log the error, etc.)
+      cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
+      # Return a default value or NULL to continue with the rest of the code
+      return(NULL)
+    }
+  )
+  if (is.null(resultTSVD) == FALSE){
+    # resultsA <- rbind(resultsA, 
+    #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
+    # resultsW <- rbind(resultsW, 
+    #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
+    error <- update_error(resultTSVD$Ahat$M.hat, resultTSVD$What, data$A, t(data$W), method = "TSVD", error=error)
+  }
   
   
-  # ### Step 5: Run Bing's method
+  ### Step 5: Run Bing's method
 
-  #   # Code that might throw an error
-  # bing_recovery <- tryCatch(
-  #   Bing(data, C0=0.1, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-  #   error = function(err) {
-  #     # Code to handle the error (e.g., print an error message, log the error, etc.)
-  #     cat("Error occurred while running Bing:", conditionMessage(err), "\n")
-  #     # Return a default value or NULL to continue with the rest of the code
-  #     return(NULL)
-  #   }
-  # )
+    # Code that might throw an error
+  bing_recovery <- tryCatch(
+    Bing(data, C0=0.1, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+    error = function(err) {
+      # Code to handle the error (e.g., print an error message, log the error, etc.)
+      cat("Error occurred while running Bing:", conditionMessage(err), "\n")
+      # Return a default value or NULL to continue with the rest of the code
+      return(NULL)
+    }
+  )
   
-  # if (is.null(bing_recovery) == FALSE){
-  #   # resultsA <- rbind(resultsA, 
-  #   #                   process_results(bing_recovery$A, "Bing", data$vocab))
-  #   #### Have to cluster
-  #   if (dim(t(bing_recovery$A))[2]>K){
-  #     clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-  #     What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-  #   }else{
-  #     What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
-  #     What_bing <- cbind(What_bing, matrix(0, nrow=nrow(What_bing), ncol = K -ncol(What_bing)  ))
-  #   }
-  #   # resultsW <- rbind(resultsW, 
-  #   #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
-  #   error <- update_error(t(clustered_res$centers), What_bing, data$A, t(data$W), method = "Bing", error=error)
-  # }
+  if (is.null(bing_recovery) == FALSE){
+    # resultsA <- rbind(resultsA, 
+    #                   process_results(bing_recovery$A, "Bing", data$vocab))
+    #### Have to cluster
+    if (dim(t(bing_recovery$A))[2]>K){
+      clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
+      What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
+    }else{
+      What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
+      What_bing <- cbind(What_bing, matrix(0, nrow=nrow(What_bing), ncol = K -ncol(What_bing)  ))
+    }
+    # resultsW <- rbind(resultsW, 
+    #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
+    error <- update_error(t(clustered_res$centers), What_bing, data$A, t(data$W), method = "Bing", error=error)
+  }
     
 
 
