@@ -28,9 +28,9 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000, 5000)){
     error_temp["Khat_tracy_thresh"] = test$Khat_tracy_thresh
     error_temp["N"] = N
     error_temp["n"] = n
-    error_temp["seed"] =  (exp * 1000 +  n  + K  + 0.01 * n_frac)*1000
+    error_temp["seed"] =  seed
     error_temp["n_frac"] = n_frac
-    error_temp["exp"] = exp
+    error_temp["exp"] = result_file
     error <- rbind(error,
                     error_temp)
     write_csv(error, paste0(getwd(), paste0("r/experiments/semi_synthetic/results/",result_file)))
