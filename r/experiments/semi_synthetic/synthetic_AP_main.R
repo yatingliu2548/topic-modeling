@@ -33,7 +33,7 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000, 5000)){
     error_temp["exp"] = result_file
     error <- rbind(error,
                     error_temp)
-    write_csv(error, paste0(getwd(), paste0("r/experiments/semi_synthetic/results/",result_file)))
+    write_csv(error, paste0(getwd(), paste0("/r/experiments/semi_synthetic/results/",result_file)))
     if (is.null(A)){
         A = test$Aoriginal
         W = test$Woriginal

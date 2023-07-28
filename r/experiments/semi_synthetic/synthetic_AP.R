@@ -203,8 +203,8 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   Ahat_lda = exp(t(lda@beta))
   What_lda = lda@gamma
   
-  resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
-  resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
+  # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
+  # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
   error <- update_error(Ahat_lda, What_lda, data$A, (data$W), method = "LDA", error=NULL,
                         thresholded = 0)
   
@@ -212,10 +212,10 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)))
   Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
-  resultsA <- rbind(resultsA, 
-                    process_results(score_recovery$A_hat, "TopicScore", data$vocab))
-  resultsW <- rbind(resultsW,
-                    process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
+  # resultsA <- rbind(resultsA, 
+  #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))
+  # resultsW <- rbind(resultsW,
+  #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
   
   error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, data$W, method = "TopicScore", error=error,
                         thresholded = 0)
@@ -232,11 +232,11 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   )
   
   if(is.null(Ahat_awr) == FALSE){
-    resultsA <- rbind(resultsA, 
-                      process_results(Ahat_awr, "AWR", data$vocab))
+    # resultsA <- rbind(resultsA, 
+    #                   process_results(Ahat_awr, "AWR", data$vocab))
     What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
-    resultsW <- rbind(resultsW, 
-                      process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
+    # resultsW <- rbind(resultsW, 
+    #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
     error <- update_error(Ahat_awr, What_awr, data$A, t(data$W), method = "AWR", error=error)
   }
 
@@ -256,10 +256,10 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     }
   )
   if (is.null(resultTSVD) == FALSE){
-    resultsA <- rbind(resultsA, 
-                      process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
-    resultsW <- rbind(resultsW, 
-                      process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
+    # resultsA <- rbind(resultsA, 
+    #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
+    # resultsW <- rbind(resultsW, 
+    #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
     error <- update_error(resultTSVD$Ahat$M.hat, resultTSVD$What, data$A, t(data$W), method = "TSVD", error=error)
   }
   
@@ -278,8 +278,8 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   )
   
   if (is.null(bing_recovery) == FALSE){
-    resultsA <- rbind(resultsA, 
-                      process_results(bing_recovery$A, "Bing", data$vocab))
+    # resultsA <- rbind(resultsA, 
+    #                   process_results(bing_recovery$A, "Bing", data$vocab))
     #### Have to cluster
     if (dim(t(bing_recovery$A))[2]>K){
       clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
@@ -288,8 +288,8 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
       What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
       What_bing <- cbind(What_bing, matrix(0, nrow=nrow(What_bing), ncol = K -ncol(What_bing)  ))
     }
-    resultsW <- rbind(resultsW, 
-                      process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
+    # resultsW <- rbind(resultsW, 
+    #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
     error <- update_error(t(clustered_res$centers), What_bing, data$A, t(data$W), method = "Bing", error=error)
   }
     
@@ -310,10 +310,10 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
       }
     )
     if (is.null(score_ours) == FALSE){
-      resultsA <- rbind(resultsA, 
-                        process_results(score_ours$A_hat, paste0("Ours_", alpha), data$vocab))
-      resultsW <- rbind(resultsW,
-                        process_results(score_ours$W_hat, paste0("Ours_", alpha), seq_len(n), processingA=FALSE))
+      # resultsA <- rbind(resultsA, 
+      #                   process_results(score_ours$A_hat, paste0("Ours_", alpha), data$vocab))
+      # resultsW <- rbind(resultsW,
+      #                   process_results(score_ours$W_hat, paste0("Ours_", alpha), seq_len(n), processingA=FALSE))
       error <- update_error(score_ours$A_hat, score_ours$W_hat, data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
                             thresholded=score_ours$thresholded)
       Khat_huy = select_K(score_ours$eigenvalues, p,n, N, method="huy")
