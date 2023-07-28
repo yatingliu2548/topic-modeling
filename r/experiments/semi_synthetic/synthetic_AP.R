@@ -196,24 +196,24 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   
   # #### Step 1: Run the LDA pipeline
-  # lda <- LDA(data$D, k = K, control = list(seed = seed), method = 'VEM')
-  # ap_topics <- tidy(lda, matrix = "beta")
-  # Ahat_lda = exp(t(lda@beta))
-  # What_lda = lda@gamma
+  lda <- LDA(data$D, k = K, control = list(seed = seed), method = 'VEM')
+  ap_topics <- tidy(lda, matrix = "beta")
+  Ahat_lda = exp(t(lda@beta))
+  What_lda = lda@gamma
   
-  # # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
-  # # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
-  # error <- update_error(Ahat_lda, What_lda, data$A, (data$W), method = "LDA", error=NULL,
-  #                       thresholded = 0)
+  # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
+  # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
+  error <- update_error(Ahat_lda, What_lda, data$A, (data$W), method = "LDA", error=NULL,
+                        thresholded = 0)
   
-  # #### Step 2: Run Tracy's method
-  # score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)))
-  # Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
-  # Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
-  # # resultsA <- rbind(resultsA, 
-  # #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))
-  # # resultsW <- rbind(resultsW,
-  # #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
+  #### Step 2: Run Tracy's method
+  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)))
+  Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
+  Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
+  # resultsA <- rbind(resultsA, 
+  #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))
+  # resultsW <- rbind(resultsW,
+  #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
   
   # error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, data$W, method = "TopicScore", error=error,
   #                       thresholded = 0)
