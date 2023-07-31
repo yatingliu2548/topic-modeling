@@ -121,7 +121,7 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
   }
   print(sprintf("Dim of data D_synth = %s, %s", dim(D_synth)[1], dim(D_synth)[2]))
   counts = apply(D_synth, 2, sum)
-  words2remove = which(counts == 0)
+  words2remove = which(counts < 2)
   print(sprintf("Dim of words2remove = %s", length(words2remove)))
   if (length(words2remove) >0){
     return(list(D=D_synth[, -words2remove], vocab=vocab[-words2remove], 
@@ -172,7 +172,8 @@ update_error <- function(Ahat, What, A, W, method, error, thresholded = 0){
 
 run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
                            A=NULL, W=NULL, vocab=NULL, plot_data=FALSE,
-                           matlab_path=DEFAULT_MATLAB){
+                           matlab_path=DEFAULT_MATLAB, 
+                           VHMethod="SVS"){
   
   data = synthetic_dataset_generation(dataset,  K, doc_length=N, n=n, seed = seed,
                                     A=A, W=W, vocab=vocab)
@@ -207,7 +208,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
                         thresholded = 0)
   
   #### Step 2: Run Tracy's method
-  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)))
+  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod)
   Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
   # resultsA <- rbind(resultsA, 
@@ -279,16 +280,19 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     # resultsA <- rbind(resultsA, 
     #                   process_results(bing_recovery$A, "Bing", data$vocab))
     #### Have to cluster
-    if (dim(t(bing_recovery$A))[2]>K){
+    if (dim(t(bing_recovery$A))[1]>K){
       clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
       What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
+      error <- update_error(t(clustered_res$centers), (What_bing), data$A, t(data$W), method = "Bing", error=error)
     }else{
       What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
-      What_bing <- cbind(What_bing, matrix(0, nrow=nrow(What_bing), ncol = K -ncol(What_bing)  ))
+      What_bing <- rbind(What_bing, 
+                         matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
+      error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+      
     }
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
-    error <- update_error(t(clustered_res$centers), What_bing, data$A, t(data$W), method = "Bing", error=error)
   }
     
 
@@ -299,7 +303,8 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   for (alpha in c(0.1, 1, 2, 4, 8)){
     score_ours <- tryCatch(
       score(D = t(data$D), K=K, normalize = 'huy', 
-            threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150)),
+            threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
+            VHMethod=VHMethod),
       error = function(err) {
         # Code to handle the error (e.g., print an error message, log the error, etc.)
         cat("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")

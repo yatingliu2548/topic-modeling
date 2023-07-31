@@ -18,13 +18,44 @@ successiveProj <- function(R, K){
   
   Y <- cbind(rep(1,n),R)
   indexSet = c()
-  while (length(indexSet) < K){
+  it = 1
+  valid_indices <- 1:dim(Y)[1]
+  while (length(indexSet) < K & dim(Y)[1]>0){
+    print(paste0("here it is ", it))
+    print(sprintf("Length set is %d and dim(Y)[1]=%d", length(indexSet), dim(Y)[1] ))
     l2Norms <- apply(Y,1,function(x) sqrt(sum(x^2)))
+    #### check if they are in the same document
     index <- which(l2Norms == max(l2Norms))
-    indexSet <- c(indexSet, index)
-    u <- Y[index,] / sqrt(sum(Y[index,]^2))
-    Y <- t(apply(Y,1,function(x) x-sum(x*u)*u))
+    
+    if (length(index) >1){
+      print("yoho")
+      r = rankMatrix(R[valid_indices[index], ])[1]
+      if (r < length(index)){
+        ### only select 1
+        chosen = sample(index,  r)
+        u <- Y[chosen,] / sqrt(sum(Y[chosen,]^2))
+        indexSet <- c(indexSet, valid_indices[chosen])
+        Y <- Y[-setdiff(index, c(chosen)), ]
+        valid_indices <- setdiff(valid_indices, valid_indices[setdiff(index, c(chosen))])
+        Y <- t(apply(Y, 1, function(x) x-sum(x%*%(u))%*%t(u)))
+      }else{
+        u <- Y[index,] / sqrt(sum(Y[index,]^2))
+        indexSet <- c(indexSet, valid_indices[index])
+        Y <- t(apply(Y, 1, function(x) x-sum(x%*%(u))%*%t(u)))
+      }
+    }else{
+      indexSet <- c(indexSet, valid_indices[index])
+      u <- Y[index,] / sqrt(sum(Y[index,]^2))
+      Y <- t(apply(Y,1,function(x) x-sum(x*u)*u))
+    }
+    it = it + 1
+
+    
   }
+  if(length(indexSet)>K){
+       indexSet = sample(indexSet, K)
+  }
+  
   return(list(V=R[indexSet,], indexSet=indexSet))
 }
 
@@ -77,20 +108,20 @@ vertices_est <- function(R, K0, m){
     
     return(list(V=theta, theta=theta_original))
   }else{
-    comb <- combn(1:K0, K)
-    max_values <- rep(0, dim(comb)[2])
-    for (i in 1:dim(comb)[2]){
-      for (j in 1:K0){
-        max_values[i] <- max(simplex_dist(as.matrix(theta[j,]), as.matrix(theta[comb[,i],])), max_values[i])
+      comb <- combn(1:K0, K)
+      max_values <- rep(0, dim(comb)[2])
+      for (i in 1:dim(comb)[2]){
+        for (j in 1:K0){
+          max_values[i] <- max(simplex_dist(as.matrix(theta[j,]), as.matrix(theta[comb[,i],])), max_values[i])
+        }
       }
-    }
-    
-    min_index <- which(max_values == min(max_values))
+      min_index <- which(max_values == min(max_values))
+      new_theta = theta[comb[,min_index[1]],]
     
     #plot(theta[,1],theta[,2])
     #points(theta[comb[,min_index],1],theta[comb[,min_index],2],col=2,pch=2)
     
-    return(list(V=theta[comb[,min_index[1]],], theta=theta_original))
+    return(list(V=new_theta, theta=theta_original))
   }
  
 }

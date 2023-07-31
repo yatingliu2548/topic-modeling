@@ -8,7 +8,7 @@ source("r/simplex_dist.R")
 
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
-                  Mquantile=0.05, VHMethod = 'SVS', normalize="none",
+                  Mquantile=0.05, VHMethod = 'SP', normalize="none",
                   alpha=0.5, max_K=150){
   #' This function computes the estimates for the A and W matrix based on the algorithm proposed in Ke and Wang's work: https://arxiv.org/pdf/1704.07016.pdf
   #' 
@@ -48,7 +48,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   A_hat_final = matrix(0, p, K )
   M <- rowMeans(D)   #### average number of time each word appears in each document
-  M_trunk <- pmin(M,quantile(M, Mquantile))
+  M_trunk <- sapply(M,function(x){max(quantile(x, Mquantile))})
   if(normalize == "norm_score_N"){
       M2 <- rowSums(D/t(matrix(rep(N,p),n,p)))
   }
@@ -105,6 +105,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   R <- apply(as.matrix(Xi[,2:K]),2,function(x) x/Xi[,1])
   
   #Step 2: Post-SVD normalization
+  print("Start VH")
   if (VHMethod == 'SVS'){
     vertices_est_obj <- vertices_est(R, K0, m)
     V <- vertices_est_obj$V
@@ -127,7 +128,13 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   
   #Step 3: Topic matrix estimation
-  Pi <- cbind(R, rep(1,p))%*%solve(cbind(V,rep(1,K)))
+  print("Start Step 3")
+  if(rankMatrix(cbind(V,rep(1,K)))[1]<K){
+    Pi <- cbind(R, rep(1,p)) %*% MASS::ginv(cbind(V,rep(1,K)))
+  }else{
+    Pi <- cbind(R, rep(1,p)) %*% solve(cbind(V,rep(1,K)))
+  }
+
   Pi <- pmax(Pi,matrix(0,dim(Pi)[1],dim(Pi)[2])) ### sets negative entries to 0 
   temp <- rowSums(Pi)
   Pi <- apply(Pi,2,function(x) x/temp)
@@ -146,6 +153,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   temp <- colSums(A_hat)
   A_hat <- t(apply(A_hat,1,function(x) x/temp))
   
+  print("Start estimation of W")
   if(threshold){
     A_hat_final[setJ, ] = A_hat
     W_hat <- compute_W_from_AD(A_hat, D[setJ,])
