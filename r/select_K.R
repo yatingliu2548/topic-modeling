@@ -12,7 +12,7 @@ select_K <- function(eigenvals, p,n, N, method="huy"){
         }else{
           beta_n = 1 + p^2/N^(3/2)
         }
-        g_n = 0.1* log(log(n))
+        g_n = log(log(n))
         thresh = sqrt(n/N  +  beta_n * sqrt( n * p * log(n)/ N) * g_n)
         #print(c(n/N, beta_n, g_n, sqrt( n * p * log(n)/ N), beta_n * sqrt( n * p * log(n)/ N) * g_n ))
       }else{
