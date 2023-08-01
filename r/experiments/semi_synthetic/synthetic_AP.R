@@ -58,7 +58,8 @@ AWR <- function(data){
 }
 
 synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed = 1234,
-                                         A = NULL, W = NULL, vocab=NULL){
+                                         A = NULL, W = NULL, vocab=NULL, noise_level=0,
+                                         Epsilon=NULL, remove_stop_words=TRUE){
   # p is the number of words in the dictionary.
   # n is the number of documents.
   # N is a vector of length n, with ith entry as the total number of words in the ith documen.
@@ -66,7 +67,12 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
   # read from sparse matrix txt file 
   if (dataset=="AP"){
     data("AssociatedPress")
-    selected_docs = sample(seq_len(dim(AssociatedPress)[1]), n)
+    if (n < dim(AssociatedPress)[1]){
+      selected_docs = sample(seq_len(dim(AssociatedPress)[1]), n)
+    }else{
+      selected_docs = seq_len(dim(AssociatedPress)[1])
+    }
+    
   }else{
     print("Dataset not implemented yet")
     return()
@@ -78,9 +84,11 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
       ap_td <- tidy(AssociatedPress)
       # ap_td %>%
       #   count(term, sort = TRUE) 
-      data(stop_words)
-      ap_td <- ap_td %>%
-        anti_join(stop_words %>% rename(term=word)) ### removes the stopwords
+      if(remove_stop_words){
+        data(stop_words)
+         ap_td <- ap_td %>%
+            anti_join(stop_words %>% rename(term=word)) ### removes the stopwords
+      }
       D = ap_td %>%
         cast_tdm(document, term, count)
       vocab = colnames(D)
@@ -93,10 +101,29 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
     D_sim <- ap_lda@gamma[selected_docs,]%*%exp(ap_lda@beta)
     A = exp(t(ap_lda@beta))
     W = ap_lda@gamma
+    Epsilon = mean(abs(as.matrix(D) - as.matrix(W) %*% t(as.matrix(A))))
   }else{
-    D_sim <- W[selected_docs,] %*% t(A)
+    D_sim <- as.matrix(W)[selected_docs,] %*% t(as.matrix(A))
   }
-
+  
+  if (is.null(noise_level)){
+    Z = 0
+  }else{
+    if (is.numeric(noise_level) == FALSE){
+      if(is.null(Epsilon)){
+        Epsilon = 0.01
+      }
+      Z = matrix(rpois( nrow(D_sim) * ncol(D_sim),  Epsilon), 
+                 nrow=nrow(D_sim), ncol=ncol(D_sim))
+    }else{
+      Z = matrix(rpois( nrow(D_sim) * ncol(D_sim),  noise_level), 
+                 nrow=nrow(D_sim), ncol=ncol(D_sim))
+      ### Have to flip some of the size
+    }
+    Sign = -1 + 2 * matrix(rbinom( nrow(D_sim) * ncol(D_sim), 1,  0.5), 
+                  nrow=nrow(D_sim), ncol=ncol(D_sim))
+    Z = Z * Sign
+  }
   if (length(doc_length)==1){
     N <- rep(doc_length, n)
   }else{
@@ -115,10 +142,10 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
   #   facet_wrap(~ topic, scales = "free") +
   #   scale_y_reordered()
   p = dim(D_sim)[2]
-  D_synth <- matrix(0, n, p)
-  for (i in 1:length(N)){
-    D_synth[i,] <- rmultinom(1, N[i], D_sim[i,])
-  }
+  D_synth <- t(sapply(1:length(N), function(i){rmultinom(1, N[i], D_sim[i,])}))
+  D_synth = D_synth + Z
+  D_synth[which(D_synth<0)] = 0
+
   print(sprintf("Dim of data D_synth = %s, %s", dim(D_synth)[1], dim(D_synth)[2]))
   counts = apply(D_synth, 2, sum)
   words2remove = which(counts < 2)
@@ -130,7 +157,8 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
   }else{
     return(list(D=D_synth, vocab=vocab, 
                 A = A, W =W[selected_docs,],
-                Aoriginal=A, Woriginal = W, original_vocab = vocab))
+                Aoriginal=A, Woriginal = W, original_vocab = vocab,
+                Epsilon = Epsilon))
   }
 }
 
@@ -173,10 +201,12 @@ update_error <- function(Ahat, What, A, W, method, error, thresholded = 0){
 run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
                            A=NULL, W=NULL, vocab=NULL, plot_data=FALSE,
                            matlab_path=DEFAULT_MATLAB, 
-                           VHMethod="SVS"){
+                           VHMethod="SVS", noise_level = 0,
+                           remove_stop_words=FALSE){
   
   data = synthetic_dataset_generation(dataset,  K, doc_length=N, n=n, seed = seed,
-                                    A=A, W=W, vocab=vocab)
+                                    A=A, W=W, vocab=vocab, noise_level =noise_level,
+                                    remove_stop_words = remove_stop_words)
   #### Run check
   print("here")
   if (plot_data){
