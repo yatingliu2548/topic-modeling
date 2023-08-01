@@ -18,6 +18,7 @@ W = NULL
 vocab = NULL
 for (n in c(c(100, 250, 500, 250, 1000), 2000, 5000)){
     for (n_frac in c(0.5, 0.8, 1, 2, 5, 10)){
+    #for (n_frac in c(10)){
     N = ceiling(n_frac * n)
     if (K <5){
       VHMethod = "SVS"
@@ -30,7 +31,7 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000, 5000)){
     error_temp = test$error
     error_temp["Khat_huy"]=test$Khat_huy
     error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
-    error_temp["Khat_olga"]=test$Khat_olg
+    error_temp["Khat_olga"]=test$Khat_olga
     error_temp["Khat_olga_thresh"] = test$Khat_olga_thresh
     error_temp["Khat_tracy"]=test$Khat_tracy
     error_temp["Khat_tracy_thresh"] = test$Khat_tracy_thresh
