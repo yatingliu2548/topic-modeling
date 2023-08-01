@@ -4,8 +4,18 @@
 .DS_Store?
 .RData
 .Rhistory
+r/.DS_Store
 
 # Experiments results #
 *.mat
 *.csv
 *.pdf
+
+
+# Local files
+*.pyc
+
+r/experiments/semi_synthetic/results/*
+r/experiments/semi_synthetic/logs/*
+r/alternative/AWR/__pycache__/*
+r/alternative/Sparse-TM-Bing/__pycache__/*
