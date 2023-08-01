@@ -18,6 +18,7 @@ W = NULL
 vocab = NULL
 for (n in c(c(100, 250, 500, 250, 1000), 2000, 5000)){
     for (n_frac in c(0.5, 0.8, 1, 2, 5, 10)){
+    #for (n_frac in c(10)){
     N = ceiling(n_frac * n)
     if (K <5){
       VHMethod = "SVS"
