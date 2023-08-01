@@ -24,4 +24,4 @@ result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/topic-modeling/
 working_dir="${SCRATCH}/${USER}/topic-modeling/"
-Rscript r/experiments/semi_synthetic/synthetic_AP_main.R $SLURM_ARRAY_TASK_ID $result_file $1 $MATLAB_PATH
+Rscript r/experiments/semi_synthetic/synthetic_AP_with_noise.R $SLURM_ARRAY_TASK_ID $result_file $1 $MATLAB_PATH
