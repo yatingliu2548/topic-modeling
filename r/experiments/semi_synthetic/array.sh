@@ -20,8 +20,9 @@ module load R/4.2.0
 module load matlab
 
 MATLAB_PATH="/software/matlab-2023a-el8-x86_64/bin/matlab"
-result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1"
+result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1_withNoise"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/topic-modeling/
 working_dir="${SCRATCH}/${USER}/topic-modeling/"
-Rscript r/experiments/semi_synthetic/synthetic_AP_with_noise.R $SLURM_ARRAY_TASK_ID $result_file $1 $MATLAB_PATH
+Rscript r/experiments/semi_synthetic/synthetic_AP_with_noise.r $SLURM_ARRAY_TASK_ID $result_file $1 $MATLAB_PATH
+

@@ -5,7 +5,6 @@ seed = ceiling(as.numeric(args[1]))
 result_file = args[2]
 K = ceiling(as.numeric(args[3]))
 matlab_path = args[4]
-noise_level = as.numeric(args[5])
 error <- c()
 
 
