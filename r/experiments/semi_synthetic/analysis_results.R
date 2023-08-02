@@ -12,14 +12,17 @@ unique(data$N)
 unique(data$p)
 unique(data$n_frac)
 
-ggplot(data, aes(x=K, y=l1_A, color=method)) +
-  geom_point()+
-  facet_grid(n_frac~n)
+ggplot(data %>% 
+         filter(n_frac==2), aes(x=K, y=l2_A, color=method)) +
+  geom_smooth()+
+  facet_grid(n_frac~n)+
+  scale_y_log10() 
 
 
-ggplot(data %>% filter(n==250), aes(x=K, y=l1_A, color=method)) +
-  geom_point() +
+ggplot(data %>% group_by(method, K, n, n_frac)  %>% summarise_if(is.numeric,mean) %>% arrange(K, n, n_frac, l1_A) %>%
+         filter(n==500, n_frac==0.5), aes(x=K, y=l2_A, color=method)) +
+  geom_line() +
   scale_y_log10()
 
 
-res = data %>% filter(n==250) %>% group_by(method, K, n, n_frac)  %>% summarise_if(is.numeric,mean) %>% arrange(K, n, n_frac, l1_A)
+res = data %>% group_by(method, K, n, n_frac)  %>% summarise_if(is.numeric,mean) %>% arrange(K, n, n_frac, l1_A)
