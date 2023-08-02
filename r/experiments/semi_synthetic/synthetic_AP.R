@@ -202,11 +202,12 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
                            A=NULL, W=NULL, vocab=NULL, plot_data=FALSE,
                            matlab_path=DEFAULT_MATLAB, 
                            VHMethod="SVS", noise_level = 0,
-                           remove_stop_words=FALSE){
+                           remove_stop_words=FALSE, Epsilon=NULL){
   
   data = synthetic_dataset_generation(dataset,  K, doc_length=N, n=n, seed = seed,
                                     A=A, W=W, vocab=vocab, noise_level =noise_level,
-                                    remove_stop_words = remove_stop_words)
+                                    remove_stop_words = remove_stop_words,
+                                    Epsilon=Epsilon)
   #### Run check
   print("here")
   if (plot_data){
@@ -359,7 +360,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   return(list(#resultsA=resultsA, resultsW=resultsW,
               error=error, A=data$A, W=data$W, Aoriginal=data$Aoriginal, 
-              Woriginal=data$Woriginal, vocab=data$original_vocab,
+              Woriginal=data$Woriginal, Epsilon=Epsilon, vocab=data$original_vocab,
               Khat_huy=Khat_huy$Khat,
               Khat_huy_thresh = Khat_huy$thresh,
               Khat_olga=Khat_olga$Khat,
