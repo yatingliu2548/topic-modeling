@@ -39,7 +39,7 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000)){
         error_temp["n_frac"] = n_frac
         error_temp["exp"] = result_file
         error_temp["VHMethod"] = VHMethod
-        error_temp["noise_level"] = ifelse(is.numeric(noise_level)==FALSE, test$Epsilon, noise_level)
+        error_temp["noise_level"] = ifelse((noise_level)=="auto", test$Epsilon, as.numeric(noise_level))
         error <- rbind(error,
                        error_temp)
         write_csv(error, paste0(getwd(), paste0("/r/experiments/semi_synthetic/results/",result_file)))

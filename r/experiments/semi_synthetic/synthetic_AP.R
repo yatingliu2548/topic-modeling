@@ -109,14 +109,14 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
   if (is.null(noise_level)){
     Z = 0
   }else{
-    if (is.numeric(noise_level) == FALSE){
+    if ((noise_level) == "auto"){
       if(is.null(Epsilon)){
         Epsilon = 0.01
       }
       Z = matrix(rpois( nrow(D_sim) * ncol(D_sim),  Epsilon), 
                  nrow=nrow(D_sim), ncol=ncol(D_sim))
     }else{
-      Z = matrix(rpois( nrow(D_sim) * ncol(D_sim),  noise_level), 
+      Z = matrix(rpois( nrow(D_sim) * ncol(D_sim),  as.numeric(noise_level)), 
                  nrow=nrow(D_sim), ncol=ncol(D_sim))
       ### Have to flip some of the size
     }
@@ -331,14 +331,14 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   
   #### Step 6: Run method
-  for (alpha in c(0.1, 1, 2, 4, 8)){
+  for (alpha in c(0.1, 0.5 , 1, 2, 4, 8)){
     score_ours <- tryCatch(
       score(D = t(data$D), K=K, normalize = 'huy', 
             threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
             VHMethod=VHMethod),
       error = function(err) {
         # Code to handle the error (e.g., print an error message, log the error, etc.)
-        cat("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
+        paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
         # Return a default value or NULL to continue with the rest of the code
         return(NULL)
       }
