@@ -4,7 +4,7 @@ select_K <- function(eigenvals, p,n, N, method="huy"){
     thresh = 8 * log(min(p, n)) * sqrt( n * log(min(p, n))/ N)
   }else{
     if(method == "olga"){
-      thresh = 4 *  sqrt( n * log(p + n)/ N)
+      thresh = 4 * sqrt( n * log(p + n)/ N)
     }else{
       if(method == "tracy"){
         if (n > max(N *p^2, p^3, N^2 * p^5)){
