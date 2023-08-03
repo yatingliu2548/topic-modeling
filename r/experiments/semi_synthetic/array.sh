@@ -3,7 +3,7 @@
 #SBATCH --job-name=array
 #SBATCH --output=r/experiments/semi_synthetic/logs/array_%A_%a.out
 #SBATCH --error=r/experiments/semi_synthetic/logs/array_%A_%a.err
-#SBATCH --array=1-25
+#SBATCH --array=1-20
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
 #SBATCH --ntasks=1
