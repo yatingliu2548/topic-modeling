@@ -102,6 +102,7 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
     A = exp(t(ap_lda@beta))
     W = ap_lda@gamma
     Epsilon = mean(abs(as.matrix(D) - as.matrix(W) %*% t(as.matrix(A))))
+
   }else{
     D_sim <- as.matrix(W)[selected_docs,] %*% t(as.matrix(A))
   }
@@ -153,7 +154,8 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
   if (length(words2remove) >0){
     return(list(D=D_synth[, -words2remove], vocab=vocab[-words2remove], 
                 A = A[-words2remove, ], W =W[selected_docs,],
-                Aoriginal=A, Woriginal = W, original_vocab = vocab))
+                Aoriginal=A, Woriginal = W, original_vocab = vocab,
+                Epsilon = Epsilon))
   }else{
     return(list(D=D_synth, vocab=vocab, 
                 A = A, W =W[selected_docs,],
