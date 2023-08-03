@@ -221,6 +221,19 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     ggtern(data = data.frame(data$W), aes(x = X1, y = X2, z = X3)) +
            geom_point(size = 3) +
            theme_bw()
+    
+    ### check the words
+    q = 0.5
+    norm = sqrt(apply(data$A^2,1,sum))^q
+    sorted = sort(norm, index.return=T, decreasing=TRUE)
+    res = data.frame(norm = sorted$x, ix = sorted$ix, x = 1:length(norm))
+    ggplot(res, aes(x=x, y=norm * x)) + geom_point()
+    
+    counts = sort(apply(data$D,2,sum), decreasing=TRUE)
+    ggplot(data.frame(x=log(1:length(counts)), c =log(counts))) + geom_line(aes(x=x, y=c)) + 
+      geom_abline(aes(intercept =counts[1]-1, slope = -1), color = "blue")
+    
+    plot(sapply(1:length(norm), function(i){ i * norm[i]} ))
   }
   p = dim(data$D)[2]
   print(sprintf("Dim of data D = %s, %s", dim(data$D)[1], dim(data$D)[2]))
@@ -360,7 +373,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   return(list(#resultsA=resultsA, resultsW=resultsW,
               error=error, A=data$A, W=data$W, Aoriginal=data$Aoriginal, 
-              Woriginal=data$Woriginal, Epsilon=Epsilon, vocab=data$original_vocab,
+              Woriginal=data$Woriginal, Epsilon=data$Epsilon, vocab=data$original_vocab,
               Khat_huy=Khat_huy$Khat,
               Khat_huy_thresh = Khat_huy$thresh,
               Khat_olga=Khat_olga$Khat,
