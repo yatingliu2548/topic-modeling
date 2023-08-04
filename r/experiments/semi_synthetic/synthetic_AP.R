@@ -149,11 +149,12 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
 
   print(sprintf("Dim of data D_synth = %s, %s", dim(D_synth)[1], dim(D_synth)[2]))
   counts = apply(D_synth, 2, sum)
-  words2remove = which(counts < 2)
+  words2remove = which(counts < 1)
   print(sprintf("Dim of words2remove = %s", length(words2remove)))
   if (length(words2remove) >0){
+    Atemp = A[-words2remove, ]
     return(list(D=D_synth[, -words2remove], vocab=vocab[-words2remove], 
-                A = A[-words2remove, ], W =W[selected_docs,],
+                A = Atemp %*% diag(1/apply(Atemp,2, sum)), W =W[selected_docs,],
                 Aoriginal=A, Woriginal = W, original_vocab = vocab,
                 Epsilon = Epsilon))
   }else{
@@ -250,7 +251,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
   # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
-  error <- update_error(Ahat_lda, What_lda, data$A, (data$W), method = "LDA", error=NULL,
+  error <- update_error(Ahat_lda, t(What_lda), data$A, t(data$W), method = "LDA", error=NULL,
                         thresholded = 0)
   
   #### Step 2: Run Tracy's method
@@ -262,7 +263,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   # resultsW <- rbind(resultsW,
   #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
   
-  error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, data$W, method = "TopicScore", error=error,
+  error <- update_error(score_recovery$A_hat, (score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
                         thresholded = 0)
 
   ### Step 3: Run AWR
@@ -282,7 +283,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
-    error <- update_error(Ahat_awr, What_awr, data$A, t(data$W), method = "AWR", error=error)
+    error <- update_error(Ahat_awr, (What_awr), data$A, t(data$W), method = "AWR", error=error)
   }
 
   
@@ -305,7 +306,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
     # resultsW <- rbind(resultsW, 
     #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
-    error <- update_error(resultTSVD$Ahat$M.hat, resultTSVD$What, data$A, t(data$W), method = "TSVD", error=error)
+    error <- update_error(resultTSVD$Ahat$M.hat, (resultTSVD$What), data$A, t(data$W), method = "TSVD", error=error)
   }
   
   
@@ -363,7 +364,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
       #                   process_results(score_ours$A_hat, paste0("Ours_", alpha), data$vocab))
       # resultsW <- rbind(resultsW,
       #                   process_results(score_ours$W_hat, paste0("Ours_", alpha), seq_len(n), processingA=FALSE))
-      error <- update_error(score_ours$A_hat, score_ours$W_hat, data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
+      error <- update_error(score_ours$A_hat, (score_ours$W_hat), data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
                             thresholded=score_ours$thresholded)
       Khat_huy = select_K(score_ours$eigenvalues, p,n, N, method="huy")
     }
