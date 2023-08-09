@@ -226,9 +226,11 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
            theme_bw()
     
     ### check the words
-    q = 0.5
-    norm = sqrt(apply(data$A^2,1,sum))^q
-    sorted = sort(norm, index.return=T, decreasing=TRUE)
+
+    norm = sqrt(apply(data$A^2,1,sum))
+    sorted = sort(norm, index.return=T, decreasing=TRUE) 
+    test= sorted$x * (1:length(sorted$x))#### Doesn't verify the assumption really
+    print(max(test))
     res = data.frame(norm = sorted$x, ix = sorted$ix, x = 1:length(norm))
     ggplot(res, aes(x=x, y=norm * x)) + geom_point()
     

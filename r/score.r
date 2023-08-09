@@ -65,6 +65,9 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     threshold_J = alpha * sqrt(log(min(p,n))/(N *n))
     print(paste0("Threshold: ", threshold_J))
     setJ = which(M > threshold_J)
+    if (length(setJ) < 0.1 * length(M)){
+      setJ = sort(M, decreasing=TRUE, index.return=TRUE)$ix[1:ceiling( 0.1 * length(M))]
+    }
     newD = D[setJ,]
     M = M[setJ]
     if(normalize == "norm_score_N"){
