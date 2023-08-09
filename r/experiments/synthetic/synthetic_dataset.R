@@ -1,6 +1,6 @@
 library(VGAM)
 library(tidyverse)
-library(ggtern)
+#library(ggtern)
 library(tm)
 library(topicmodels)
 library(R.matlab)
@@ -16,9 +16,9 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
   
   set.seed(seed)
   W <- rdiric(n, rep(alpha, K))
-  ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
-    geom_point(size = 3) +
-    theme_bw()
+  #ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
+  #  geom_point(size = 3) +
+  #  theme_bw()
   # 
   if (n_anchors >0){
     A = matrix(0, nrow=K, ncol=p)
@@ -45,7 +45,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                      n_anchors=0, delta_anchor=1, N=500,
                                      noise_generation = "uniform", seed=1, VHMethod="SVS"){
   
-  data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=5 * 1e5, a_zipf=a_zipf,
+  data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=50000, a_zipf=a_zipf,
                                     n_anchors=n_anchors, delta_anchor=delta_anchor, 
                                     N=N, seed=seed)
   #### Run check
@@ -101,23 +101,23 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   ### Step 4: Run TSVD
   
-  id = ceiling(runif(n=1, max=1e6))
-  resultTSVD <- tryCatch(
-    TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-    error = function(err) {
+ # id = ceiling(runif(n=1, max=1e6))
+ # resultTSVD <- tryCatch(
+ #   TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+ #   error = function(err) {
       # Code to handle the error (e.g., print an error message, log the error, etc.)
-      cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
+ #     cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
       # Return a default value or NULL to continue with the rest of the code
-      return(NULL)
-    }
-  )
-  if (is.null(resultTSVD) == FALSE){
+ #     return(NULL)
+ #   }
+ # )
+ # if (is.null(resultTSVD) == FALSE){
     # resultsA <- rbind(resultsA, 
     #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
     # resultsW <- rbind(resultsW, 
     #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
-    error <- update_error(resultTSVD$Ahat$M.hat, (resultTSVD$What), data$A, t(data$W), method = "TSVD", error=error)
-  }
+ #   error <- update_error(resultTSVD$Ahat$M.hat, (resultTSVD$What), data$A, t(data$W), method = "TSVD", error=error)
+ # }
   
   
   ### Step 5: Run Bing's method

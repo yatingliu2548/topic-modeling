@@ -3,7 +3,7 @@
 #SBATCH --job-name=array
 #SBATCH --output=r/experiments/semi_synthetic/logs/array_%A_%a.out
 #SBATCH --error=r/experiments/semi_synthetic/logs/array_%A_%a.err
-#SBATCH --array=1-20
+#SBATCH --array=1-10
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
 #SBATCH --ntasks=1
@@ -20,7 +20,7 @@ module load R/4.2.0
 module load matlab
 
 MATLAB_PATH="/software/matlab-2023a-el8-x86_64/bin/matlab"
-result_file="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1_withNoise"
+result_file="final_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/topic-modeling/
 working_dir="${SCRATCH}/${USER}/topic-modeling/"

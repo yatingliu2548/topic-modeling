@@ -14,13 +14,15 @@ anchors = c(0, 1, 5, 10)
 tot = sapply(anchors, function(x){x * K})
 p = 10000
 
-for (exp_seed in 1:50){
+for (exp_seed in 1:10){
   for (n in c(c(100, 250, 500, 250, 1000), 2000)){
     for (N in c(50, 100, 300, 500, 750, 1000, 2000, 3000, 5000, 10000)){
       for (n_anchors in anchors){
         for (p in c(1000, 5000, 10000, 50000, 100000)){
           for (a_zipf in c(0.5, 1, 2, 4)){
-            if (K <5){
+           #K=3
+           #seed = 1
+           if (K <5){
               VHMethod = "SVS"
             }else{
               VHMethod = "SP"
@@ -40,7 +42,7 @@ for (exp_seed in 1:50){
             error_temp["p"] = p
             error_temp["seed"] =  100 * seed + exp_seed
             error_temp["n_anchors"] =  n_anchors
-            error_temp["noise_generation"] =  noise_generation
+           
             error_temp["alpha"] = a_zipf
             error_temp["exp"] = result_file
             error_temp["VHMethod"] = VHMethod

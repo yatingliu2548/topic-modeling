@@ -1,0 +1,2159 @@
+My SLURM_ARRAY_TASK_ID:  2
+My SLURM_ARRAY_JOB_ID:  7663694
+result file is 7663694_2_100
+[1] "here"
+[1] "Dim of data D = 100, 969"
+[1] "Dim of data A = 969, 100"
+[1] 100 969 100
+[1] "Start VH"
+[1] "here it is 1"
+[1] "Length set is 0 and dim(Y)[1]=969"
+[1] "here it is 2"
+[1] "Length set is 1 and dim(Y)[1]=969"
+[1] "here it is 3"
+[1] "Length set is 2 and dim(Y)[1]=969"
+[1] "here it is 4"
+[1] "Length set is 3 and dim(Y)[1]=969"
+[1] "here it is 5"
+[1] "Length set is 4 and dim(Y)[1]=969"
+[1] "here it is 6"
+[1] "Length set is 5 and dim(Y)[1]=969"
+[1] "here it is 7"
+[1] "Length set is 6 and dim(Y)[1]=969"
+[1] "here it is 8"
+[1] "Length set is 7 and dim(Y)[1]=969"
+[1] "yoho"
+[1] "here it is 9"
+[1] "Length set is 8 and dim(Y)[1]=968"
+[1] "here it is 10"
+[1] "Length set is 9 and dim(Y)[1]=968"
+[1] "here it is 11"
+[1] "Length set is 10 and dim(Y)[1]=968"
+[1] "here it is 12"
+[1] "Length set is 11 and dim(Y)[1]=968"
+[1] "here it is 13"
+[1] "Length set is 12 and dim(Y)[1]=968"
+[1] "here it is 14"
+[1] "Length set is 13 and dim(Y)[1]=968"
+[1] "here it is 15"
+[1] "Length set is 14 and dim(Y)[1]=968"
+[1] "here it is 16"
+[1] "Length set is 15 and dim(Y)[1]=968"
+[1] "here it is 17"
+[1] "Length set is 16 and dim(Y)[1]=968"
+[1] "here it is 18"
+[1] "Length set is 17 and dim(Y)[1]=968"
+[1] "here it is 19"
+[1] "Length set is 18 and dim(Y)[1]=968"
+[1] "here it is 20"
+[1] "Length set is 19 and dim(Y)[1]=968"
+[1] "here it is 21"
+[1] "Length set is 20 and dim(Y)[1]=968"
+[1] "here it is 22"
+[1] "Length set is 21 and dim(Y)[1]=968"
+[1] "here it is 23"
+[1] "Length set is 22 and dim(Y)[1]=968"
+[1] "here it is 24"
+[1] "Length set is 23 and dim(Y)[1]=968"
+[1] "here it is 25"
+[1] "Length set is 24 and dim(Y)[1]=968"
+[1] "here it is 26"
+[1] "Length set is 25 and dim(Y)[1]=968"
+[1] "yoho"
+[1] "here it is 27"
+[1] "Length set is 26 and dim(Y)[1]=967"
+[1] "here it is 28"
+[1] "Length set is 27 and dim(Y)[1]=967"
+[1] "here it is 29"
+[1] "Length set is 28 and dim(Y)[1]=967"
+[1] "here it is 30"
+[1] "Length set is 29 and dim(Y)[1]=967"
+[1] "here it is 31"
+[1] "Length set is 30 and dim(Y)[1]=967"
+[1] "here it is 32"
+[1] "Length set is 31 and dim(Y)[1]=967"
+[1] "here it is 33"
+[1] "Length set is 32 and dim(Y)[1]=967"
+[1] "here it is 34"
+[1] "Length set is 33 and dim(Y)[1]=967"
+[1] "here it is 35"
+[1] "Length set is 34 and dim(Y)[1]=967"
+[1] "here it is 36"
+[1] "Length set is 35 and dim(Y)[1]=967"
+[1] "here it is 37"
+[1] "Length set is 36 and dim(Y)[1]=967"
+[1] "here it is 38"
+[1] "Length set is 37 and dim(Y)[1]=967"
+[1] "here it is 39"
+[1] "Length set is 38 and dim(Y)[1]=967"
+[1] "here it is 40"
+[1] "Length set is 39 and dim(Y)[1]=967"
+[1] "here it is 41"
+[1] "Length set is 40 and dim(Y)[1]=967"
+[1] "here it is 42"
+[1] "Length set is 41 and dim(Y)[1]=967"
+[1] "here it is 43"
+[1] "Length set is 42 and dim(Y)[1]=967"
+[1] "here it is 44"
+[1] "Length set is 43 and dim(Y)[1]=967"
+[1] "here it is 45"
+[1] "Length set is 44 and dim(Y)[1]=967"
+[1] "here it is 46"
+[1] "Length set is 45 and dim(Y)[1]=967"
+[1] "yoho"
+[1] "here it is 47"
+[1] "Length set is 46 and dim(Y)[1]=966"
+[1] "here it is 48"
+[1] "Length set is 47 and dim(Y)[1]=966"
+[1] "yoho"
+[1] "here it is 49"
+[1] "Length set is 48 and dim(Y)[1]=965"
+[1] "here it is 50"
+[1] "Length set is 49 and dim(Y)[1]=965"
+[1] "here it is 51"
+[1] "Length set is 50 and dim(Y)[1]=965"
+[1] "here it is 52"
+[1] "Length set is 51 and dim(Y)[1]=965"
+[1] "here it is 53"
+[1] "Length set is 52 and dim(Y)[1]=965"
+[1] "here it is 54"
+[1] "Length set is 53 and dim(Y)[1]=965"
+[1] "here it is 55"
+[1] "Length set is 54 and dim(Y)[1]=965"
+[1] "here it is 56"
+[1] "Length set is 55 and dim(Y)[1]=965"
+[1] "here it is 57"
+[1] "Length set is 56 and dim(Y)[1]=965"
+[1] "here it is 58"
+[1] "Length set is 57 and dim(Y)[1]=965"
+[1] "here it is 59"
+[1] "Length set is 58 and dim(Y)[1]=965"
+[1] "here it is 60"
+[1] "Length set is 59 and dim(Y)[1]=965"
+[1] "here it is 61"
+[1] "Length set is 60 and dim(Y)[1]=965"
+[1] "here it is 62"
+[1] "Length set is 61 and dim(Y)[1]=965"
+[1] "here it is 63"
+[1] "Length set is 62 and dim(Y)[1]=965"
+[1] "here it is 64"
+[1] "Length set is 63 and dim(Y)[1]=965"
+[1] "here it is 65"
+[1] "Length set is 64 and dim(Y)[1]=965"
+[1] "here it is 66"
+[1] "Length set is 65 and dim(Y)[1]=965"
+[1] "here it is 67"
+[1] "Length set is 66 and dim(Y)[1]=965"
+[1] "here it is 68"
+[1] "Length set is 67 and dim(Y)[1]=965"
+[1] "here it is 69"
+[1] "Length set is 68 and dim(Y)[1]=965"
+[1] "yoho"
+[1] "here it is 70"
+[1] "Length set is 69 and dim(Y)[1]=964"
+[1] "here it is 71"
+[1] "Length set is 70 and dim(Y)[1]=964"
+[1] "here it is 72"
+[1] "Length set is 71 and dim(Y)[1]=964"
+[1] "here it is 73"
+[1] "Length set is 72 and dim(Y)[1]=964"
+[1] "here it is 74"
+[1] "Length set is 73 and dim(Y)[1]=964"
+[1] "here it is 75"
+[1] "Length set is 74 and dim(Y)[1]=964"
+[1] "here it is 76"
+[1] "Length set is 75 and dim(Y)[1]=964"
+[1] "here it is 77"
+[1] "Length set is 76 and dim(Y)[1]=964"
+[1] "here it is 78"
+[1] "Length set is 77 and dim(Y)[1]=964"
+[1] "here it is 79"
+[1] "Length set is 78 and dim(Y)[1]=964"
+[1] "here it is 80"
+[1] "Length set is 79 and dim(Y)[1]=964"
+[1] "here it is 81"
+[1] "Length set is 80 and dim(Y)[1]=964"
+[1] "here it is 82"
+[1] "Length set is 81 and dim(Y)[1]=964"
+[1] "here it is 83"
+[1] "Length set is 82 and dim(Y)[1]=964"
+[1] "here it is 84"
+[1] "Length set is 83 and dim(Y)[1]=964"
+[1] "here it is 85"
+[1] "Length set is 84 and dim(Y)[1]=964"
+[1] "here it is 86"
+[1] "Length set is 85 and dim(Y)[1]=964"
+[1] "here it is 87"
+[1] "Length set is 86 and dim(Y)[1]=964"
+[1] "here it is 88"
+[1] "Length set is 87 and dim(Y)[1]=964"
+[1] "here it is 89"
+[1] "Length set is 88 and dim(Y)[1]=964"
+[1] "here it is 90"
+[1] "Length set is 89 and dim(Y)[1]=964"
+[1] "here it is 91"
+[1] "Length set is 90 and dim(Y)[1]=964"
+[1] "here it is 92"
+[1] "Length set is 91 and dim(Y)[1]=964"
+[1] "here it is 93"
+[1] "Length set is 92 and dim(Y)[1]=964"
+[1] "here it is 94"
+[1] "Length set is 93 and dim(Y)[1]=964"
+[1] "here it is 95"
+[1] "Length set is 94 and dim(Y)[1]=964"
+[1] "here it is 96"
+[1] "Length set is 95 and dim(Y)[1]=964"
+[1] "here it is 97"
+[1] "Length set is 96 and dim(Y)[1]=964"
+[1] "here it is 98"
+[1] "Length set is 97 and dim(Y)[1]=964"
+[1] "here it is 99"
+[1] "Length set is 98 and dim(Y)[1]=964"
+[1] "here it is 100"
+[1] "Length set is 99 and dim(Y)[1]=964"
+[1] "Start Step 3"
+[1] "Start estimation of W"
+[1] 643.968
+[1] 14.96991
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2023 The MathWorks, Inc.
+             R2023a Update 3 (9.14.0.2286388) 64-bit (glnxa64)
+                                May 25, 2023
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+
+No of documents read:100
+Thresholding on A
+Error occurred while running TSVD: cannot open the connection 
+identifying candidate anchors
+[48 46 48 46 48 46 48 50 49 49 50 49 50 46 49 49 49 47 48 48 46 48 49 50
+ 49 46 50 50 47 48 48 48 50 49 49 50 48 50 49 50 50 49 46 49 49 49 49 50
+ 50 49 49 49 49 50 48 49 49 49 48 50 50 48 48 47 50 49 49 50 50 48 48 48
+ 49 50 47 49 50 47 47 49 50 49 48 49 49 48 48 50 48 48 50 49 49 47 50 48
+ 47 48 46 49]
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+969 candidates
+uiiii
+here
+Sum of entries in Q is  -0.020408163265306128
+Multiplying Q took  0.015647411346435547 seconds
+yeyye
+Q sum is -0.020408163265306128
+done reading documents
+anchors are:
+[0, 109]
+[1, 129]
+[2, 574]
+[3, 575]
+[4, 457]
+[5, 192]
+[6, 715]
+[7, 233]
+[8, 555]
+[9, 861]
+[10, 819]
+[11, 676]
+[12, 795]
+[13, 619]
+[14, 725]
+[15, 885]
+[16, 655]
+[17, 285]
+[18, 590]
+[19, 387]
+[20, 362]
+[21, 382]
+[22, 315]
+[23, 410]
+[24, 580]
+[25, 87]
+[26, 767]
+[27, 351]
+[28, 473]
+[29, 884]
+[30, 268]
+[31, 377]
+[32, 748]
+[33, 842]
+[34, 814]
+[35, 852]
+[36, 982]
+[37, 99]
+[38, 152]
+[39, 308]
+[40, 684]
+[41, 679]
+[42, 359]
+[43, 69]
+[44, 579]
+[45, 277]
+[46, 824]
+[47, 401]
+[48, 652]
+[49, 92]
+[50, 465]
+[51, 787]
+[52, 964]
+[53, 670]
+[54, 623]
+[55, 611]
+[56, 877]
+[57, 818]
+[58, 770]
+[59, 58]
+[60, 729]
+[61, 407]
+[62, 862]
+[63, 185]
+[64, 817]
+[65, 650]
+[66, 529]
+[67, 458]
+[68, 166]
+[69, 182]
+[70, 949]
+[71, 799]
+[72, 342]
+[73, 196]
+[74, 793]
+[75, 138]
+[76, 944]
+[77, 971]
+[78, 985]
+[79, 24]
+[80, 813]
+[81, 96]
+[82, 271]
+[83, 124]
+[84, 104]
+[85, 533]
+[86, 906]
+[87, 478]
+[88, 808]
+[89, 933]
+[90, 264]
+[91, 638]
+[92, 292]
+[93, 782]
+[94, 311]
+[95, 460]
+[96, 553]
+[97, 151]
+[98, 269]
+[99, 167]
+done recovering
+[1] 100 969 100  50
+[1] "Threshold: 0.00303485425877029"
+[1] "0 words were thresholded (0%)"
+[1] "969 words remain"
+[1] "Start VH"
+[1] "here it is 1"
+[1] "Length set is 0 and dim(Y)[1]=969"
+[1] "here it is 2"
+[1] "Length set is 1 and dim(Y)[1]=969"
+[1] "yoho"
+[1] "here it is 3"
+[1] "Length set is 2 and dim(Y)[1]=968"
+[1] "here it is 4"
+[1] "Length set is 3 and dim(Y)[1]=968"
+[1] "here it is 5"
+[1] "Length set is 4 and dim(Y)[1]=968"
+[1] "here it is 6"
+[1] "Length set is 5 and dim(Y)[1]=968"
+[1] "here it is 7"
+[1] "Length set is 6 and dim(Y)[1]=968"
+[1] "here it is 8"
+[1] "Length set is 7 and dim(Y)[1]=968"
+[1] "here it is 9"
+[1] "Length set is 8 and dim(Y)[1]=968"
+[1] "here it is 10"
+[1] "Length set is 9 and dim(Y)[1]=968"
+[1] "here it is 11"
+[1] "Length set is 10 and dim(Y)[1]=968"
+[1] "here it is 12"
+[1] "Length set is 11 and dim(Y)[1]=968"
+[1] "here it is 13"
+[1] "Length set is 12 and dim(Y)[1]=968"
+[1] "here it is 14"
+[1] "Length set is 13 and dim(Y)[1]=968"
+[1] "here it is 15"
+[1] "Length set is 14 and dim(Y)[1]=968"
+[1] "here it is 16"
+[1] "Length set is 15 and dim(Y)[1]=968"
+[1] "here it is 17"
+[1] "Length set is 16 and dim(Y)[1]=968"
+[1] "here it is 18"
+[1] "Length set is 17 and dim(Y)[1]=968"
+[1] "here it is 19"
+[1] "Length set is 18 and dim(Y)[1]=968"
+[1] "here it is 20"
+[1] "Length set is 19 and dim(Y)[1]=968"
+[1] "here it is 21"
+[1] "Length set is 20 and dim(Y)[1]=968"
+[1] "here it is 22"
+[1] "Length set is 21 and dim(Y)[1]=968"
+[1] "here it is 23"
+[1] "Length set is 22 and dim(Y)[1]=968"
+[1] "here it is 24"
+[1] "Length set is 23 and dim(Y)[1]=968"
+[1] "here it is 25"
+[1] "Length set is 24 and dim(Y)[1]=968"
+[1] "here it is 26"
+[1] "Length set is 25 and dim(Y)[1]=968"
+[1] "here it is 27"
+[1] "Length set is 26 and dim(Y)[1]=968"
+[1] "here it is 28"
+[1] "Length set is 27 and dim(Y)[1]=968"
+[1] "here it is 29"
+[1] "Length set is 28 and dim(Y)[1]=968"
+[1] "here it is 30"
+[1] "Length set is 29 and dim(Y)[1]=968"
+[1] "here it is 31"
+[1] "Length set is 30 and dim(Y)[1]=968"
+[1] "here it is 32"
+[1] "Length set is 31 and dim(Y)[1]=968"
+[1] "here it is 33"
+[1] "Length set is 32 and dim(Y)[1]=968"
+[1] "here it is 34"
+[1] "Length set is 33 and dim(Y)[1]=968"
+[1] "here it is 35"
+[1] "Length set is 34 and dim(Y)[1]=968"
+[1] "here it is 36"
+[1] "Length set is 35 and dim(Y)[1]=968"
+[1] "here it is 37"
+[1] "Length set is 36 and dim(Y)[1]=968"
+[1] "here it is 38"
+[1] "Length set is 37 and dim(Y)[1]=968"
+[1] "here it is 39"
+[1] "Length set is 38 and dim(Y)[1]=968"
+[1] "yoho"
+[1] "here it is 40"
+[1] "Length set is 39 and dim(Y)[1]=967"
+[1] "here it is 41"
+[1] "Length set is 40 and dim(Y)[1]=967"
+[1] "here it is 42"
+[1] "Length set is 41 and dim(Y)[1]=967"
+[1] "here it is 43"
+[1] "Length set is 42 and dim(Y)[1]=967"
+[1] "here it is 44"
+[1] "Length set is 43 and dim(Y)[1]=967"
+[1] "here it is 45"
+[1] "Length set is 44 and dim(Y)[1]=967"
+[1] "here it is 46"
+[1] "Length set is 45 and dim(Y)[1]=967"
+[1] "here it is 47"
+[1] "Length set is 46 and dim(Y)[1]=967"
+[1] "here it is 48"
+[1] "Length set is 47 and dim(Y)[1]=967"
+[1] "here it is 49"
+[1] "Length set is 48 and dim(Y)[1]=967"
+[1] "here it is 50"
+[1] "Length set is 49 and dim(Y)[1]=967"
+[1] "here it is 51"
+[1] "Length set is 50 and dim(Y)[1]=967"
+[1] "here it is 52"
+[1] "Length set is 51 and dim(Y)[1]=967"
+[1] "here it is 53"
+[1] "Length set is 52 and dim(Y)[1]=967"
+[1] "here it is 54"
+[1] "Length set is 53 and dim(Y)[1]=967"
+[1] "here it is 55"
+[1] "Length set is 54 and dim(Y)[1]=967"
+[1] "here it is 56"
+[1] "Length set is 55 and dim(Y)[1]=967"
+[1] "here it is 57"
+[1] "Length set is 56 and dim(Y)[1]=967"
+[1] "here it is 58"
+[1] "Length set is 57 and dim(Y)[1]=967"
+[1] "here it is 59"
+[1] "Length set is 58 and dim(Y)[1]=967"
+[1] "here it is 60"
+[1] "Length set is 59 and dim(Y)[1]=967"
+[1] "here it is 61"
+[1] "Length set is 60 and dim(Y)[1]=967"
+[1] "here it is 62"
+[1] "Length set is 61 and dim(Y)[1]=967"
+[1] "here it is 63"
+[1] "Length set is 62 and dim(Y)[1]=967"
+[1] "here it is 64"
+[1] "Length set is 63 and dim(Y)[1]=967"
+[1] "here it is 65"
+[1] "Length set is 64 and dim(Y)[1]=967"
+[1] "here it is 66"
+[1] "Length set is 65 and dim(Y)[1]=967"
+[1] "here it is 67"
+[1] "Length set is 66 and dim(Y)[1]=967"
+[1] "here it is 68"
+[1] "Length set is 67 and dim(Y)[1]=967"
+[1] "here it is 69"
+[1] "Length set is 68 and dim(Y)[1]=967"
+[1] "here it is 70"
+[1] "Length set is 69 and dim(Y)[1]=967"
+[1] "here it is 71"
+[1] "Length set is 70 and dim(Y)[1]=967"
+[1] "here it is 72"
+[1] "Length set is 71 and dim(Y)[1]=967"
+[1] "here it is 73"
+[1] "Length set is 72 and dim(Y)[1]=967"
+[1] "here it is 74"
+[1] "Length set is 73 and dim(Y)[1]=967"
+[1] "here it is 75"
+[1] "Length set is 74 and dim(Y)[1]=967"
+[1] "here it is 76"
+[1] "Length set is 75 and dim(Y)[1]=967"
+[1] "here it is 77"
+[1] "Length set is 76 and dim(Y)[1]=967"
+[1] "here it is 78"
+[1] "Length set is 77 and dim(Y)[1]=967"
+[1] "here it is 79"
+[1] "Length set is 78 and dim(Y)[1]=967"
+[1] "here it is 80"
+[1] "Length set is 79 and dim(Y)[1]=967"
+[1] "here it is 81"
+[1] "Length set is 80 and dim(Y)[1]=967"
+[1] "here it is 82"
+[1] "Length set is 81 and dim(Y)[1]=967"
+[1] "here it is 83"
+[1] "Length set is 82 and dim(Y)[1]=967"
+[1] "here it is 84"
+[1] "Length set is 83 and dim(Y)[1]=967"
+[1] "here it is 85"
+[1] "Length set is 84 and dim(Y)[1]=967"
+[1] "here it is 86"
+[1] "Length set is 85 and dim(Y)[1]=967"
+[1] "here it is 87"
+[1] "Length set is 86 and dim(Y)[1]=967"
+[1] "here it is 88"
+[1] "Length set is 87 and dim(Y)[1]=967"
+[1] "here it is 89"
+[1] "Length set is 88 and dim(Y)[1]=967"
+[1] "here it is 90"
+[1] "Length set is 89 and dim(Y)[1]=967"
+[1] "here it is 91"
+[1] "Length set is 90 and dim(Y)[1]=967"
+[1] "here it is 92"
+[1] "Length set is 91 and dim(Y)[1]=967"
+[1] "here it is 93"
+[1] "Length set is 92 and dim(Y)[1]=967"
+[1] "here it is 94"
+[1] "Length set is 93 and dim(Y)[1]=967"
+[1] "here it is 95"
+[1] "Length set is 94 and dim(Y)[1]=967"
+[1] "here it is 96"
+[1] "Length set is 95 and dim(Y)[1]=967"
+[1] "here it is 97"
+[1] "Length set is 96 and dim(Y)[1]=967"
+[1] "here it is 98"
+[1] "Length set is 97 and dim(Y)[1]=967"
+[1] "here it is 99"
+[1] "Length set is 98 and dim(Y)[1]=967"
+[1] "here it is 100"
+[1] "Length set is 99 and dim(Y)[1]=967"
+[1] "Start Step 3"
+[1] "Start estimation of W"
+[1] 111.8082
+[1] 100 969 100  50
+[1] "Threshold: 0.0151742712938515"
+[1] "67 words were thresholded (6.91434468524252%)"
+[1] "902 words remain"
+[1] "Start VH"
+[1] "here it is 1"
+[1] "Length set is 0 and dim(Y)[1]=902"
+[1] "here it is 2"
+[1] "Length set is 1 and dim(Y)[1]=902"
+[1] "here it is 3"
+[1] "Length set is 2 and dim(Y)[1]=902"
+[1] "here it is 4"
+[1] "Length set is 3 and dim(Y)[1]=902"
+[1] "here it is 5"
+[1] "Length set is 4 and dim(Y)[1]=902"
+[1] "here it is 6"
+[1] "Length set is 5 and dim(Y)[1]=902"
+[1] "here it is 7"
+[1] "Length set is 6 and dim(Y)[1]=902"
+[1] "here it is 8"
+[1] "Length set is 7 and dim(Y)[1]=902"
+[1] "here it is 9"
+[1] "Length set is 8 and dim(Y)[1]=902"
+[1] "here it is 10"
+[1] "Length set is 9 and dim(Y)[1]=902"
+[1] "here it is 11"
+[1] "Length set is 10 and dim(Y)[1]=902"
+[1] "here it is 12"
+[1] "Length set is 11 and dim(Y)[1]=902"
+[1] "here it is 13"
+[1] "Length set is 12 and dim(Y)[1]=902"
+[1] "here it is 14"
+[1] "Length set is 13 and dim(Y)[1]=902"
+[1] "here it is 15"
+[1] "Length set is 14 and dim(Y)[1]=902"
+[1] "here it is 16"
+[1] "Length set is 15 and dim(Y)[1]=902"
+[1] "here it is 17"
+[1] "Length set is 16 and dim(Y)[1]=902"
+[1] "here it is 18"
+[1] "Length set is 17 and dim(Y)[1]=902"
+[1] "here it is 19"
+[1] "Length set is 18 and dim(Y)[1]=902"
+[1] "here it is 20"
+[1] "Length set is 19 and dim(Y)[1]=902"
+[1] "here it is 21"
+[1] "Length set is 20 and dim(Y)[1]=902"
+[1] "here it is 22"
+[1] "Length set is 21 and dim(Y)[1]=902"
+[1] "here it is 23"
+[1] "Length set is 22 and dim(Y)[1]=902"
+[1] "here it is 24"
+[1] "Length set is 23 and dim(Y)[1]=902"
+[1] "here it is 25"
+[1] "Length set is 24 and dim(Y)[1]=902"
+[1] "here it is 26"
+[1] "Length set is 25 and dim(Y)[1]=902"
+[1] "here it is 27"
+[1] "Length set is 26 and dim(Y)[1]=902"
+[1] "here it is 28"
+[1] "Length set is 27 and dim(Y)[1]=902"
+[1] "here it is 29"
+[1] "Length set is 28 and dim(Y)[1]=902"
+[1] "here it is 30"
+[1] "Length set is 29 and dim(Y)[1]=902"
+[1] "here it is 31"
+[1] "Length set is 30 and dim(Y)[1]=902"
+[1] "here it is 32"
+[1] "Length set is 31 and dim(Y)[1]=902"
+[1] "here it is 33"
+[1] "Length set is 32 and dim(Y)[1]=902"
+[1] "here it is 34"
+[1] "Length set is 33 and dim(Y)[1]=902"
+[1] "here it is 35"
+[1] "Length set is 34 and dim(Y)[1]=902"
+[1] "here it is 36"
+[1] "Length set is 35 and dim(Y)[1]=902"
+[1] "here it is 37"
+[1] "Length set is 36 and dim(Y)[1]=902"
+[1] "here it is 38"
+[1] "Length set is 37 and dim(Y)[1]=902"
+[1] "here it is 39"
+[1] "Length set is 38 and dim(Y)[1]=902"
+[1] "here it is 40"
+[1] "Length set is 39 and dim(Y)[1]=902"
+[1] "here it is 41"
+[1] "Length set is 40 and dim(Y)[1]=902"
+[1] "here it is 42"
+[1] "Length set is 41 and dim(Y)[1]=902"
+[1] "here it is 43"
+[1] "Length set is 42 and dim(Y)[1]=902"
+[1] "here it is 44"
+[1] "Length set is 43 and dim(Y)[1]=902"
+[1] "here it is 45"
+[1] "Length set is 44 and dim(Y)[1]=902"
+[1] "here it is 46"
+[1] "Length set is 45 and dim(Y)[1]=902"
+[1] "here it is 47"
+[1] "Length set is 46 and dim(Y)[1]=902"
+[1] "here it is 48"
+[1] "Length set is 47 and dim(Y)[1]=902"
+[1] "here it is 49"
+[1] "Length set is 48 and dim(Y)[1]=902"
+[1] "here it is 50"
+[1] "Length set is 49 and dim(Y)[1]=902"
+[1] "here it is 51"
+[1] "Length set is 50 and dim(Y)[1]=902"
+[1] "here it is 52"
+[1] "Length set is 51 and dim(Y)[1]=902"
+[1] "here it is 53"
+[1] "Length set is 52 and dim(Y)[1]=902"
+[1] "here it is 54"
+[1] "Length set is 53 and dim(Y)[1]=902"
+[1] "here it is 55"
+[1] "Length set is 54 and dim(Y)[1]=902"
+[1] "here it is 56"
+[1] "Length set is 55 and dim(Y)[1]=902"
+[1] "here it is 57"
+[1] "Length set is 56 and dim(Y)[1]=902"
+[1] "here it is 58"
+[1] "Length set is 57 and dim(Y)[1]=902"
+[1] "here it is 59"
+[1] "Length set is 58 and dim(Y)[1]=902"
+[1] "here it is 60"
+[1] "Length set is 59 and dim(Y)[1]=902"
+[1] "here it is 61"
+[1] "Length set is 60 and dim(Y)[1]=902"
+[1] "here it is 62"
+[1] "Length set is 61 and dim(Y)[1]=902"
+[1] "here it is 63"
+[1] "Length set is 62 and dim(Y)[1]=902"
+[1] "here it is 64"
+[1] "Length set is 63 and dim(Y)[1]=902"
+[1] "here it is 65"
+[1] "Length set is 64 and dim(Y)[1]=902"
+[1] "here it is 66"
+[1] "Length set is 65 and dim(Y)[1]=902"
+[1] "here it is 67"
+[1] "Length set is 66 and dim(Y)[1]=902"
+[1] "here it is 68"
+[1] "Length set is 67 and dim(Y)[1]=902"
+[1] "here it is 69"
+[1] "Length set is 68 and dim(Y)[1]=902"
+[1] "here it is 70"
+[1] "Length set is 69 and dim(Y)[1]=902"
+[1] "here it is 71"
+[1] "Length set is 70 and dim(Y)[1]=902"
+[1] "here it is 72"
+[1] "Length set is 71 and dim(Y)[1]=902"
+[1] "here it is 73"
+[1] "Length set is 72 and dim(Y)[1]=902"
+[1] "here it is 74"
+[1] "Length set is 73 and dim(Y)[1]=902"
+[1] "here it is 75"
+[1] "Length set is 74 and dim(Y)[1]=902"
+[1] "here it is 76"
+[1] "Length set is 75 and dim(Y)[1]=902"
+[1] "here it is 77"
+[1] "Length set is 76 and dim(Y)[1]=902"
+[1] "here it is 78"
+[1] "Length set is 77 and dim(Y)[1]=902"
+[1] "here it is 79"
+[1] "Length set is 78 and dim(Y)[1]=902"
+[1] "here it is 80"
+[1] "Length set is 79 and dim(Y)[1]=902"
+[1] "here it is 81"
+[1] "Length set is 80 and dim(Y)[1]=902"
+[1] "here it is 82"
+[1] "Length set is 81 and dim(Y)[1]=902"
+[1] "here it is 83"
+[1] "Length set is 82 and dim(Y)[1]=902"
+[1] "here it is 84"
+[1] "Length set is 83 and dim(Y)[1]=902"
+[1] "here it is 85"
+[1] "Length set is 84 and dim(Y)[1]=902"
+[1] "yoho"
+[1] "here it is 86"
+[1] "Length set is 85 and dim(Y)[1]=901"
+[1] "here it is 87"
+[1] "Length set is 86 and dim(Y)[1]=901"
+[1] "here it is 88"
+[1] "Length set is 87 and dim(Y)[1]=901"
+[1] "here it is 89"
+[1] "Length set is 88 and dim(Y)[1]=901"
+[1] "here it is 90"
+[1] "Length set is 89 and dim(Y)[1]=901"
+[1] "here it is 91"
+[1] "Length set is 90 and dim(Y)[1]=901"
+[1] "here it is 92"
+[1] "Length set is 91 and dim(Y)[1]=901"
+[1] "here it is 93"
+[1] "Length set is 92 and dim(Y)[1]=901"
+[1] "here it is 94"
+[1] "Length set is 93 and dim(Y)[1]=901"
+[1] "here it is 95"
+[1] "Length set is 94 and dim(Y)[1]=901"
+[1] "here it is 96"
+[1] "Length set is 95 and dim(Y)[1]=901"
+[1] "here it is 97"
+[1] "Length set is 96 and dim(Y)[1]=901"
+[1] "here it is 98"
+[1] "Length set is 97 and dim(Y)[1]=901"
+[1] "here it is 99"
+[1] "Length set is 98 and dim(Y)[1]=901"
+[1] "here it is 100"
+[1] "Length set is 99 and dim(Y)[1]=901"
+[1] "Start Step 3"
+[1] "Start estimation of W"
+[1] 111.8082
+[1] 100 969 100  50
+[1] "Threshold: 0.0303485425877029"
+[1] "306 words were thresholded (31.5789473684211%)"
+[1] "663 words remain"
+[1] "Start VH"
+[1] "here it is 1"
+[1] "Length set is 0 and dim(Y)[1]=663"
+[1] "here it is 2"
+[1] "Length set is 1 and dim(Y)[1]=663"
+[1] "here it is 3"
+[1] "Length set is 2 and dim(Y)[1]=663"
+[1] "here it is 4"
+[1] "Length set is 3 and dim(Y)[1]=663"
+[1] "here it is 5"
+[1] "Length set is 4 and dim(Y)[1]=663"
+[1] "here it is 6"
+[1] "Length set is 5 and dim(Y)[1]=663"
+[1] "here it is 7"
+[1] "Length set is 6 and dim(Y)[1]=663"
+[1] "here it is 8"
+[1] "Length set is 7 and dim(Y)[1]=663"
+[1] "here it is 9"
+[1] "Length set is 8 and dim(Y)[1]=663"
+[1] "here it is 10"
+[1] "Length set is 9 and dim(Y)[1]=663"
+[1] "here it is 11"
+[1] "Length set is 10 and dim(Y)[1]=663"
+[1] "here it is 12"
+[1] "Length set is 11 and dim(Y)[1]=663"
+[1] "here it is 13"
+[1] "Length set is 12 and dim(Y)[1]=663"
+[1] "here it is 14"
+[1] "Length set is 13 and dim(Y)[1]=663"
+[1] "here it is 15"
+[1] "Length set is 14 and dim(Y)[1]=663"
+[1] "here it is 16"
+[1] "Length set is 15 and dim(Y)[1]=663"
+[1] "here it is 17"
+[1] "Length set is 16 and dim(Y)[1]=663"
+[1] "here it is 18"
+[1] "Length set is 17 and dim(Y)[1]=663"
+[1] "here it is 19"
+[1] "Length set is 18 and dim(Y)[1]=663"
+[1] "here it is 20"
+[1] "Length set is 19 and dim(Y)[1]=663"
+[1] "here it is 21"
+[1] "Length set is 20 and dim(Y)[1]=663"
+[1] "here it is 22"
+[1] "Length set is 21 and dim(Y)[1]=663"
+[1] "here it is 23"
+[1] "Length set is 22 and dim(Y)[1]=663"
+[1] "here it is 24"
+[1] "Length set is 23 and dim(Y)[1]=663"
+[1] "here it is 25"
+[1] "Length set is 24 and dim(Y)[1]=663"
+[1] "here it is 26"
+[1] "Length set is 25 and dim(Y)[1]=663"
+[1] "here it is 27"
+[1] "Length set is 26 and dim(Y)[1]=663"
+[1] "here it is 28"
+[1] "Length set is 27 and dim(Y)[1]=663"
+[1] "here it is 29"
+[1] "Length set is 28 and dim(Y)[1]=663"
+[1] "here it is 30"
+[1] "Length set is 29 and dim(Y)[1]=663"
+[1] "here it is 31"
+[1] "Length set is 30 and dim(Y)[1]=663"
+[1] "here it is 32"
+[1] "Length set is 31 and dim(Y)[1]=663"
+[1] "here it is 33"
+[1] "Length set is 32 and dim(Y)[1]=663"
+[1] "here it is 34"
+[1] "Length set is 33 and dim(Y)[1]=663"
+[1] "here it is 35"
+[1] "Length set is 34 and dim(Y)[1]=663"
+[1] "here it is 36"
+[1] "Length set is 35 and dim(Y)[1]=663"
+[1] "here it is 37"
+[1] "Length set is 36 and dim(Y)[1]=663"
+[1] "here it is 38"
+[1] "Length set is 37 and dim(Y)[1]=663"
+[1] "here it is 39"
+[1] "Length set is 38 and dim(Y)[1]=663"
+[1] "here it is 40"
+[1] "Length set is 39 and dim(Y)[1]=663"
+[1] "here it is 41"
+[1] "Length set is 40 and dim(Y)[1]=663"
+[1] "here it is 42"
+[1] "Length set is 41 and dim(Y)[1]=663"
+[1] "here it is 43"
+[1] "Length set is 42 and dim(Y)[1]=663"
+[1] "here it is 44"
+[1] "Length set is 43 and dim(Y)[1]=663"
+[1] "here it is 45"
+[1] "Length set is 44 and dim(Y)[1]=663"
+[1] "here it is 46"
+[1] "Length set is 45 and dim(Y)[1]=663"
+[1] "here it is 47"
+[1] "Length set is 46 and dim(Y)[1]=663"
+[1] "here it is 48"
+[1] "Length set is 47 and dim(Y)[1]=663"
+[1] "here it is 49"
+[1] "Length set is 48 and dim(Y)[1]=663"
+[1] "here it is 50"
+[1] "Length set is 49 and dim(Y)[1]=663"
+[1] "here it is 51"
+[1] "Length set is 50 and dim(Y)[1]=663"
+[1] "here it is 52"
+[1] "Length set is 51 and dim(Y)[1]=663"
+[1] "here it is 53"
+[1] "Length set is 52 and dim(Y)[1]=663"
+[1] "here it is 54"
+[1] "Length set is 53 and dim(Y)[1]=663"
+[1] "here it is 55"
+[1] "Length set is 54 and dim(Y)[1]=663"
+[1] "here it is 56"
+[1] "Length set is 55 and dim(Y)[1]=663"
+[1] "here it is 57"
+[1] "Length set is 56 and dim(Y)[1]=663"
+[1] "here it is 58"
+[1] "Length set is 57 and dim(Y)[1]=663"
+[1] "here it is 59"
+[1] "Length set is 58 and dim(Y)[1]=663"
+[1] "here it is 60"
+[1] "Length set is 59 and dim(Y)[1]=663"
+[1] "here it is 61"
+[1] "Length set is 60 and dim(Y)[1]=663"
+[1] "here it is 62"
+[1] "Length set is 61 and dim(Y)[1]=663"
+[1] "here it is 63"
+[1] "Length set is 62 and dim(Y)[1]=663"
+[1] "here it is 64"
+[1] "Length set is 63 and dim(Y)[1]=663"
+[1] "here it is 65"
+[1] "Length set is 64 and dim(Y)[1]=663"
+[1] "here it is 66"
+[1] "Length set is 65 and dim(Y)[1]=663"
+[1] "here it is 67"
+[1] "Length set is 66 and dim(Y)[1]=663"
+[1] "here it is 68"
+[1] "Length set is 67 and dim(Y)[1]=663"
+[1] "here it is 69"
+[1] "Length set is 68 and dim(Y)[1]=663"
+[1] "here it is 70"
+[1] "Length set is 69 and dim(Y)[1]=663"
+[1] "here it is 71"
+[1] "Length set is 70 and dim(Y)[1]=663"
+[1] "here it is 72"
+[1] "Length set is 71 and dim(Y)[1]=663"
+[1] "here it is 73"
+[1] "Length set is 72 and dim(Y)[1]=663"
+[1] "here it is 74"
+[1] "Length set is 73 and dim(Y)[1]=663"
+[1] "here it is 75"
+[1] "Length set is 74 and dim(Y)[1]=663"
+[1] "here it is 76"
+[1] "Length set is 75 and dim(Y)[1]=663"
+[1] "here it is 77"
+[1] "Length set is 76 and dim(Y)[1]=663"
+[1] "here it is 78"
+[1] "Length set is 77 and dim(Y)[1]=663"
+[1] "here it is 79"
+[1] "Length set is 78 and dim(Y)[1]=663"
+[1] "here it is 80"
+[1] "Length set is 79 and dim(Y)[1]=663"
+[1] "here it is 81"
+[1] "Length set is 80 and dim(Y)[1]=663"
+[1] "here it is 82"
+[1] "Length set is 81 and dim(Y)[1]=663"
+[1] "here it is 83"
+[1] "Length set is 82 and dim(Y)[1]=663"
+[1] "here it is 84"
+[1] "Length set is 83 and dim(Y)[1]=663"
+[1] "here it is 85"
+[1] "Length set is 84 and dim(Y)[1]=663"
+[1] "here it is 86"
+[1] "Length set is 85 and dim(Y)[1]=663"
+[1] "here it is 87"
+[1] "Length set is 86 and dim(Y)[1]=663"
+[1] "here it is 88"
+[1] "Length set is 87 and dim(Y)[1]=663"
+[1] "here it is 89"
+[1] "Length set is 88 and dim(Y)[1]=663"
+[1] "here it is 90"
+[1] "Length set is 89 and dim(Y)[1]=663"
+[1] "here it is 91"
+[1] "Length set is 90 and dim(Y)[1]=663"
+[1] "here it is 92"
+[1] "Length set is 91 and dim(Y)[1]=663"
+[1] "here it is 93"
+[1] "Length set is 92 and dim(Y)[1]=663"
+[1] "here it is 94"
+[1] "Length set is 93 and dim(Y)[1]=663"
+[1] "here it is 95"
+[1] "Length set is 94 and dim(Y)[1]=663"
+[1] "here it is 96"
+[1] "Length set is 95 and dim(Y)[1]=663"
+[1] "here it is 97"
+[1] "Length set is 96 and dim(Y)[1]=663"
+[1] "here it is 98"
+[1] "Length set is 97 and dim(Y)[1]=663"
+[1] "here it is 99"
+[1] "Length set is 98 and dim(Y)[1]=663"
+[1] "here it is 100"
+[1] "Length set is 99 and dim(Y)[1]=663"
+[1] "Start Step 3"
+[1] "Start estimation of W"
+[1] 111.8082
+[1] 100 969 100  50
+[1] "Threshold: 0.0606970851754059"
+[1] "682 words were thresholded (70.3818369453044%)"
+[1] "287 words remain"
+[1] "Start VH"
+[1] "here it is 1"
+[1] "Length set is 0 and dim(Y)[1]=287"
+[1] "here it is 2"
+[1] "Length set is 1 and dim(Y)[1]=287"
+[1] "here it is 3"
+[1] "Length set is 2 and dim(Y)[1]=287"
+[1] "here it is 4"
+[1] "Length set is 3 and dim(Y)[1]=287"
+[1] "here it is 5"
+[1] "Length set is 4 and dim(Y)[1]=287"
+[1] "here it is 6"
+[1] "Length set is 5 and dim(Y)[1]=287"
+[1] "here it is 7"
+[1] "Length set is 6 and dim(Y)[1]=287"
+[1] "here it is 8"
+[1] "Length set is 7 and dim(Y)[1]=287"
+[1] "here it is 9"
+[1] "Length set is 8 and dim(Y)[1]=287"
+[1] "here it is 10"
+[1] "Length set is 9 and dim(Y)[1]=287"
+[1] "here it is 11"
+[1] "Length set is 10 and dim(Y)[1]=287"
+[1] "here it is 12"
+[1] "Length set is 11 and dim(Y)[1]=287"
+[1] "here it is 13"
+[1] "Length set is 12 and dim(Y)[1]=287"
+[1] "here it is 14"
+[1] "Length set is 13 and dim(Y)[1]=287"
+[1] "here it is 15"
+[1] "Length set is 14 and dim(Y)[1]=287"
+[1] "here it is 16"
+[1] "Length set is 15 and dim(Y)[1]=287"
+[1] "here it is 17"
+[1] "Length set is 16 and dim(Y)[1]=287"
+[1] "here it is 18"
+[1] "Length set is 17 and dim(Y)[1]=287"
+[1] "here it is 19"
+[1] "Length set is 18 and dim(Y)[1]=287"
+[1] "here it is 20"
+[1] "Length set is 19 and dim(Y)[1]=287"
+[1] "here it is 21"
+[1] "Length set is 20 and dim(Y)[1]=287"
+[1] "here it is 22"
+[1] "Length set is 21 and dim(Y)[1]=287"
+[1] "here it is 23"
+[1] "Length set is 22 and dim(Y)[1]=287"
+[1] "here it is 24"
+[1] "Length set is 23 and dim(Y)[1]=287"
+[1] "here it is 25"
+[1] "Length set is 24 and dim(Y)[1]=287"
+[1] "here it is 26"
+[1] "Length set is 25 and dim(Y)[1]=287"
+[1] "here it is 27"
+[1] "Length set is 26 and dim(Y)[1]=287"
+[1] "here it is 28"
+[1] "Length set is 27 and dim(Y)[1]=287"
+[1] "here it is 29"
+[1] "Length set is 28 and dim(Y)[1]=287"
+[1] "here it is 30"
+[1] "Length set is 29 and dim(Y)[1]=287"
+[1] "here it is 31"
+[1] "Length set is 30 and dim(Y)[1]=287"
+[1] "here it is 32"
+[1] "Length set is 31 and dim(Y)[1]=287"
+[1] "here it is 33"
+[1] "Length set is 32 and dim(Y)[1]=287"
+[1] "here it is 34"
+[1] "Length set is 33 and dim(Y)[1]=287"
+[1] "here it is 35"
+[1] "Length set is 34 and dim(Y)[1]=287"
+[1] "here it is 36"
+[1] "Length set is 35 and dim(Y)[1]=287"
+[1] "here it is 37"
+[1] "Length set is 36 and dim(Y)[1]=287"
+[1] "here it is 38"
+[1] "Length set is 37 and dim(Y)[1]=287"
+[1] "here it is 39"
+[1] "Length set is 38 and dim(Y)[1]=287"
+[1] "here it is 40"
+[1] "Length set is 39 and dim(Y)[1]=287"
+[1] "here it is 41"
+[1] "Length set is 40 and dim(Y)[1]=287"
+[1] "here it is 42"
+[1] "Length set is 41 and dim(Y)[1]=287"
+[1] "here it is 43"
+[1] "Length set is 42 and dim(Y)[1]=287"
+[1] "here it is 44"
+[1] "Length set is 43 and dim(Y)[1]=287"
+[1] "here it is 45"
+[1] "Length set is 44 and dim(Y)[1]=287"
+[1] "here it is 46"
+[1] "Length set is 45 and dim(Y)[1]=287"
+[1] "here it is 47"
+[1] "Length set is 46 and dim(Y)[1]=287"
+[1] "here it is 48"
+[1] "Length set is 47 and dim(Y)[1]=287"
+[1] "here it is 49"
+[1] "Length set is 48 and dim(Y)[1]=287"
+[1] "here it is 50"
+[1] "Length set is 49 and dim(Y)[1]=287"
+[1] "here it is 51"
+[1] "Length set is 50 and dim(Y)[1]=287"
+[1] "here it is 52"
+[1] "Length set is 51 and dim(Y)[1]=287"
+[1] "here it is 53"
+[1] "Length set is 52 and dim(Y)[1]=287"
+[1] "here it is 54"
+[1] "Length set is 53 and dim(Y)[1]=287"
+[1] "here it is 55"
+[1] "Length set is 54 and dim(Y)[1]=287"
+[1] "here it is 56"
+[1] "Length set is 55 and dim(Y)[1]=287"
+[1] "here it is 57"
+[1] "Length set is 56 and dim(Y)[1]=287"
+[1] "here it is 58"
+[1] "Length set is 57 and dim(Y)[1]=287"
+[1] "here it is 59"
+[1] "Length set is 58 and dim(Y)[1]=287"
+[1] "here it is 60"
+[1] "Length set is 59 and dim(Y)[1]=287"
+[1] "here it is 61"
+[1] "Length set is 60 and dim(Y)[1]=287"
+[1] "here it is 62"
+[1] "Length set is 61 and dim(Y)[1]=287"
+[1] "here it is 63"
+[1] "Length set is 62 and dim(Y)[1]=287"
+[1] "here it is 64"
+[1] "Length set is 63 and dim(Y)[1]=287"
+[1] "here it is 65"
+[1] "Length set is 64 and dim(Y)[1]=287"
+[1] "here it is 66"
+[1] "Length set is 65 and dim(Y)[1]=287"
+[1] "here it is 67"
+[1] "Length set is 66 and dim(Y)[1]=287"
+[1] "here it is 68"
+[1] "Length set is 67 and dim(Y)[1]=287"
+[1] "here it is 69"
+[1] "Length set is 68 and dim(Y)[1]=287"
+[1] "here it is 70"
+[1] "Length set is 69 and dim(Y)[1]=287"
+[1] "here it is 71"
+[1] "Length set is 70 and dim(Y)[1]=287"
+[1] "here it is 72"
+[1] "Length set is 71 and dim(Y)[1]=287"
+[1] "here it is 73"
+[1] "Length set is 72 and dim(Y)[1]=287"
+[1] "here it is 74"
+[1] "Length set is 73 and dim(Y)[1]=287"
+[1] "here it is 75"
+[1] "Length set is 74 and dim(Y)[1]=287"
+[1] "here it is 76"
+[1] "Length set is 75 and dim(Y)[1]=287"
+[1] "here it is 77"
+[1] "Length set is 76 and dim(Y)[1]=287"
+[1] "here it is 78"
+[1] "Length set is 77 and dim(Y)[1]=287"
+[1] "here it is 79"
+[1] "Length set is 78 and dim(Y)[1]=287"
+[1] "here it is 80"
+[1] "Length set is 79 and dim(Y)[1]=287"
+[1] "here it is 81"
+[1] "Length set is 80 and dim(Y)[1]=287"
+[1] "here it is 82"
+[1] "Length set is 81 and dim(Y)[1]=287"
+[1] "here it is 83"
+[1] "Length set is 82 and dim(Y)[1]=287"
+[1] "here it is 84"
+[1] "Length set is 83 and dim(Y)[1]=287"
+[1] "here it is 85"
+[1] "Length set is 84 and dim(Y)[1]=287"
+[1] "here it is 86"
+[1] "Length set is 85 and dim(Y)[1]=287"
+[1] "here it is 87"
+[1] "Length set is 86 and dim(Y)[1]=287"
+[1] "here it is 88"
+[1] "Length set is 87 and dim(Y)[1]=287"
+[1] "here it is 89"
+[1] "Length set is 88 and dim(Y)[1]=287"
+[1] "here it is 90"
+[1] "Length set is 89 and dim(Y)[1]=287"
+[1] "here it is 91"
+[1] "Length set is 90 and dim(Y)[1]=287"
+[1] "here it is 92"
+[1] "Length set is 91 and dim(Y)[1]=287"
+[1] "here it is 93"
+[1] "Length set is 92 and dim(Y)[1]=287"
+[1] "here it is 94"
+[1] "Length set is 93 and dim(Y)[1]=287"
+[1] "here it is 95"
+[1] "Length set is 94 and dim(Y)[1]=287"
+[1] "here it is 96"
+[1] "Length set is 95 and dim(Y)[1]=287"
+[1] "here it is 97"
+[1] "Length set is 96 and dim(Y)[1]=287"
+[1] "here it is 98"
+[1] "Length set is 97 and dim(Y)[1]=287"
+[1] "here it is 99"
+[1] "Length set is 98 and dim(Y)[1]=287"
+[1] "here it is 100"
+[1] "Length set is 99 and dim(Y)[1]=287"
+[1] "Start Step 3"
+[1] "Start estimation of W"
+[1] 111.8082
+[1] 100 969 100  50
+[1] "Threshold: 0.121394170350812"
+[1] "872 words were thresholded (89.9896800825593%)"
+[1] "97 words remain"
+[1] 100 969 100  50
+[1] "Threshold: 0.242788340701623"
+[1] "872 words were thresholded (89.9896800825593%)"
+[1] "97 words remain"
