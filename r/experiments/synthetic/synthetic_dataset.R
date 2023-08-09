@@ -12,12 +12,13 @@ source("r/experiments/semi_synthetic/synthetic_AP.R")
 #### the purpose here is to generate synthetic examples
 
 synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a_zipf=1,
-                                        n_anchors=0, delta_anchor=1, N=500,
-                                       noise_generation = "uniform"){
+                                        n_anchors=0, delta_anchor=1, N=500, seed=123){
+  
+  set.seed(seed)
   W <- rdiric(n, rep(alpha, K))
-  # ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
-  #   geom_point(size = 3) +
-  #   theme_bw()
+  ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
+    geom_point(size = 3) +
+    theme_bw()
   # 
   if (n_anchors >0){
     A = matrix(0, nrow=K, ncol=p)
@@ -28,27 +29,13 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
   }else{
     A <- sapply(1/(1:p + 2.7)^a_zipf, function(u){rexp(K, u)}) 
   }
-  A = A/apply(A, 1, sum)
-  D0 = t(A) %*% t(W)
+  A = t(A/apply(A, 1, sum))
+  D0 = A %*% t(W)
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
-  
-  if (noise_level == 0){
-    Z = 0
-  }else{
-    
-    if(noise_generation=="uniform"){
-      Z = rmultinom(n, ceiling(N * noise_level), rep(1, p)/p)
-      ### Have to flip some of the size
-    }else{
-      Z = rmultinom(n, ceiling(N * noise_level), apply(A, 2, mean)/sum( apply(A, 2, mean)))
-    }
-    Sign = -1 + 2 * matrix(rbinom( nrow(D0) * ncol(D0), 1,  0.5), 
-                           nrow=nrow(D0), ncol=ncol(D0))
-    Z = Z * Sign 
-  }
-  X = X + Z
   return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
-              A=t(A)[which(apply(X,1, sum) >0 ),], W = W, vocab =which(apply(X,1, sum) >0 ) ))
+              A= A[which(apply(X,1, sum) >0 ),], 
+              W = W, vocab =which(apply(X,1, sum) >0 ),
+              D0=t(D0[which(apply(X,1, sum) >0 ),]) ))
 }
 
 
@@ -59,8 +46,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                      noise_generation = "uniform", seed=1, VHMethod="SVS"){
   
   data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=5 * 1e5, a_zipf=a_zipf,
-                                    n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
-                                     noise_generation = noise_generation)
+                                    n_anchors=n_anchors, delta_anchor=delta_anchor, 
+                                    N=N, seed=seed)
   #### Run check
   print("here")
   print(sprintf("Dim of data D = %s, %s", dim(data$D)[1], dim(data$D)[2]))
@@ -79,7 +66,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   #### Step 2: Run Tracy's method
   score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod)
-  Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
+  Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
   # resultsA <- rbind(resultsA, 
   #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))

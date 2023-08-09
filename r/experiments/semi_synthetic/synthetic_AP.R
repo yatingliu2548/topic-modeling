@@ -60,6 +60,7 @@ AWR <- function(data){
 synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed = 1234,
                                          A = NULL, W = NULL, vocab=NULL, noise_level=0,
                                          Epsilon=NULL, remove_stop_words=TRUE){
+  set.seed(seed)
   # p is the number of words in the dictionary.
   # n is the number of documents.
   # N is a vector of length n, with ith entry as the total number of words in the ith documen.
