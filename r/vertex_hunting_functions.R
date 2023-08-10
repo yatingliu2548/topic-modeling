@@ -125,3 +125,12 @@ vertices_est <- function(R, K0, m){
   }
  
 }
+
+
+ArchetypeA <- function(R,K){
+  library(reticulate)
+  use_condaenv("r-reticulate")
+  source_python("NMf.py")
+  resultfromAA= acc_palm_nmf(X=R,r=K,proj_method='wolfe', m=5, maxiter=1000, c1 =1, c2 = 1, verbose = True, plotit = True, proj_low_dim = False, oracle = False, weights_exact = False, method = 'fista', fixed_max_size=5)
+  return(list(V=resultfromAA$V,Weigh_hat=resultfromAA$weight))
+}
