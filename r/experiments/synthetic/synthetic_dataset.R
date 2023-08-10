@@ -39,7 +39,7 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
 }
 
 #anchor_word+weak lq ball
-synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a_zipf=1,
+synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a_zipf=1,
                                         n_anchors=0, delta_anchor=1, N=500, s=20, seed=123){
   
   set.seed(seed)
