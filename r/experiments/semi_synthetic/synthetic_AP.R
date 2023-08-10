@@ -5,7 +5,7 @@ library(tidyverse)
 library(reticulate)
 library(tidytext)
 
-#setwd("~/Documents/topic-modeling/")
+#setwd("~/topic-modeling/")
 source(paste0(getwd(),"/r/vertex_hunting_functions.R"))
 source(paste0(getwd(),'/r/score.r'))
 source(paste0(getwd(),'/r/evaluation_metrics.r'))
