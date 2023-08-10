@@ -1371,5 +1371,5 @@ def acc_palm_nmf(X,r,l=None, lmax = 10, lmin = 0.001, lambda_no = 20, c_lambda=1
         l_no = l_no + 1
     plot_H(Hnew, 'r','o')
 
-    return{"weight":Wnew, "hatvertext":Hnew, "L":L, "Err":Err}
+    return{"weight":Wnew, "V":Hnew, "L":L, "Err":Err}
 
