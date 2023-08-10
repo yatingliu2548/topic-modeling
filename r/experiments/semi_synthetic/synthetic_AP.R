@@ -60,6 +60,7 @@ AWR <- function(data){
 synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed = 1234,
                                          A = NULL, W = NULL, vocab=NULL, noise_level=0,
                                          Epsilon=NULL, remove_stop_words=TRUE){
+  set.seed(seed)
   # p is the number of words in the dictionary.
   # n is the number of documents.
   # N is a vector of length n, with ith entry as the total number of words in the ith documen.
@@ -226,9 +227,11 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
            theme_bw()
     
     ### check the words
-    q = 0.5
-    norm = sqrt(apply(data$A^2,1,sum))^q
-    sorted = sort(norm, index.return=T, decreasing=TRUE)
+
+    norm = sqrt(apply(data$A^2,1,sum))
+    sorted = sort(norm, index.return=T, decreasing=TRUE) 
+    test= sorted$x * (1:length(sorted$x))#### Doesn't verify the assumption really
+    print(max(test))
     res = data.frame(norm = sorted$x, ix = sorted$ix, x = 1:length(norm))
     ggplot(res, aes(x=x, y=norm * x)) + geom_point()
     

@@ -14,9 +14,9 @@ W = NULL
 vocab = NULL
 Epsilon = NULL
 for (n in c(c(100, 250, 500, 250, 1000), 2000)){
-    for (n_frac in c(0.5, 0.8, 1, 2, 5, 10)){
-      for (noise_level in c(0, 0.005, 0.01, 0.05, 0.1, "auto")){
-        N = ceiling(n_frac * n)
+    for (N in c(25, 50, 100, 200, 300, 400, 500, 750, 1000, 2000, 3000, 5000)){
+     for (noise_level in c(0)){
+        #N = ceiling(n_frac * n)
         if (K <5){
           VHMethod = "SVS"
         }else{
@@ -36,7 +36,7 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000)){
         error_temp["N"] = N
         error_temp["n"] = n
         error_temp["seed"] =  seed
-        error_temp["n_frac"] = n_frac
+        error_temp["n_frac"] = N/n
         error_temp["exp"] = result_file
         error_temp["VHMethod"] = VHMethod
         error_temp["noise_level"] = ifelse((noise_level)=="auto", test$Epsilon, as.numeric(noise_level))

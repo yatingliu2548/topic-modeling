@@ -19,3 +19,6 @@ r/experiments/semi_synthetic/results/*
 r/experiments/semi_synthetic/logs/*
 r/alternative/AWR/__pycache__/*
 r/alternative/Sparse-TM-Bing/__pycache__/*
+r/experiments/synthetic/results/*
+r/experiments/synthetic/logs/*
+r/experiments/temporary/*
