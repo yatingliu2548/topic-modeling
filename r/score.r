@@ -7,6 +7,7 @@ source("r/vertex_hunting_functions.R")
 source("r/simplex_dist.R")
 
 
+
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
                   Mquantile=0.05, VHMethod = 'SP', normalize="none",
                   alpha=0.5, max_K=150){
@@ -118,6 +119,11 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     vertices_est_obj <- vertices_est_SP(R, m)
     V <- vertices_est_obj$V
     theta <- NULL
+  }else if (VHMethod == 'AA'){
+    vertices_est_obj <- ArchetypeA(R,K)
+    V <-vertices_est_obj$V
+    theta<-NULL
+
   }
   
   if (scatterplot){
