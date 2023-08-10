@@ -203,7 +203,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
     score_ours <- tryCatch(
       score(D = t(data$D), K=K, normalize = 'huy', 
             threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
-            VHMethod=VHMethod),
+            VHMethod="AA"),
       error = function(err) {
         # Code to handle the error (e.g., print an error message, log the error, etc.)
         paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
