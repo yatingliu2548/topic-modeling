@@ -15,7 +15,7 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
                                         n_anchors=0, delta_anchor=1, N=500, seed=123){
   
   set.seed(seed)
-  W <- rdiric(n, rep(alpha, K))
+  W <- rdiric(n, rep(alpha, K)) 
   #ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
   #  geom_point(size = 3) +
   #  theme_bw()
@@ -38,7 +38,43 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
               D0=t(D0[which(apply(X,1, sum) >0 ),]) ))
 }
 
-
+#anchor_word+weak lq ball
+synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a_zipf=1,
+                                        n_anchors=0, delta_anchor=1, N=500, s=20, seed=123){
+  
+  set.seed(seed)
+  W <- rdiric(n, rep(0.5, K)) #n * K matrix
+  # ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
+  #   geom_point(size = 3) +
+  #   theme_bw()
+  # 
+  A <- matrix(0, nrow=K, ncol=p)
+  if (s<p){
+    A[,1:s] <- abs(rnorm(s * K, mean = 0, sd = 100))
+    A[,(s + 1):p] <- t(rdiric(p-s,rep(alpha,K))) * 0.00001
+  }else{
+    A = t(rdiric(p,rep(eta,K))) 
+  }
+  if (n_anchors >0){ #for all 1<=k \neq j <=K, there exists at least a column of A that can be represented as x_{kj 1}*e_k+ x
+    kj=1
+    for (k in 1:K){
+      for (j in (k + 1):K) {
+        for (i in ((kj-1)*n_anchors +1) : (kj * n_anchors)){
+          A[, i] <- runif(1, min = 0, max = 1 / K) * diag(K)[, k] + runif(1, min = 0, max = 1 / K) * diag(K)[, j]
+        }
+        kj=kj+1
+      }  
+    }
+  }
+   A = t(A/apply(A, 1, sum))
+  D0 = A %*% t(W)
+  X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
+  #X = X/N
+  return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
+              A= A[which(apply(X,1, sum) >0 ),], 
+              W = W, vocab =which(apply(X,1, sum) >0 ),
+              D0=t(D0[which(apply(X,1, sum) >0 ),]) ))
+}
 
 
 run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
