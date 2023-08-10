@@ -66,7 +66,7 @@ synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5,
       }  
     }
   }
-   A = t(A/apply(A, 1, sum))
+  A = t(A/apply(A, 1, sum))
   D0 = A %*% t(W)
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
   #X = X/N
@@ -79,11 +79,17 @@ synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5,
 
 run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                      n_anchors=0, delta_anchor=1, N=500,
-                                     noise_generation = "uniform", seed=1, VHMethod="SVS"){
-  
-  data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=50000, a_zipf=a_zipf,
+                                     noise_generation = "uniform", seed=1, VHMethod="SVS", data_method=1){
+  if (data_method == 1){
+     data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=50000, a_zipf=a_zipf,
                                     n_anchors=n_anchors, delta_anchor=delta_anchor, 
                                     N=N, seed=seed)
+  }else{
+    data = synthetic_dataset_creation_2(n, K, p, alpha=alpha, n_max_zipf=50000, a_zipf=a_zipf,
+                                    n_anchors=n_anchors, delta_anchor=delta_anchor, 
+                                    N=N, s=20, seed=seed)
+  }
+ 
   #### Run check
   print("here")
   print(sprintf("Dim of data D = %s, %s", dim(data$D)[1], dim(data$D)[2]))
