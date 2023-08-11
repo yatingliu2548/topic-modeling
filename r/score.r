@@ -123,7 +123,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     V <- vertices_est_obj$V
     theta <- NULL
   }else if (VHMethod == 'AA'){
-    vertices_est_obj <- ArchetypeA(R,K)
+    vertices_est_obj <- ArchetypeA(r_to_py(R),as.integer(K))
     V <-vertices_est_obj$V
     theta<-NULL
 
