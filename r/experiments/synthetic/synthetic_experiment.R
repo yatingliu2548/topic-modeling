@@ -29,7 +29,9 @@ for (exp_seed in 1:10){
             }
             test <- run_synthetic_experiment(n, K, p, alpha=0.5, a_zipf=a_zipf,
                                              n_anchors=n_anchors, delta_anchor=1, N=N,
-                                             seed=100 * seed + exp_seed, VHMethod=VHMethod,data_method=1)
+                                             seed=100 * seed + exp_seed, VHMethod=VHMethod,
+                                             data_generation_method=1,
+                                             normalize_counts = TRUE)
             error_temp = test$error
             error_temp["Khat_huy"]=test$Khat_huy
             error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
@@ -42,7 +44,6 @@ for (exp_seed in 1:10){
             error_temp["p"] = p
             error_temp["seed"] =  100 * seed + exp_seed
             error_temp["n_anchors"] =  n_anchors
-           
             error_temp["alpha"] = a_zipf
             error_temp["exp"] = result_file
             error_temp["exp_n"] = exp_seed

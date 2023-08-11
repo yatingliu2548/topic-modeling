@@ -47,8 +47,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   n <- dim(D)[2]
   print(c(n, p, K, N))
   
-  A_hat_final = matrix(0, p, K )
-  M <- rowMeans(D)   #### average number of time each word appears in each document
+  M <- rowMeans(D)   #### average frequency at which each word appears in each document
   M_trunk <- sapply(M,function(x){max(quantile(x, Mquantile))})
   if(normalize == "norm_score_N"){
       M2 <- rowSums(D/t(matrix(rep(N,p),n,p)))
@@ -63,9 +62,10 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   ### Step 0: Pre-SVD thresholding and selection of words (optional) 
   if (threshold){
-    threshold_J = alpha * sqrt(log(min(p,n))/(N *n))
-    print(paste0("Threshold: ", threshold_J))
+    threshold_J = alpha * sqrt(log(max(p,n))/(N *n))
+    print(sprintf("Threshold for alpha = %f  is %f ", alpha, threshold_J))
     setJ = which(M > threshold_J)
+    print(sprintf("Nb of elected words = %i  ( %f percent) ", length(setJ), 100 * length(setJ)/p))
     if (length(setJ) < 0.1 * length(M)){
       setJ = sort(M, decreasing=TRUE, index.return=TRUE)$ix[1:ceiling( 0.1 * length(M))]
     }
@@ -77,9 +77,10 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     M_trunk = M_trunk[setJ]
     print(paste0(p-length(setJ), " words were thresholded (", (p-length(setJ))/p * 100, "%)"))
     print(paste0(length(setJ), " words remain"))
-    p <- length(setJ)
+    new_p <- length(setJ)
     
   }else{
+    new_p = p
     newD=D
     setJ = 1:length(M)
   }
@@ -139,9 +140,9 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   #Step 3: Topic matrix estimation
   print("Start Step 3")
   if(rankMatrix(cbind(V,rep(1,K)))[1]<K){
-    Pi <- cbind(R, rep(1,p)) %*% MASS::ginv(cbind(V,rep(1,K)))
+    Pi <- cbind(R, rep(1,new_p)) %*% MASS::ginv(cbind(V,rep(1,K)))
   }else{
-    Pi <- cbind(R, rep(1,p)) %*% solve(cbind(V,rep(1,K)))
+    Pi <- cbind(R, rep(1,new_p)) %*% solve(cbind(V,rep(1,K)))
   }
 
   Pi <- pmax(Pi,matrix(0,dim(Pi)[1],dim(Pi)[2])) ### sets negative entries to 0 
@@ -162,18 +163,24 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   temp <- colSums(A_hat)
   A_hat <- t(apply(A_hat,1,function(x) x/temp))
   
-  if(returnW){
-    print("Start estimation of W")
-    if(threshold){
+  A_hat_final = matrix(0, p, K )
+  if(threshold){
       A_hat_final[setJ, ] = A_hat
-      W_hat <- compute_W_from_AD(A_hat, D[setJ,])
+      if(returnW){
+        print("Start estimation of W")
+        W_hat <- compute_W_from_AD(A_hat, D[setJ,])
+      }else{
+        W_hat <- NULL
+      }
     }else{
       A_hat_final = A_hat
-      W_hat <- compute_W_from_AD(A_hat, D)
+      if(returnW){
+        W_hat <- compute_W_from_AD(A_hat, D)
+      }else{
+        W_hat <- NULL
+      }
     }
-  }else{
-    W_hat = NULL
-  }
+  
   
   
 

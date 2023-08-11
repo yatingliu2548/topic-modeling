@@ -21,14 +21,14 @@ successiveProj <- function(R, K){
   it = 1
   valid_indices <- 1:dim(Y)[1]
   while (length(indexSet) < K & dim(Y)[1]>0){
-    print(paste0("here it is ", it))
-    print(sprintf("Length set is %d and dim(Y)[1]=%d", length(indexSet), dim(Y)[1] ))
+    #print(paste0("here it is ", it))
+    #print(sprintf("Length set is %d and dim(Y)[1]=%d", length(indexSet), dim(Y)[1] ))
     l2Norms <- apply(Y,1,function(x) sqrt(sum(x^2)))
     #### check if they are in the same document
     index <- which(l2Norms == max(l2Norms))
     
     if (length(index) >1){
-      print("yoho")
+      #print("yoho")
       r = rankMatrix(R[valid_indices[index], ])[1]
       if (r < length(index)){
         ### only select 1

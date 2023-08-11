@@ -12,8 +12,7 @@ source("r/experiments/semi_synthetic/synthetic_AP.R")
 #### the purpose here is to generate synthetic examples
 
 synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a_zipf=1,
-                                        n_anchors=0, delta_anchor=1, N=500, seed=123,
-                                        normalize_counts=TRUE){
+                                        n_anchors=0, delta_anchor=1, N=500, seed=123){
   
   set.seed(seed)
   W <- rdiric(n, rep(alpha, K))
@@ -36,9 +35,6 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
   A = A/apply(A,2,sum)
   D0 = A %*% W
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
-  if (normalize_counts){
-    X = X/N
-  }
   return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
               A= A[which(apply(X,1, sum) >0 ),], 
               W = W, vocab =which(apply(X,1, sum) >0 ),
@@ -98,16 +94,23 @@ synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5,
 
 run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                      n_anchors=0, delta_anchor=1, N=500,
-                                     seed=1, VHMethod="SVS",
-                                     normalize_counts=True, estimateW=FALSE){
+                                     seed=123, VHMethod="SVS", data_generation_method=1,
+                                     normalize_counts=TRUE, estimateW=FALSE, s=20){
   
-  data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=50000, a_zipf=a_zipf,
+  if (data_generation_method==1){
+      data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=50000, a_zipf=a_zipf,
                                     n_anchors=n_anchors, delta_anchor=delta_anchor, 
-                                    N=N, seed=seed, normalize_counts=normalize_counts)
+                                    N=N, seed=seed)
+  }else{
+      data = synthetic_dataset_creation_2(n, K, p, alpha=alpha, n_max_zipf=5 * 1e5, a_zipf=a_zipf,
+                                        n_anchors=n_anchors, delta_anchor=1, N=N, s=s, seed=seed)
+  }
+
   #### Run check
   print("here")
   print(sprintf("Dim of data D = %s, %s", dim(data$D)[1], dim(data$D)[2]))
   print(sprintf("Dim of data A = %s, %s", dim(data$A)[1], dim(data$A)[2]))
+  print(sprintf("Dim of data W = %s, %s", dim(data$W)[1], dim(data$W)[2]))
   
   # #### Step 1: Run the LDA pipeline
   lda <- LDA((data$D), k = K, control = list(seed = seed), method = 'VEM')
@@ -123,21 +126,34 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
   error <- update_error(Ahat_lda, (What_lda), (data$A), t(data$W), method = "LDA", error=NULL,
                         thresholded = 0)
+  print(error)
   
   #### Step 2: Run Tracy's method
-  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
-                          returnW=estimateW)
+  if (normalize_counts){
+    score_recovery <- score(t(data$D)/N, K, normalize = "norm", 
+                            max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                            returnW=estimateW)
+  }else{
+    score_recovery <- score(t(data$D), K, normalize = "norm", 
+                            max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                            returnW=estimateW)
+  }
   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
   # resultsA <- rbind(resultsA, 
   #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))
   # resultsW <- rbind(resultsW,
   #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
-  print("Tracy")
-  error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
+  if (estimateW){
+      error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
                         thresholded = 0)
-  
-  ### Step 3: Run AWR
+  }else{
+      error <- update_error(score_recovery$A_hat, NULL, data$A, t(data$W), method = "TopicScore", error=error,
+                        thresholded = 0)
+  }
+  print("Done with Tracy")
+  print(error)
+  # ### Step 3: Run AWR
   Ahat_awr <- tryCatch(
     AWR(data),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
     error = function(err) {
@@ -150,18 +166,18 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   if(is.null(Ahat_awr) == FALSE){
     print("AWR")
-    # resultsA <- rbind(resultsA, 
+    # resultsA <- rbind(resultsA,
     #                   process_results(Ahat_awr, "AWR", data$vocab))
     if (estimateW){
-      What_awr  <- compute_W_from_AD(Ahat_awr, t(data$D))
+      What_awr  <- t(compute_W_from_AD(Ahat_awr, t(data$D)))
     }else{
         What_awr = NULL
     }
-    # resultsW <- rbind(resultsW, 
-    #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
-    error <- update_error(Ahat_awr, t(What_awr), data$A, t(data$W), method = "AWR", error=error)
+    error <- update_error(Ahat_awr, What_awr, data$A, t(data$W), method = "AWR", error=error)
   }
-  
+  print("Done with AWR")
+  print(error)
+
   
   
   
@@ -171,17 +187,17 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
  # resultTSVD <- tryCatch(
  #   TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
  #   error = function(err) {
-      # Code to handle the error (e.g., print an error message, log the error, etc.)
+ # #Code to handle the error (e.g., print an error message, log the error, etc.)
  #     cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
-      # Return a default value or NULL to continue with the rest of the code
+ # #Return a default value or NULL to continue with the rest of the code
  #     return(NULL)
  #   }
  # )
  # if (is.null(resultTSVD) == FALSE){
-    # resultsA <- rbind(resultsA, 
-    #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
-    # resultsW <- rbind(resultsW, 
-    #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
+ # resultsA <- rbind(resultsA,
+ #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
+ # resultsW <- rbind(resultsW,
+ #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
  #   error <- update_error(resultTSVD$Ahat$M.hat, (resultTSVD$What), data$A, t(data$W), method = "TSVD", error=error)
  # }
 
@@ -216,23 +232,34 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
         }
     }else{
         What_bing = NULL
-        error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+        error <- update_error((bing_recovery$A), NULL, data$A, t(data$W), method = "Bing", error=error)
     }
       
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
   }
+  print("Done with Bing")
+  print(error)
   
   
   
   
   
   #### Step 6: Run method
-  for (alpha in c(0.1, 0.5 , 1, 2, 4, 8)){
+  for (alpha in c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5 , 1, 2, 4, 8)){
+    print(alpha)
     score_ours <- tryCatch(
-      score(D = t(data$D), K=K, normalize = 'huy', 
+      if (normalize_counts){
+        score(D = t(data$D)/N, K=K, 
+            normalize = 'huy', 
             threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
-            VHMethod=VHMethod, returnW = estimateW),
+            VHMethod=VHMethod, returnW = estimateW)
+        }else{
+          score(D = t(data$D), K=K, 
+                normalize = 'huy', 
+                threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
+                VHMethod=VHMethod, returnW = estimateW)
+        },
       error = function(err) {
         # Code to handle the error (e.g., print an error message, log the error, etc.)
         paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
@@ -240,6 +267,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
         return(NULL)
       }
     )
+    #print(score_ours)
     if (is.null(score_ours) == FALSE){
       # resultsA <- rbind(resultsA, 
       #                   process_results(score_ours$A_hat, paste0("Ours_", alpha), data$vocab))
@@ -248,6 +276,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
       error <- update_error(score_ours$A_hat, (score_ours$W_hat), data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
                             thresholded=score_ours$thresholded)
       Khat_huy <- select_K(score_ours$eigenvalues, p,n, N, method="huy")
+      print(paste0("Done with alpha ", alpha))
+      print(error)
     }else{
       Khat_huy = NULL
     }
