@@ -15,7 +15,9 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
                                         n_anchors=0, delta_anchor=1, N=500, seed=123){
   
   set.seed(seed)
-  W <- rdiric(n, rep(alpha, K)) 
+  W <- rdiric(n, rep(alpha, K))
+  W <- t(W) 
+  W <- W /apply(W,2,sum)
   #ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
   #  geom_point(size = 3) +
   #  theme_bw()
@@ -29,8 +31,9 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
   }else{
     A <- sapply(1/(1:p + 2.7)^a_zipf, function(u){rexp(K, u)}) 
   }
-  A = t(A/apply(A, 1, sum))
-  D0 = A %*% t(W)
+  A = t(A)
+  A = A/apply(A,2,sum)
+  D0 = A %*% W
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
   return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
               A= A[which(apply(X,1, sum) >0 ),], 
@@ -43,31 +46,41 @@ synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5,
                                         n_anchors=0, delta_anchor=1, N=500, s=20, seed=123){
   
   set.seed(seed)
-  W <- rdiric(n, rep(0.5, K)) #n * K matrix
+  W <- rdiric(n, rep(2, K)) #n * K matrix
   # ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
   #   geom_point(size = 3) +
   #   theme_bw()
   # 
+  
+  #W[W == 0] <- W[W == 0] + min(W[W>0])*0.0001 #avoid all-zero columns of W
+  W <- abs(W) /apply(abs(W),1,sum)
+  W = t(W) 
+
   A <- matrix(0, nrow=K, ncol=p)
   if (s<p){
-    A[,1:s] <- abs(rnorm(s * K, mean = 0, sd = 100))
-    A[,(s + 1):p] <- t(rdiric(p-s,rep(alpha,K))) * 0.00001
+    A[,1:s] <- abs(rnorm(s * K, mean = 0, sd = 1))
+    A[,(s + 1):p] <- t(rdiric(p-s,rep(alpha,K))) * 0.01
   }else{
-    A = t(rdiric(p,rep(eta,K))) 
+    A = t(rdiric(p,rep(alpha,K))) 
   }
   if (n_anchors >0){ #for all 1<=k \neq j <=K, there exists at least a column of A that can be represented as x_{kj 1}*e_k+ x
     kj=1
     for (k in 1:K){
-      for (j in (k + 1):K) {
-        for (i in ((kj-1)*n_anchors +1) : (kj * n_anchors)){
-          A[, i] <- runif(1, min = 0, max = 1 / K) * diag(K)[, k] + runif(1, min = 0, max = 1 / K) * diag(K)[, j]
+      for (j in k:K) {
+        if (j<k){
+          for (i in ((kj-1)*n_anchors +1) : (kj * n_anchors)){
+            A[, i] <- runif(1, min = 0, max = 1 / K) * diag(K)[, k] + runif(1, min = 0, max = 1 / K) * diag(K)[, j]
+          }
+          kj=kj+1
         }
-        kj=kj+1
       }  
     }
   }
-  A = t(A/apply(A, 1, sum))
-  D0 = A %*% t(W)
+  A = abs(A)
+  W = abs(W)
+  A = A/apply(A,1,sum)
+  A = t(A)
+  D0 = A %*% W
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
   #X = X/N
   return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
@@ -100,10 +113,10 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   ap_topics <- tidy(lda, matrix = "beta")
   Ahat_lda = exp(t(lda@beta))
   What_lda = lda@gamma
-  
+
   # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
   # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
-  error <- update_error(Ahat_lda, t(What_lda), (data$A), t(data$W), method = "LDA", error=NULL,
+  error <- update_error(Ahat_lda, (What_lda), (data$A), t(data$W), method = "LDA", error=NULL,
                         thresholded = 0)
   
   #### Step 2: Run Tracy's method
@@ -114,8 +127,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))
   # resultsW <- rbind(resultsW,
   #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
-  
-  error <- update_error(score_recovery$A_hat, (score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
+  print("Tracy")
+  error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
                         thresholded = 0)
   
   ### Step 3: Run AWR
@@ -130,12 +143,14 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   )
   
   if(is.null(Ahat_awr) == FALSE){
+    print("AWR")
     # resultsA <- rbind(resultsA, 
     #                   process_results(Ahat_awr, "AWR", data$vocab))
     What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
+  
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
-    error <- update_error(Ahat_awr, (What_awr), data$A, t(data$W), method = "AWR", error=error)
+    error <- update_error(Ahat_awr, t(What_awr), data$A, t(data$W), method = "AWR", error=error)
   }
   
   
@@ -162,7 +177,38 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
  # }
   
   
-  ### Step 5: Run Bing's method
+
+  
+  
+  
+  
+  #### Step 6: Run method
+  for (alpha in c(0.1, 0.5 , 1, 2, 4, 8)){
+    score_ours <- tryCatch(
+      score(D = t(data$D), K=K, normalize = 'huy', 
+            threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
+            VHMethod="AA"),
+      error = function(err) {
+        # Code to handle the error (e.g., print an error message, log the error, etc.)
+        cat("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
+        # Return a default value or NULL to continue with the rest of the code
+        return(NULL)
+      }
+    )
+    if (is.null(score_ours) == FALSE){
+      # resultsA <- rbind(resultsA, 
+      #                   process_results(score_ours$A_hat, paste0("Ours_", alpha), data$vocab))
+      # resultsW <- rbind(resultsW,
+      #                   process_results(score_ours$W_hat, paste0("Ours_", alpha), seq_len(n), processingA=FALSE))
+      print("ours")
+      error <- update_error(score_ours$A_hat, t(score_ours$W_hat), data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
+                            thresholded=score_ours$thresholded)
+      Khat_huy = select_K(score_ours$eigenvalues, p,n, N, method="huy")
+    }
+    
+  }
+  
+   ### Step 5: Run Bing's method
   
   # Code that might throw an error
   bing_recovery <- tryCatch(
@@ -179,6 +225,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
     # resultsA <- rbind(resultsA, 
     #                   process_results(bing_recovery$A, "Bing", data$vocab))
     #### Have to cluster
+    print("Bing")
     if (dim(t(bing_recovery$A))[1]>K){
       clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
       What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
@@ -187,7 +234,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
       What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
       What_bing <- rbind(What_bing, 
                          matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
-      error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+
+      error <- update_error((bing_recovery$A), t(What_bing), data$A, t(data$W), method = "Bing", error=error)
       
     }
     # resultsW <- rbind(resultsW, 
@@ -196,39 +244,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   
   
-  
-  
-  #### Step 6: Run method
-  for (alpha in c(0.1, 0.5 , 1, 2, 4, 8)){
-    score_ours <- tryCatch(
-      score(D = t(data$D), K=K, normalize = 'huy', 
-            threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
-            VHMethod="AA"),
-      error = function(err) {
-        # Code to handle the error (e.g., print an error message, log the error, etc.)
-        paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
-        # Return a default value or NULL to continue with the rest of the code
-        return(NULL)
-      }
-    )
-    if (is.null(score_ours) == FALSE){
-      # resultsA <- rbind(resultsA, 
-      #                   process_results(score_ours$A_hat, paste0("Ours_", alpha), data$vocab))
-      # resultsW <- rbind(resultsW,
-      #                   process_results(score_ours$W_hat, paste0("Ours_", alpha), seq_len(n), processingA=FALSE))
-      error <- update_error(score_ours$A_hat, (score_ours$W_hat), data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
-                            thresholded=score_ours$thresholded)
-      Khat_huy = select_K(score_ours$eigenvalues, p,n, N, method="huy")
-    }
-    
-  }
-  
-  
-  
-  
   return(list(#resultsA=resultsA, resultsW=resultsW,
-    error=error, A=data$A, W=data$W, Aoriginal=data$Aoriginal, 
-    Woriginal=data$Woriginal, Epsilon=data$Epsilon, vocab=data$original_vocab,
+    error=error, A=data$A, W=data$W,
     Khat_huy=Khat_huy$Khat,
     Khat_huy_thresh = Khat_huy$thresh,
     Khat_olga=Khat_olga$Khat,
