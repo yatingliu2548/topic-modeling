@@ -1234,7 +1234,7 @@ def acc_palm_nmf_update(H, H_old, I, W, W_old, Y, t, t_old, X, l, proj_method='w
     return [Hnew, Inew, Wnew, Ynew, tnew]
 
 
-def acc_palm_nmf(X,r,l=None, lmax = 10, lmin = 0.001, lambda_no = 20, c_lambda=1.2, proj_method='wolfe', m=5,H_init= None, W_init = None, maxiter=200, delta=1e-6, c1=1.1, c2=1.1 ,proj_low_dim = False, eps_step=1e-4, epsilon='None', threshold=1e-8, niter=10000, verbose=False, plotit=False, plotloss= True, ploterror= True, oracle=False, H0 = [], weights_exact = False, method = 'fista', fixed_max_size=float("inf")):
+def acc_palm_nmf(X,r,l=None, lmax = 10, lmin = 0.001, lambda_no = 20, c_lambda=1.2, proj_method='wolfe', m=5,H_init= None, W_init = None, maxiter=200, delta=1e-6, c1=1.1, c2=1.1 ,proj_low_dim = False, eps_step=1e-4, epsilon='None', threshold=1e-8, niter=10000, verbose=False, plotit=False, plotloss= False, ploterror= False, oracle=False, H0 = [], weights_exact = False, method = 'fista', fixed_max_size=float("inf")):
 
 # The main function which minimizes the proposed cost function using accelerated PALM iterations. The parameters have similar meanings as in 'palm_nmf' function.
 
@@ -1371,5 +1371,6 @@ def acc_palm_nmf(X,r,l=None, lmax = 10, lmin = 0.001, lambda_no = 20, c_lambda=1
         l_no = l_no + 1
     plot_H(Hnew, 'r','o')
 
+    #return  [Wnew, Hnew, L, Err]
     return{"weight":Wnew, "V":Hnew, "L":L, "Err":Err}
 
