@@ -7,9 +7,10 @@ source("r/vertex_hunting_functions.R")
 source("r/simplex_dist.R")
 
 
+
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
                   Mquantile=0.05, VHMethod = 'SP', normalize="none",
-                  alpha=0.5, max_K=150, returnW=TRUE){
+                  alpha=0.5, max_K=150, returnW=FALSE){
   #' This function computes the estimates for the A and W matrix based on the algorithm proposed in Ke and Wang's work: https://arxiv.org/pdf/1704.07016.pdf
   #' 
   #'
@@ -121,6 +122,11 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     vertices_est_obj <- vertices_est_SP(R, m)
     V <- vertices_est_obj$V
     theta <- NULL
+  }else if (VHMethod == 'AA'){
+    vertices_est_obj <- ArchetypeA(r_to_py(R),as.integer(K))
+    V <-vertices_est_obj$V
+    theta<-NULL
+
   }
   
   if (scatterplot){

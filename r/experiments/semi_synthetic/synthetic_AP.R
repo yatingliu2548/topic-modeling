@@ -5,7 +5,7 @@ library(tidyverse)
 library(reticulate)
 library(tidytext)
 
-#setwd("~/Documents/topic-modeling/")
+#setwd("~/topic-modeling/")
 source(paste0(getwd(),"/r/vertex_hunting_functions.R"))
 source(paste0(getwd(),'/r/score.r'))
 source(paste0(getwd(),'/r/evaluation_metrics.r'))
@@ -108,8 +108,6 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
     D_sim <- ap_lda@gamma[selected_docs,]%*%exp(ap_lda@beta)
     A = exp(t(ap_lda@beta))
     W = ap_lda@gamma
-    Epsilon = mean(abs(as.matrix(D) - as.matrix(W) %*% t(as.matrix(A))))
-
   }else{
     D_sim <- as.matrix(W)[selected_docs,] %*% t(as.matrix(A))
   }
@@ -211,10 +209,10 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
       scale_x_log10()
     
     # Vertices of the simplex
-    library(ggtern)
-    ggtern(data = data.frame(data$W), aes(x = X1, y = X2, z = X3)) +
-           geom_point(size = 3) +
-           theme_bw()
+    # library(ggtern)
+    # ggtern(data = data.frame(data$W), aes(x = X1, y = X2, z = X3)) +
+    #        geom_point(size = 3) +
+    #        theme_bw()
     
     ### check the words
 

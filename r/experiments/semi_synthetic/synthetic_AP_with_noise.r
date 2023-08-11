@@ -13,6 +13,7 @@ A = NULL
 W = NULL
 vocab = NULL
 Epsilon = NULL
+
 for (n in c(c(100, 250, 500, 250, 1000), 2000)){
     for (N in c(25, 50, 100, 200, 300, 400, 500, 750, 1000, 2000, 3000, 5000)){
      for (noise_level in c(0)){
@@ -25,7 +26,8 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000)){
         test <- run_experiment("AP", K, N=N, n=n, seed = seed, 
                                A = A, W=W, vocab=vocab, matlab_path=matlab_path,
                                VHMethod=VHMethod, noise_level = noise_level,
-                               Epsilon = Epsilon, remove_stop_words=FALSE)
+                               Epsilon = Epsilon, remove_stop_words=FALSE,
+                               estimateW = False)
         error_temp = test$error
         error_temp["Khat_huy"]=test$Khat_huy
         error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
