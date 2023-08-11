@@ -9,7 +9,7 @@ source("r/simplex_dist.R")
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
                   Mquantile=0.05, VHMethod = 'SP', normalize="none",
-                  alpha=0.5, max_K=150){
+                  alpha=0.5, max_K=150, returnW=TRUE){
   #' This function computes the estimates for the A and W matrix based on the algorithm proposed in Ke and Wang's work: https://arxiv.org/pdf/1704.07016.pdf
   #' 
   #'
@@ -156,14 +156,20 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   temp <- colSums(A_hat)
   A_hat <- t(apply(A_hat,1,function(x) x/temp))
   
-  print("Start estimation of W")
-  if(threshold){
-    A_hat_final[setJ, ] = A_hat
-    W_hat <- compute_W_from_AD(A_hat, D[setJ,])
+  if(returnW){
+    print("Start estimation of W")
+    if(threshold){
+      A_hat_final[setJ, ] = A_hat
+      W_hat <- compute_W_from_AD(A_hat, D[setJ,])
+    }else{
+      A_hat_final = A_hat
+      W_hat <- compute_W_from_AD(A_hat, D)
+    }
   }else{
-    A_hat_final = A_hat
-    W_hat <- compute_W_from_AD(A_hat, D)
+    W_hat = NULL
   }
+  
+  
 
   #Step 4
   

@@ -15,7 +15,8 @@ use_condaenv("r-reticulate")
 
 DEFAULT_MATLAB="/Applications/MATLAB_R2023a.app/bin/matlab"
 
-TSVD <- function(data, n, K, p, id, matlab_path=DEFAULT_MATLAB){
+TSVD <- function(data, n, K, p, id, matlab_path=DEFAULT_MATLAB,
+                 returnW=TRUE){
   inputPath <- paste0(getwd(), "/r/experiments/temporary/exp_","n", n, "-K", K, "-p",p , "-id", id,   "arr.mat")
   writeMat(inputPath, arr = t(data$D))
   outputPath <-paste0(getwd(),"/r/experiments/temporary/exp_","n", n, "-K", K, "-p",p , "-id", id,   "arr-result.mat")
@@ -25,7 +26,11 @@ TSVD <- function(data, n, K, p, id, matlab_path=DEFAULT_MATLAB){
   Ahat_tsvd <- readMat(outputPath)
   file.remove(inputPath)
   file.remove(outputPath)
-  What_tsvd <- compute_W_from_AD(Ahat_tsvd$M.hat, t(data$D))
+  if(returnW){
+    What_tsvd <- compute_W_from_AD(Ahat_tsvd$M.hat, t(data$D))
+  }else{
+    What_tsvd=NULL
+  }
   return(list(Ahat = Ahat_tsvd, 
               What = What_tsvd))
 }
@@ -58,8 +63,9 @@ AWR <- function(data){
 }
 
 synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed = 1234,
-                                         A = NULL, W = NULL, vocab=NULL, noise_level=0,
-                                         Epsilon=NULL, remove_stop_words=TRUE){
+                                         A = NULL, W = NULL, vocab=NULL, 
+                                         remove_stop_words=TRUE,
+                                         normalize_counts=FALSE){
   set.seed(seed)
   # p is the number of words in the dictionary.
   # n is the number of documents.
@@ -97,7 +103,7 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
       print("Dataset not implemented yet")
     }
     
-    ap_lda <- LDA(D, k = K, control = list(seed = seed))
+    ap_lda <- LDA(D, k = K, control = list(seed = seed), method = 'VEM')
     ap_topics <- tidy(ap_lda, matrix = "beta")
     D_sim <- ap_lda@gamma[selected_docs,]%*%exp(ap_lda@beta)
     A = exp(t(ap_lda@beta))
@@ -108,24 +114,6 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
     D_sim <- as.matrix(W)[selected_docs,] %*% t(as.matrix(A))
   }
   
-  if (is.null(noise_level)){
-    Z = 0
-  }else{
-    if ((noise_level) == "auto"){
-      if(is.null(Epsilon)){
-        Epsilon = 0.01
-      }
-      Z = matrix(rpois( nrow(D_sim) * ncol(D_sim),  Epsilon), 
-                 nrow=nrow(D_sim), ncol=ncol(D_sim))
-    }else{
-      Z = matrix(rpois( nrow(D_sim) * ncol(D_sim),  as.numeric(noise_level)), 
-                 nrow=nrow(D_sim), ncol=ncol(D_sim))
-      ### Have to flip some of the size
-    }
-    Sign = -1 + 2 * matrix(rbinom( nrow(D_sim) * ncol(D_sim), 1,  0.5), 
-                  nrow=nrow(D_sim), ncol=ncol(D_sim))
-    Z = Z * Sign
-  }
   if (length(doc_length)==1){
     N <- rep(doc_length, n)
   }else{
@@ -145,24 +133,24 @@ synthetic_dataset_generation <- function(dataset, K, doc_length=100, n=100, seed
   #   scale_y_reordered()
   p = dim(D_sim)[2]
   D_synth <- t(sapply(1:length(N), function(i){rmultinom(1, N[i], D_sim[i,])}))
-  D_synth = D_synth + Z
   D_synth[which(D_synth<0)] = 0
 
   print(sprintf("Dim of data D_synth = %s, %s", dim(D_synth)[1], dim(D_synth)[2]))
   counts = apply(D_synth, 2, sum)
   words2remove = which(counts < 1)
   print(sprintf("Dim of words2remove = %s", length(words2remove)))
+  if (normalize_counts){
+    D_synth = D_synth/mean(N)
+  }
   if (length(words2remove) >0){
     Atemp = A[-words2remove, ]
     return(list(D=D_synth[, -words2remove], vocab=vocab[-words2remove], 
                 A = Atemp %*% diag(1/apply(Atemp,2, sum)), W =W[selected_docs,],
-                Aoriginal=A, Woriginal = W, original_vocab = vocab,
-                Epsilon = Epsilon))
+                Aoriginal=A, Woriginal = W, original_vocab = vocab))
   }else{
     return(list(D=D_synth, vocab=vocab, 
                 A = A, W =W[selected_docs,],
-                Aoriginal=A, Woriginal = W, original_vocab = vocab,
-                Epsilon = Epsilon))
+                Aoriginal=A, Woriginal = W, original_vocab = vocab))
   }
 }
 
@@ -186,8 +174,8 @@ process_results <- function(Ahat, method, vocab, processingA=TRUE){
 update_error <- function(Ahat, What, A, W, method, error, thresholded = 0){
   error_temp <- data.frame(l1_A=matrix_lp_distance(Ahat, A, lp=1),
                            l2_A=matrix_lp_distance(Ahat, A, lp=2),
-                           l1_W=matrix_lp_distance(What, W, lp=1),
-                           l2_W=matrix_lp_distance(What, W, lp=2),
+                           l1_W=ifelse(is.null(What), NA, matrix_lp_distance(What, W, lp=1)),
+                           l2_W=ifelse(is.null(What), NA, matrix_lp_distance(What, W, lp=2)),
                            thresholded = thresholded,
                            K = dim(A)[2],
                            p = dim(A)[1],
@@ -205,13 +193,15 @@ update_error <- function(Ahat, What, A, W, method, error, thresholded = 0){
 run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
                            A=NULL, W=NULL, vocab=NULL, plot_data=FALSE,
                            matlab_path=DEFAULT_MATLAB, 
-                           VHMethod="SVS", noise_level = 0,
-                           remove_stop_words=FALSE, Epsilon=NULL){
+                           VHMethod="SVS",
+                           remove_stop_words=FALSE,
+                           evaluateW=FALSE,
+                           normalize_counts=TRUE){
   
   data = synthetic_dataset_generation(dataset,  K, doc_length=N, n=n, seed = seed,
-                                    A=A, W=W, vocab=vocab, noise_level =noise_level,
+                                    A=A, W=W, vocab=vocab, 
                                     remove_stop_words = remove_stop_words,
-                                    Epsilon=Epsilon)
+                                    normalize_counts=normalize_counts)
   #### Run check
   print("here")
   if (plot_data){
@@ -250,22 +240,24 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   lda <- LDA(data$D, k = K, control = list(seed = seed), method = 'VEM')
   ap_topics <- tidy(lda, matrix = "beta")
   Ahat_lda = exp(t(lda@beta))
-  What_lda = lda@gamma
-  
-  # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
-  # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
+  if(evaluateW){
+    What_lda = lda@gamma
+  }else{
+    What_lda = NULL
+  }
   error <- update_error(Ahat_lda, t(What_lda), data$A, t(data$W), method = "LDA", error=NULL,
                         thresholded = 0)
+
   
   #### Step 2: Run Tracy's method
-  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod)
+  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                          returnW=evaluateW)
   Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
   # resultsA <- rbind(resultsA, 
   #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))
   # resultsW <- rbind(resultsW,
   #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
-  
   error <- update_error(score_recovery$A_hat, (score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
                         thresholded = 0)
 
@@ -283,7 +275,11 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   if(is.null(Ahat_awr) == FALSE){
     # resultsA <- rbind(resultsA, 
     #                   process_results(Ahat_awr, "AWR", data$vocab))
-    What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
+    if(evaluateW){
+      What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
+    }else{
+      What_awr = NULL
+    }
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
     error <- update_error(Ahat_awr, (What_awr), data$A, t(data$W), method = "AWR", error=error)
@@ -305,10 +301,6 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     }
   )
   if (is.null(resultTSVD) == FALSE){
-    # resultsA <- rbind(resultsA, 
-    #                   process_results(resultTSVD$Ahat$M.hat, "TSVD", data$vocab))
-    # resultsW <- rbind(resultsW, 
-    #                   process_results(resultTSVD$What, "TSVD", seq_len(n), processingA=FALSE))
     error <- update_error(resultTSVD$Ahat$M.hat, (resultTSVD$What), data$A, t(data$W), method = "TSVD", error=error)
   }
   
@@ -330,17 +322,24 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     # resultsA <- rbind(resultsA, 
     #                   process_results(bing_recovery$A, "Bing", data$vocab))
     #### Have to cluster
-    if (dim(t(bing_recovery$A))[1]>K){
-      clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-      What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-      error <- update_error(t(clustered_res$centers), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+    if(evaluateW){
+      if (dim(t(bing_recovery$A))[1]>K){
+        clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
+        What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
+        error <- update_error(t(clustered_res$centers), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+      }else{
+        What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
+        What_bing <- rbind(What_bing, 
+                           matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
+        
+        
+      }
     }else{
-      What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
-      What_bing <- rbind(What_bing, 
-                         matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
+      What_bing = NULL
       error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
-      
     }
+    
+    
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
   }
@@ -354,7 +353,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
     score_ours <- tryCatch(
       score(D = t(data$D), K=K, normalize = 'huy', 
             threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
-            VHMethod=VHMethod),
+            VHMethod=VHMethod, returnW=evaluateW),
       error = function(err) {
         # Code to handle the error (e.g., print an error message, log the error, etc.)
         paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")

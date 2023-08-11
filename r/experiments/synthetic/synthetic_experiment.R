@@ -45,10 +45,11 @@ for (exp_seed in 1:10){
            
             error_temp["alpha"] = a_zipf
             error_temp["exp"] = result_file
+            error_temp["exp_n"] = exp_seed
             error_temp["VHMethod"] = VHMethod
             error <- rbind(error,
                            error_temp)
-            write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/synthetic_results",result_file)))
+            write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/synthetic_results",paste0(result_file, K), ".csv")))
             
           }
         }

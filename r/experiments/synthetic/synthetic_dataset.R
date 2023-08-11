@@ -12,7 +12,8 @@ source("r/experiments/semi_synthetic/synthetic_AP.R")
 #### the purpose here is to generate synthetic examples
 
 synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a_zipf=1,
-                                        n_anchors=0, delta_anchor=1, N=500, seed=123){
+                                        n_anchors=0, delta_anchor=1, N=500, seed=123,
+                                        normalize_counts=TRUE){
   
   set.seed(seed)
   W <- rdiric(n, rep(alpha, K))
@@ -32,6 +33,9 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
   A = t(A/apply(A, 1, sum))
   D0 = A %*% t(W)
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
+  if (normalize_counts){
+    X = X/N
+  }
   return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
               A= A[which(apply(X,1, sum) >0 ),], 
               W = W, vocab =which(apply(X,1, sum) >0 ),
@@ -43,11 +47,12 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
 
 run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                      n_anchors=0, delta_anchor=1, N=500,
-                                     noise_generation = "uniform", seed=1, VHMethod="SVS"){
+                                     noise_generation = "uniform", seed=1, VHMethod="SVS",
+                                     normalize_counts=True, estimateW=FALSE){
   
   data = synthetic_dataset_creation(n, K, p, alpha=alpha, n_max_zipf=50000, a_zipf=a_zipf,
                                     n_anchors=n_anchors, delta_anchor=delta_anchor, 
-                                    N=N, seed=seed)
+                                    N=N, seed=seed, normalize_counts=normalize_counts)
   #### Run check
   print("here")
   print(sprintf("Dim of data D = %s, %s", dim(data$D)[1], dim(data$D)[2]))
@@ -57,7 +62,11 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   lda <- LDA((data$D), k = K, control = list(seed = seed), method = 'VEM')
   ap_topics <- tidy(lda, matrix = "beta")
   Ahat_lda = exp(t(lda@beta))
-  What_lda = lda@gamma
+  if (estimateW){
+      What_lda = lda@gamma
+  }else{
+      What_lda = NULL
+  }
   
   # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
   # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
@@ -65,7 +74,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                         thresholded = 0)
   
   #### Step 2: Run Tracy's method
-  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod)
+  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                          returnW=FALSE)
   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
   # resultsA <- rbind(resultsA, 
@@ -90,7 +100,11 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   if(is.null(Ahat_awr) == FALSE){
     # resultsA <- rbind(resultsA, 
     #                   process_results(Ahat_awr, "AWR", data$vocab))
-    What_awr <- compute_W_from_AD(Ahat_awr, t(data$D))
+    if (estimateW){
+      What_awr  <- compute_W_from_AD(Ahat_awr, t(data$D))
+    }else{
+        What_awr = NULL
+    }
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_awr, "AWR", seq_len(n), processingA=FALSE))
     error <- update_error(Ahat_awr, (What_awr), data$A, t(data$W), method = "AWR", error=error)
@@ -137,17 +151,22 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
     # resultsA <- rbind(resultsA, 
     #                   process_results(bing_recovery$A, "Bing", data$vocab))
     #### Have to cluster
-    if (dim(t(bing_recovery$A))[1]>K){
-      clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-      What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-      error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), method = "Bing", error=error)
+    if (estimateW){
+        if (dim(t(bing_recovery$A))[1]>K){
+          clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
+          What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
+          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), method = "Bing", error=error)
+        }else{
+          What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
+          What_bing <- rbind(What_bing, 
+                            matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
+          error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+        }
     }else{
-      What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
-      What_bing <- rbind(What_bing, 
-                         matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
-      error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
-      
+        What_bing = NULL
+        error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
     }
+      
     # resultsW <- rbind(resultsW, 
     #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
   }
@@ -161,7 +180,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
     score_ours <- tryCatch(
       score(D = t(data$D), K=K, normalize = 'huy', 
             threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
-            VHMethod=VHMethod),
+            VHMethod=VHMethod, returnW = FALSE),
       error = function(err) {
         # Code to handle the error (e.g., print an error message, log the error, etc.)
         paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
