@@ -231,8 +231,13 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
           error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
         }
     }else{
-        What_bing = NULL
-        error <- update_error((bing_recovery$A), NULL, data$A, t(data$W), method = "Bing", error=error)
+      What_bing <- NULL
+      if (dim(t(bing_recovery$A))[1]!=K){
+        clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
+        error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W), method = "Bing", error=error)
+      }else{
+        error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+      }
     }
       
     # resultsW <- rbind(resultsW, 
