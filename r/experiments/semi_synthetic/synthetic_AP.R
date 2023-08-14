@@ -199,7 +199,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   data = synthetic_dataset_generation(dataset,  K, doc_length=N, n=n, seed = seed,
                                     A=A, W=W, vocab=vocab, 
                                     remove_stop_words = remove_stop_words,
-                                    normalize_counts=normalize_counts)
+                                    normalize_counts=FALSE)
   #### Run check
   print("here")
   if (plot_data){
@@ -248,7 +248,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
 
   
   #### Step 2: Run Tracy's method
-  score_recovery <- score(t(data$D), K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+  score_recovery <- score(t(data$D)/N, K, normalize = "norm", max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
                           returnW=evaluateW)
   Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
@@ -347,9 +347,9 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   
   #### Step 6: Run method
-  for (alpha in c(0.1, 0.5 , 1, 2, 4, 8)){
+  for (alpha in c(0.001, 0.01, 0.1, 0.5 , 1, 2, 4, 8)){
     score_ours <- tryCatch(
-      score(D = t(data$D), K=K, normalize = 'huy', 
+      score(D = t(data$D)/N, K=K, normalize = 'huy', 
             threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
             VHMethod=VHMethod, returnW=evaluateW),
       error = function(err) {
