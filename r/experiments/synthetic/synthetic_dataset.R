@@ -18,10 +18,6 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
   W <- rdiric(n, rep(alpha, K))
   W <- t(W) 
   W <- W /apply(W,2,sum)
-  #ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
-  #  geom_point(size = 3) +
-  #  theme_bw()
-  # 
   if (n_anchors >0){
     A = matrix(0, nrow=K, ncol=p)
     for (k in 1:K){
@@ -47,10 +43,6 @@ synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5,
   
   set.seed(seed)
   W <- rdiric(n, rep(2, K)) #n * K matrix
-  # ggtern(data = data.frame(W), aes(x = X1, y = X2, z = X3)) +
-  #   geom_point(size = 3) +
-  #   theme_bw()
-  # 
   
   #W[W == 0] <- W[W == 0] + min(W[W>0])*0.0001 #avoid all-zero columns of W
   W <- abs(W) /apply(abs(W),1,sum)
@@ -121,9 +113,6 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   }else{
       What_lda = NULL
   }
-  
-  # resultsA <- process_results(Ahat_lda, "LDA", data$vocab)
-  # resultsW <- process_results(What_lda, "LDA", seq_len(n), processingA=FALSE)
   error <- update_error(Ahat_lda, (What_lda), (data$A), t(data$W), method = "LDA", error=NULL,
                         thresholded = 0)
   print(error)
@@ -162,8 +151,6 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   if(is.null(Ahat_awr) == FALSE){
     print("AWR")
-    # resultsA <- rbind(resultsA,
-    #                   process_results(Ahat_awr, "AWR", data$vocab))
     if (estimateW){
       What_awr  <- t(compute_W_from_AD(Ahat_awr, t(data$D)))
     }else{
@@ -212,8 +199,6 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   )
   
   if (is.null(bing_recovery) == FALSE){
-    # resultsA <- rbind(resultsA, 
-    #                   process_results(bing_recovery$A, "Bing", data$vocab))
     #### Have to cluster
     if (estimateW){
         if (dim(t(bing_recovery$A))[1]!=K){
@@ -235,9 +220,6 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
         error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
       }
     }
-      
-    # resultsW <- rbind(resultsW, 
-    #                   process_results(What_bing, "Bing", seq_len(n), processingA=FALSE))
   }
   print("Done with Bing")
   print(error)
@@ -270,10 +252,6 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
     )
     #print(score_ours)
     if (is.null(score_ours) == FALSE){
-      # resultsA <- rbind(resultsA, 
-      #                   process_results(score_ours$A_hat, paste0("Ours_", alpha), data$vocab))
-      # resultsW <- rbind(resultsW,
-      #                   process_results(score_ours$W_hat, paste0("Ours_", alpha), seq_len(n), processingA=FALSE))
       error <- update_error(score_ours$A_hat, (score_ours$W_hat), data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
                             thresholded=score_ours$thresholded)
       Khat_huy <- select_K(score_ours$eigenvalues, p,n, N, method="huy")
