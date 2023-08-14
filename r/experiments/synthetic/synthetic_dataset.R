@@ -220,7 +220,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
     #                   process_results(bing_recovery$A, "Bing", data$vocab))
     #### Have to cluster
     if (estimateW){
-        if (dim(t(bing_recovery$A))[1]>K){
+        if (dim(t(bing_recovery$A))[1]!=K){
           clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
           What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
           error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), method = "Bing", error=error)
