@@ -8,9 +8,7 @@ from  helper_functions import *
 # Given a sparse CSC document matrix M (with floating point entries),
 # comptues the word-word correlation matrix Q
 def generate_Q_matrix(M, words_per_doc=None):
-    print("uiiii")
     if isinstance(M, (np.ndarray)) and not scipy.sparse.issparse(M):
-        print("here")
         M = scipy.sparse.csc_matrix(M)
     simulation_start = time.time()
 
