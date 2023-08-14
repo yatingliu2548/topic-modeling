@@ -111,7 +111,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   print(sprintf("Dim of data D = %s, %s", dim(data$D)[1], dim(data$D)[2]))
   print(sprintf("Dim of data A = %s, %s", dim(data$A)[1], dim(data$A)[2]))
   print(sprintf("Dim of data W = %s, %s", dim(data$W)[1], dim(data$W)[2]))
-  
+  print(sprintf("n = %s, p = %s, N = %s", n, p, N)) 
   # #### Step 1: Run the LDA pipeline
   lda <- LDA((data$D), k = K, control = list(seed = seed), method = 'VEM')
   ap_topics <- tidy(lda, matrix = "beta")
@@ -140,10 +140,6 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   }
   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
-  # resultsA <- rbind(resultsA, 
-  #                   process_results(score_recovery$A_hat, "TopicScore", data$vocab))
-  # resultsW <- rbind(resultsW,
-  #                   process_results(score_recovery$W_hat, "TopicScore", seq_len(n), processingA=FALSE))
   if (estimateW){
       error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
                         thresholded = 0)
