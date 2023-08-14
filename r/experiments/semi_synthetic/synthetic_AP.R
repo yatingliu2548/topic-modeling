@@ -169,7 +169,7 @@ process_results <- function(Ahat, method, vocab, processingA=TRUE){
 }
 
 
-update_error <- function(Ahat, What, A, W, method, error, thresholded = 0){
+update_error <- function(Ahat, What, A, W, method, time, error, thresholded = 0){
   error_temp <- data.frame(l1_A=matrix_lp_distance(Ahat, A, lp=1),
                            l2_A=matrix_lp_distance(Ahat, A, lp=2),
                            l1_W=ifelse(is.null(What), NA, matrix_lp_distance(What, W, lp=1)),
@@ -177,6 +177,7 @@ update_error <- function(Ahat, What, A, W, method, error, thresholded = 0){
                            thresholded = thresholded,
                            K = dim(A)[2],
                            p = dim(A)[1],
+                           time = time,
                            method = method)
   
   if (is.null(error)){

@@ -7,7 +7,7 @@ K = ceiling(as.numeric(args[3]))
 matlab_path = args[4]
 error <- c()
 
-
+vim re
 
 A = NULL
 W = NULL

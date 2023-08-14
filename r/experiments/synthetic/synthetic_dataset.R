@@ -105,49 +105,70 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   print(sprintf("Dim of data W = %s, %s", dim(data$W)[1], dim(data$W)[2]))
   print(sprintf("n = %s, p = %s, N = %s", n, p, N)) 
   # #### Step 1: Run the LDA pipeline
-  lda <- LDA((data$D), k = K, control = list(seed = seed), method = 'VEM')
-  ap_topics <- tidy(lda, matrix = "beta")
-  Ahat_lda = exp(t(lda@beta))
-  if (estimateW){
+  elapsed_timeLDA <- system.time({
+    lda <- LDA((data$D), k = K, control = list(seed = seed), method = 'VEM')
+    ap_topics <- tidy(lda, matrix = "beta")
+    Ahat_lda = exp(t(lda@beta))
+    if (estimateW){
       What_lda = lda@gamma
-  }else{
+    }else{
       What_lda = NULL
-  }
-  error <- update_error(Ahat_lda, (What_lda), (data$A), t(data$W), method = "LDA", error=NULL,
+    }
+  })["elapsed"]
+  
+  error <- update_error(Ahat_lda, (What_lda), (data$A), t(data$W), 
+                        time = elapsed_timeLDA, method = "LDA", error=NULL,
                         thresholded = 0)
   print(error)
   
   #### Step 2: Run Tracy's method
-  if (normalize_counts){
-    score_recovery <- score(t(data$D)/N, K, normalize = "norm", 
-                            max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
-                            returnW=estimateW)
-  }else{
-    score_recovery <- score(t(data$D), K, normalize = "norm", 
-                            max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
-                            returnW=estimateW)
-  }
+  
+  elapsed_timeTracy <- system.time({
+    if (normalize_counts){
+      score_recovery <- score(t(data$D)/N, K, normalize = "norm", 
+                              max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                              returnW=estimateW)
+    }else{
+      score_recovery <- score(t(data$D), K, normalize = "norm", 
+                              max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                              returnW=estimateW)
+    }
+  })["elapsed"]
+  
+  
   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
   if (estimateW){
-      error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W), method = "TopicScore", error=error,
+      error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W),
+                            time = elapsed_timeTracy, method = "TopicScore", error=error,
                         thresholded = 0)
   }else{
-      error <- update_error(score_recovery$A_hat, NULL, data$A, t(data$W), method = "TopicScore", error=error,
+      error <- update_error(score_recovery$A_hat, NULL, data$A, t(data$W), 
+                            time = elapsed_timeTracy, method = "TopicScore", error=error,
                         thresholded = 0)
   }
   print("Done with Tracy")
   print(error)
   # ### Step 3: Run AWR
-  Ahat_awr <- tryCatch(
-    AWR(data),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-    error = function(err) {
-      # Code to handle the error (e.g., print an error message, log the error, etc.)
-      cat("Error occurred while running AWR:", conditionMessage(err), "\n")
-      # Return a default value or NULL to continue with the rest of the code
-      return(NULL)
-    }
-  )
+  
+  
+  
+  elapsed_timeAWR <- system.time({
+    Ahat_awr <- tryCatch(
+      AWR(data),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+      error = function(err) {
+        # Code to handle the error (e.g., print an error message, log the error, etc.)
+        cat("Error occurred while running AWR:", conditionMessage(err), "\n")
+        # Return a default value or NULL to continue with the rest of the code
+        return(NULL)
+      }
+    )
+  })["elapsed"]
+  print(elapsed_timeAWR)
+  
+
+  
+ 
   
   if(is.null(Ahat_awr) == FALSE){
     print("AWR")
@@ -156,7 +177,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
     }else{
         What_awr = NULL
     }
-    error <- update_error(Ahat_awr, What_awr, data$A, t(data$W), method = "AWR", error=error)
+    error <- update_error(Ahat_awr, What_awr, data$A, t(data$W),    time = elapsed_timeAWR, 
+                          method = "AWR", error=error)
   }
   print("Done with AWR")
   print(error)
@@ -188,15 +210,20 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
    ### Step 5: Run Bing's method
   
   # Code that might throw an error
-  bing_recovery <- tryCatch(
-    Bing(data, C0=0.1, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-    error = function(err) {
-      # Code to handle the error (e.g., print an error message, log the error, etc.)
-      cat("Error occurred while running Bing:", conditionMessage(err), "\n")
-      # Return a default value or NULL to continue with the rest of the code
-      return(NULL)
-    }
-  )
+  
+  elapsed_timeBing <- system.time({
+    bing_recovery <- tryCatch(
+      Bing(data, C0=0.1, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+      error = function(err) {
+        # Code to handle the error (e.g., print an error message, log the error, etc.)
+        cat("Error occurred while running Bing:", conditionMessage(err), "\n")
+        # Return a default value or NULL to continue with the rest of the code
+        return(NULL)
+      }
+    )
+  })["elapsed"]
+  
+  
   
   if (is.null(bing_recovery) == FALSE){
     #### Have to cluster
@@ -204,20 +231,30 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
         if (dim(t(bing_recovery$A))[1]!=K){
           clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
           What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), method = "Bing", error=error)
+          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, 
+                                (data$W), time=elapsed_timeBing, 
+                                method = "Bing", error=error)
         }else{
           What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
           What_bing <- rbind(What_bing, 
                             matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
-          error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+          error <- update_error((bing_recovery$A), (What_bing), data$A, 
+                                t(data$W), time=elapsed_timeBing,
+                                method = "Bing", error=error)
         }
     }else{
       What_bing <- NULL
-      if (dim(t(bing_recovery$A))[1]!=K){
+      if (dim(t(bing_recovery$A))[1]> K){
         clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-        error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W), method = "Bing", error=error)
+        error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W),  time=elapsed_timeBing, 
+                              method = "Bing", error=error)
       }else{
-        error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+        if (dim(t(bing_recovery$A))[1]== K){
+          error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W),
+                                time=elapsed_timeBing, method = "Bing", error=error)
+        }else{
+          print("Had to skip Bing. Found less clusters than intended.")
+        }
       }
     }
   }
@@ -231,28 +268,33 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   #### Step 6: Run method
   for (alpha in c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5 , 1, 2, 4, 8)){
     print(alpha)
-    score_ours <- tryCatch(
-      if (normalize_counts){
-        score(D = t(data$D)/N, K=K, 
-            normalize = 'huy', 
-            threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
-            VHMethod=VHMethod, returnW = estimateW)
+    elapsed_timeOurs <- system.time({
+      score_ours <- tryCatch(
+        
+        if (normalize_counts){
+          score(D = t(data$D)/N, K=K, 
+                normalize = 'huy', 
+                threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
+                VHMethod=VHMethod, returnW = estimateW)
         }else{
           score(D = t(data$D), K=K, 
                 normalize = 'huy', 
                 threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(data$D))-1, 150),
                 VHMethod=VHMethod, returnW = estimateW)
         },
-      error = function(err) {
-        # Code to handle the error (e.g., print an error message, log the error, etc.)
-        paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
-        # Return a default value or NULL to continue with the rest of the code
-        return(NULL)
-      }
-    )
+        error = function(err) {
+          # Code to handle the error (e.g., print an error message, log the error, etc.)
+          paste0("Error occurred while running Score ", alpha, " :", conditionMessage(err), "\n")
+          # Return a default value or NULL to continue with the rest of the code
+          return(NULL)
+        }
+      )
+    })["elapsed"]
+    
     #print(score_ours)
     if (is.null(score_ours) == FALSE){
-      error <- update_error(score_ours$A_hat, (score_ours$W_hat), data$A, t(data$W), method = paste0("Ours_", alpha), error=error,
+      error <- update_error(score_ours$A_hat, (score_ours$W_hat), data$A, t(data$W), 
+                            time=elapsed_timeOurs, method = paste0("Ours_", alpha), error=error,
                             thresholded=score_ours$thresholded)
       Khat_huy <- select_K(score_ours$eigenvalues, p,n, N, method="huy")
       print(paste0("Done with alpha ", alpha))
