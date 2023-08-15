@@ -75,8 +75,8 @@ def gen_data_sparse(V=1000, K=10, M=1000, Nm=100, s=20, eta_1=0.3,eta_2=3, alpha
 
     beta_t = np.zeros((V, K))
     
-    beta_t[0:s,:]=np.abs(np.random.normal(0,100,size=(s,K)))#np.random.dirichlet(np.ones(s)*eta_1, K).T
-    beta_t[s:,:]=np.random.dirichlet(np.ones(V-s)*eta_2, K).T*0.00001
+    beta_t[0:s,:]=np.abs(np.random.normal(0,1,size=(s,K)))#np.random.dirichlet(np.ones(s)*eta_1, K).T
+    beta_t[s:,:]=np.random.dirichlet(np.ones(V-s)*eta_2, K).T
     
     beta_t=beta_t.T
     beta_t = np.apply_along_axis(lambda x: x/x.sum(), 1, beta_t)
@@ -106,7 +106,7 @@ def gen_data_sparse(V=1000, K=10, M=1000, Nm=100, s=20, eta_1=0.3,eta_2=3, alpha
     
     wdf = np.apply_along_axis(lambda x: np.random.multinomial(Nm, x), 1, simplex).astype('float')
 #    sum(wdf.sum(axis=0)==0)
-    full_set = wdf.sum(axis=0)>=0
+    full_set = wdf.sum(axis=0)>0
     new_V = [i for i in range(V) if full_set[i]]
     anchor_set = [new_V.index(i) for i in anchor_set]
     wdf = wdf[:,full_set]
