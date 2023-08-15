@@ -57,24 +57,28 @@ synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5,
   W = t(W) 
 
   A <- matrix(0, nrow=K, ncol=p)
-  if (s<p){
-    A[,1:s] <- abs(rnorm(s * K, mean = 0, sd = 1))
-    A[,(s + 1):p] <- t(rdiric(p-s,rep(alpha,K))) * 0.01
-  }else{
-    A = t(rdiric(p,rep(alpha,K))) 
-  }
-  if (n_anchors >0){ #for all 1<=k \neq j <=K, there exists at least a column of A that can be represented as x_{kj 1}*e_k+ x
+  A = t(rdiric(p,rep(alpha,K))) 
+  if (n_anchors==0){ #for all 1<=k \neq j <=K, there exists at least a column of A that can be represented as x_{kj 1}*e_k+ x
     kj=1
     for (k in 1:K){
       for (j in k:K) {
-        if (j<k){
-          for (i in ((kj-1)*n_anchors +1) : (kj * n_anchors)){
+        if (j>k){
+          for (i in ((kj-1)*1 +1) : (kj * 1)){
             A[, i] <- runif(1, min = 0, max = 1 / K) * diag(K)[, k] + runif(1, min = 0, max = 1 / K) * diag(K)[, j]
           }
           kj=kj+1
         }
       }  
     }
+    A[,((kj-1) * 1+1):((kj-1) * 1+s) ] <-sapply(1/(rep(1,s)+ 2.7)^a_zipf, function(u){rexp(K, u)})
+    A[,((kj-1) * 1+1+s):p ] <-sapply(1/(1: (p-(1 * (kj-1)+s)) + 2.7)^a_zipf, function(u){rexp(K, u)})
+  }else{
+    for (k in 1:K){
+      A[k, ((k-1)*n_anchors +1) : (k * n_anchors)] = delta_anchor
+    }
+    A[,(K * n_anchors+1):(K * n_anchors+s) ] <- sapply(1/(rep(1,s) + 2.7)^a_zipf, function(u){rexp(K, u )})
+    A[,(K * n_anchors+1+s):p ] <- sapply(1/(1:(p-(K*n_anchors+s)) + 2.7)^a_zipf, function(u){rexp(K, u )})
+
   }
   A = abs(A)
   W = abs(W)
@@ -131,11 +135,11 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   #### Step 2: Run Tracy's method
   if (normalize_counts){
     score_recovery <- score(t(data$D)/N, K, normalize = "norm", 
-                            max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                            max_K = min(150, min(dim(data$D)-1)), VHMethod="SP",
                             returnW=estimateW)
   }else{
     score_recovery <- score(t(data$D), K, normalize = "norm", 
-                            max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                            max_K = min(150, min(dim(data$D)-1)), VHMethod="SP",
                             returnW=estimateW)
   }
   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
@@ -223,16 +227,20 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
         if (dim(t(bing_recovery$A))[1]>K){
           clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
           What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), method = "Bing", error=error)
+          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)
         }else{
           What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
           What_bing <- rbind(What_bing, 
                             matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
-          error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+          error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error, thresholded=bing_recovery$thresholded)
         }
     }else{
         What_bing = NULL
-        error <- update_error((bing_recovery$A), NULL, data$A, t(data$W), method = "Bing", error=error)
+        if (dim(t(bing_recovery$A))[1]>K){
+          clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
+          error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)
+        }else{
+          error <- update_error((bing_recovery$A), NULL, data$A, t(data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)}
     }
       
     # resultsW <- rbind(resultsW, 
@@ -246,7 +254,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   
   #### Step 6: Run method
-  for (alpha in c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5 , 1, 2, 4, 8)){
+  for (alpha in c(0.001, 0.005, 0.01, 0.5 , 1, 4, 8)){
     print(alpha)
     score_ours <- tryCatch(
       if (normalize_counts){
