@@ -27,7 +27,6 @@ def Sp_Top(X, anchor_group = None, C0 = 0.01, C1 = [1.1], cv_rep = 50):
   #   A: the estimated word-topic membership matrixx
 
   [p, n] = X.shape
-  print(X)
   Ns = np.sum(X, 0).astype(float)
   P = max(n, p, max(Ns))
   X_freq = X / Ns
@@ -57,10 +56,18 @@ def Sp_Top(X, anchor_group = None, C0 = 0.01, C1 = [1.1], cv_rep = 50):
   lbd = Sp_Utils.Cal_lbd(Ns, X_freq, D_X, P, K, anchor_vec)
   thresh = 7 * p * np.log(P) * np.sum(1 / Ns) / n
   
+  p = len(D_X)
+  num_th=0
+  non_anchor_vec = [x for x in range(p) if x not in anchor_vec]
+  for j in non_anchor_vec:
+    if D_X[j] >= thresh:
+      num_th=num_th+1
+  
   A_hat = Sp_RecoverA.Est_A(D_X, R, anchor_group, anchor_vec, C0, lbd, thresh)
   
+  per_th=1-num_th/p
   return {"K": K, "Anchor words": [word for group in anchor_group for word in group], 
-  "Anchor groups": anchor_group, "A": A_hat}
+  "Anchor groups": anchor_group, "A": A_hat,"thresholded": per_th}
 
 
 
