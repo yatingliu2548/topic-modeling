@@ -14,7 +14,7 @@ anchors = c(0, 1, 5, 10)
 tot = sapply(anchors, function(x){x * K})
 p = 10000
 
-for (exp_seed in 1:10){
+for (exp_seed in 1:100){
   for (n in c(c(100, 250, 500, 250, 1000), 2000)){
     for (N in c(50, 100, 300, 500, 750, 1000, 2000, 3000, 5000, 10000)){
       for (n_anchors in anchors){
