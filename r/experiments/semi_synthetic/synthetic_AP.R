@@ -324,7 +324,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
       if (dim(t(bing_recovery$A))[1]>K){
         clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
         What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-        error <- update_error(t(clustered_res$centers), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+        error <- update_error(t(clustered_res$centers), (What_bing), data$A, t(data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)
       }else{
         What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
         What_bing <- rbind(What_bing, 
@@ -334,7 +334,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
       }
     }else{
       What_bing = NULL
-      error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error)
+      error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)
     }
     
     
