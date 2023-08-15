@@ -12,18 +12,19 @@ print(seed)
 
 
 
-anchors = c(0, 1, 5, 10)
+anchors = c( 1, 0, 10)
 tot = sapply(anchors, function(x){x * K})
 p = 10000
 
-for (n in c(c(100, 250, 500, 250, 1000), 2000)){
-  for (n_frac in c(0.5, 0.8, 1, 2, 5, 10)){
-    for (n_anchors in anchors){
+for (n in c(c(100, 1000))){
+  for (n_frac in c(0.5, 5)){
+    for (alpha in c(0.5,3)){
       N = ceiling(n_frac * n)
-      for (VHMethod in c("SP", "AA")){
-          test <- run_synthetic_experiment(n, K, p, alpha=0.5, a_zipf=1,
-                                          n_anchors=0, delta_anchor=1, N=N,
-                                          seed=seed, VHMethod=VHMethod,data_method=2)
+      for (VHMethod in c("AA")){
+        for (n_anchors in anchors){
+          test <- run_synthetic_experiment(n, K, p, alpha=alpha, a_zipf=1,
+                                          n_anchors=n_anchors, delta_anchor=1, N=N,
+                                          seed=seed, VHMethod=VHMethod,data_generation_method=2,normalize_counts=TRUE, estimateW=FALSE, s=200)
           error_temp = test$error
           error_temp["Khat_huy"]=test$Khat_huy
           error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
@@ -34,6 +35,7 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000)){
           error_temp["N"] = N
           error_temp["n"] = n
           error_temp["seed"] =  seed
+          error_temp["alpha"] =  alpha
           error_temp["n_anchors"] =  n_anchors
           error_temp["n_frac"] = n_frac
           error_temp["exp"] = result_file
@@ -41,8 +43,8 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000)){
           error <- rbind(error,
                           error_temp)
           write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/",result_file)))
+        }
       }
-
     }
   }
 }
