@@ -126,22 +126,42 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   print(error)
   
   #### Step 2: Run Tracy's method
+  Khat_olga = NULL
+  Khat_tracy = NULL
   
   elapsed_timeTracy <- system.time({
     if (normalize_counts){
-      score_recovery <- score(t(data$D)/N, K, normalize = "norm", 
-                              max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
-                              returnW=estimateW)
+      score_recovery <- score(t(data$D)/N, K, normalize = "norm",
+                max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                returnW=estimateW)
+      # score_recovery <- evalWithTimeout({
+      #   # Some potentially long-running code here
+      #   score(t(data$D)/N, K, normalize = "norm", 
+      #         max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+      #         returnW=estimateW)
+      #   print("Tracy's code finished!")
+      #   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
+      #   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
+      #   
+      # }, timeout = 300, onTimeout = "warning") ### stops if longer than 5min
+
     }else{
-      score_recovery <- score(t(data$D), K, normalize = "norm", 
+      # score_recovery <- evalWithTimeout({
+      #   # Some potentially long-running code here
+      #   score(t(data$D), K, normalize = "norm", 
+      #         max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+      #         returnW=estimateW)
+      #   print("Tracy's code finished!")
+      #   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
+      #   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
+      # }, timeout = 300, onTimeout = "warning") ### stops if longer than 5min
+      score_recovery <- score(t(data$D), K, normalize = "norm",
                               max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
                               returnW=estimateW)
     }
   })["elapsed"]
   
   
-  Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
-  Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
   if (estimateW){
       error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W),
                             time = elapsed_timeTracy, method = "TopicScore", error=error,
@@ -228,19 +248,19 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   })["elapsed"]
   
   
-  
   if (is.null(bing_recovery) == FALSE){
     #### Have to cluster
     if (estimateW){
         if (dim(t(bing_recovery$A))[1]!=K){
           clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
           What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)
+          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), 
+                                time=elapsed_timeBing, method = "Bing", 
+                                error=error, thresholded=bing_recovery$thresholded)
         }else{
           What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
           What_bing <- rbind(What_bing, 
                             matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
-          error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W), method = "Bing", error=error, thresholded=bing_recovery$thresholded)
           error <- update_error((bing_recovery$A), (What_bing), data$A, 
                                 t(data$W), time=elapsed_timeBing,
                                 method = "Bing", error=error)
@@ -249,22 +269,14 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
         What_bing = NULL
         if (dim(t(bing_recovery$A))[1]>K){
           clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-          error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)
+          error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W),  
+                                time=elapsed_timeBing, method = "Bing", 
+                                error=error,thresholded=bing_recovery$thresholded)
         }else{
-          error <- update_error((bing_recovery$A), NULL, data$A, t(data$W), method = "Bing", error=error,thresholded=bing_recovery$thresholded)}
-      What_bing <- NULL
-      if (dim(t(bing_recovery$A))[1]> K){
-        clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-        error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W),  time=elapsed_timeBing, 
-                              method = "Bing", error=error,thresholded=bing_recovery$thresholded)
-      }else{
-        if (dim(t(bing_recovery$A))[1]== K){
-          error <- update_error((bing_recovery$A), (What_bing), data$A, t(data$W),
-                                time=elapsed_timeBing, method = "Bing", error=error,thresholded=bing_recovery$thresholded)
-        }else{
-          print("Had to skip Bing. Found less clusters than intended.")
-        }
-      }
+          error <- update_error((bing_recovery$A), NULL, data$A, t(data$W),  time=elapsed_timeBing,
+                                method = "Bing", 
+                                error=error,thresholded=bing_recovery$thresholded)}
+
     }
   }
   print("Done with Bing")

@@ -6,6 +6,7 @@ seed = ceiling(as.numeric(args[1]))
 result_file = args[2]
 K = ceiling(as.numeric(args[3]))
 matlab_path = args[4]
+#matlab_path = DEFAULT_MATLAB
 error <- c()
 
 
@@ -35,7 +36,7 @@ for (exp_seed in 1:100){
             error_temp = test$error
             error_temp["Khat_huy"]=test$Khat_huy
             error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
-            error_temp["Khat_olga"]=test$Khat_olga
+            error_temp["Khat_olga"]= test$Khat_olga
             error_temp["Khat_olga_thresh"] = test$Khat_olga_thresh
             error_temp["Khat_tracy"]=test$Khat_tracy
             error_temp["Khat_tracy_thresh"] = test$Khat_tracy_thresh
