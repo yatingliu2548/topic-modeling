@@ -6,7 +6,7 @@
 #SBATCH --array=1-50
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
-#SBATCH --ntasks=1
+#SBATCH --ntasks-per-node=5
 #SBATCH --mem=15G
 #SBATCH --account=pi-cdonnat
 

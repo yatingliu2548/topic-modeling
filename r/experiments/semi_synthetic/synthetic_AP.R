@@ -302,22 +302,22 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   ### Step 4: Run TSVD
   
-  id = ceiling(runif(n=1, max=1e6))
-  elapsed_timetsvd<- system.time({
-  resultTSVD <- tryCatch(
-    TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-    error = function(err) {
-      # Code to handle the error (e.g., print an error message, log the error, etc.)
-      cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
-      # Return a default value or NULL to continue with the rest of the code
-      return(NULL)
-    }
-  )
-  })["elapsed"]
-  if (is.null(resultTSVD) == FALSE){
-    error <- update_error(resultTSVD$Ahat$M.hat, (resultTSVD$What), data$A, t(data$W),
-                          time=elapsed_timetsvd, method = "TSVD", error=error)
-  }
+#   id = ceiling(runif(n=1, max=1e6))
+#   elapsed_timetsvd<- system.time({
+#   resultTSVD <- tryCatch(
+#     TSVD(data, n, K, p, id, matlab_path=matlab_path),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+#     error = function(err) {
+#       # Code to handle the error (e.g., print an error message, log the error, etc.)
+#       cat("Error occurred while running TSVD:", conditionMessage(err), "\n")
+#       # Return a default value or NULL to continue with the rest of the code
+#       return(NULL)
+#     }
+#   )
+#   })["elapsed"]
+#   if (is.null(resultTSVD) == FALSE){
+#     error <- update_error(resultTSVD$Ahat$M.hat, (resultTSVD$What), data$A, t(data$W),
+#                           time=elapsed_timetsvd, method = "TSVD", error=error)
+#   }
   
   
   ### Step 5: Run Bing's method
@@ -368,7 +368,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   
   #### Step 6: Run method
-  for (alpha in c(0.001, 0.01, 0.1, 0.5 , 1, 2, 4, 8)){
+  for (alpha in c(0.001, 0.01, 0.05,  0.1, 0.5 , 1, 2, 4, 8)){
     elapsed_timeOurs <- system.time({
           score_ours <- tryCatch(
             score(D = t(data$D)/N, K=K, normalize = 'huy', 
