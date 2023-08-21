@@ -7,8 +7,6 @@ K = ceiling(as.numeric(args[3]))
 matlab_path = args[4]
 error <- c()
 
-vim re
-
 A = NULL
 W = NULL
 vocab = NULL
@@ -25,7 +23,7 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000)){
         test <- run_experiment("AP", K, N=N, n=n, seed = seed, 
                                A = A, W=W, vocab=vocab, matlab_path=matlab_path,
                                VHMethod=VHMethod, remove_stop_words=FALSE,
-                               estimateW = False)
+                               evaluateW = False)
         error_temp = test$error
         error_temp["Khat_huy"]=test$Khat_huy
         error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
