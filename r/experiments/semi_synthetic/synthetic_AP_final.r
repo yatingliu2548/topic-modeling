@@ -23,7 +23,11 @@ for (n in c(c(100, 250, 500, 250, 1000), 2000)){
         test <- run_experiment("AP", K, N=N, n=n, seed = seed, 
                                A = A, W=W, vocab=vocab, matlab_path=matlab_path,
                                VHMethod=VHMethod, remove_stop_words=FALSE,
+<<<<<<< HEAD
                                evaluateW = False)
+=======
+                               evaluateW = FALSE)
+>>>>>>> 2c125cbc04022933f0d750c5f1a9c354f0a988dc
         error_temp = test$error
         error_temp["Khat_huy"]=test$Khat_huy
         error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh

@@ -177,34 +177,34 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   
   
-  elapsed_timeAWR <- system.time({
-    Ahat_awr <- tryCatch(
-      AWR(data),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-      error = function(err) {
-        # Code to handle the error (e.g., print an error message, log the error, etc.)
-        cat("Error occurred while running AWR:", conditionMessage(err), "\n")
-        # Return a default value or NULL to continue with the rest of the code
-        return(NULL)
-      }
-    )
+ elapsed_timeAWR <- system.time({
+ Ahat_awr <- tryCatch(
+   AWR(data),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+   error = function(err) {
+     # Code to handle the error (e.g., print an error message, log the error, etc.)
+     cat("Error occurred while running AWR:", conditionMessage(err), "\n")
+     # Return a default value or NULL to continue with the rest of the code
+     return(NULL)
+   }
+ )
   })["elapsed"]
-  print(elapsed_timeAWR)
+ print(elapsed_timeAWR)
   
 
   
  
   
-  if(is.null(Ahat_awr) == FALSE){
-    print("AWR")
-    if (estimateW){
-      What_awr  <- t(compute_W_from_AD(Ahat_awr, t(data$D)))
-    }else{
-        What_awr = NULL
-    }
-    error <- update_error(Ahat_awr, What_awr, data$A, t(data$W),    time = elapsed_timeAWR, 
-                          method = "AWR", error=error)
+ if(is.null(Ahat_awr) == FALSE){
+ print("AWR")
+ if (estimateW){
+   What_awr  <- t(compute_W_from_AD(Ahat_awr, t(data$D)))
+ }else{
+     What_awr = NULL
+ }
+ error <- update_error(Ahat_awr, What_awr, data$A, t(data$W),    time = elapsed_timeAWR, 
+                       method = "AWR", error=error)
   }
-  print("Done with AWR")
+ print("Done with AWR")
   print(error)
 
   
@@ -235,52 +235,52 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   # Code that might throw an error
   
-  elapsed_timeBing <- system.time({
-    bing_recovery <- tryCatch(
-      Bing(data, C0=0.1, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
-      error = function(err) {
-        # Code to handle the error (e.g., print an error message, log the error, etc.)
-        cat("Error occurred while running Bing:", conditionMessage(err), "\n")
-        # Return a default value or NULL to continue with the rest of the code
-        return(NULL)
-      }
-    )
-  })["elapsed"]
-  
-  
-  if (is.null(bing_recovery) == FALSE){
-    #### Have to cluster
-    if (estimateW){
-        if (dim(t(bing_recovery$A))[1]!=K){
-          clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-          What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
-          error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), 
-                                time=elapsed_timeBing, method = "Bing", 
-                                error=error, thresholded=bing_recovery$thresholded)
-        }else{
-          What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
-          What_bing <- rbind(What_bing, 
-                            matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
-          error <- update_error((bing_recovery$A), (What_bing), data$A, 
-                                t(data$W), time=elapsed_timeBing,
-                                method = "Bing", error=error)
-        }
-    }else{
-        What_bing = NULL
-        if (dim(t(bing_recovery$A))[1]>K){
-          clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
-          error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W),  
-                                time=elapsed_timeBing, method = "Bing", 
-                                error=error,thresholded=bing_recovery$thresholded)
-        }else{
-          error <- update_error((bing_recovery$A), NULL, data$A, t(data$W),  time=elapsed_timeBing,
-                                method = "Bing", 
-                                error=error,thresholded=bing_recovery$thresholded)}
-
-    }
-  }
-  print("Done with Bing")
-  print(error)
+   elapsed_timeBing <- system.time({
+     bing_recovery <- tryCatch(
+       Bing(data, C0=0.1, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+       error = function(err) {
+         # Code to handle the error (e.g., print an error message, log the error, etc.)
+         cat("Error occurred while running Bing:", conditionMessage(err), "\n")
+         # Return a default value or NULL to continue with the rest of the code
+         return(NULL)
+       }
+     )
+   })["elapsed"]
+   
+   
+   if (is.null(bing_recovery) == FALSE){
+     #### Have to cluster
+     if (estimateW){
+         if (dim(t(bing_recovery$A))[1]!=K){
+           clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
+           What_bing <- compute_W_from_AD(t(clustered_res$centers), t(data$D))
+           error <- update_error(t(clustered_res$centers), t(What_bing), data$A, (data$W), 
+                                 time=elapsed_timeBing, method = "Bing", 
+                                 error=error, thresholded=bing_recovery$thresholded)
+         }else{
+           What_bing <- compute_W_from_AD(bing_recovery$A, t(data$D))
+           What_bing <- rbind(What_bing, 
+                             matrix(0, ncol=ncol(What_bing), nrow = K - nrow(What_bing)  ))
+           error <- update_error((bing_recovery$A), (What_bing), data$A, 
+                                 t(data$W), time=elapsed_timeBing,
+                                 method = "Bing", error=error)
+         }
+     }else{
+         What_bing = NULL
+         if (dim(t(bing_recovery$A))[1]>K){
+           clustered_res <- kmeans(t(bing_recovery$A), centers = K) 
+           error <- update_error(t(clustered_res$centers), NULL, data$A, (data$W),  
+                                 time=elapsed_timeBing, method = "Bing", 
+                                 error=error,thresholded=bing_recovery$thresholded)
+         }else{
+           error <- update_error((bing_recovery$A), NULL, data$A, t(data$W),  time=elapsed_timeBing,
+                                 method = "Bing", 
+                                 error=error,thresholded=bing_recovery$thresholded)}
+ 
+     }
+   }
+   print("Done with Bing")
+   print(error)
   
   
   

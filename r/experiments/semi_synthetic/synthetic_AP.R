@@ -241,11 +241,13 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   Ahat_lda = exp(t(lda@beta))
   if(evaluateW){
     What_lda = lda@gamma
+   error <- update_error(Ahat_lda, t(What_lda), data$A, t(data$W), method = "LDA", error=NULL,
+                        thresholded = 0)
   }else{
     What_lda = NULL
-  }
-  error <- update_error(Ahat_lda, t(What_lda), data$A, t(data$W), method = "LDA", error=NULL,
+    error <- update_error(Ahat_lda, NULL, data$A, t(data$W), method = "LDA", error=NULL,
                         thresholded = 0)
+  }
 
   
   #### Step 2: Run Tracy's method
