@@ -6,7 +6,7 @@
 #SBATCH --array=1-50
 #SBATCH --time=35:00:00
 #SBATCH --partition=caslake
-#SBATCH --ntasks-per-node=5
+#SBATCH --ntasks-per-node=4
 #SBATCH --mem=15G
 #SBATCH --account=pi-cdonnat
 
@@ -20,7 +20,7 @@ module load R/4.2.0
 module load matlab
 
 MATLAB_PATH="/software/matlab-2023a-el8-x86_64/bin/matlab"
-result_file="final_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1"
+result_file="last_final_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}_$1"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/topic-modeling/
 working_dir="${SCRATCH}/${USER}/topic-modeling/"

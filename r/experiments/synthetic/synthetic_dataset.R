@@ -287,7 +287,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
   
   #### Step 6: Run method
-  for (alpha in c(0.001, 0.005, 0.01, 0.5 , 1, 4, 8)){
+  for (alpha in c(0.001, 0.002, 0.003, 0.004, 0.005, 0.007, 0.008, 0.01, 0.05, 0.1,  0.5 , 1, 2, 4, 8)){
     print(alpha)
     elapsed_timeOurs <- system.time({
       score_ours <- tryCatch(
