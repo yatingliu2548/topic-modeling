@@ -273,9 +273,12 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                  time=elapsed_timeBing, method = "Bing", 
                                  error=error,thresholded=bing_recovery$thresholded)
          }else{
+           if (dim(t(bing_recovery$A))[1]==K){
            error <- update_error((bing_recovery$A), NULL, data$A, t(data$W),  time=elapsed_timeBing,
                                  method = "Bing", 
-                                 error=error,thresholded=bing_recovery$thresholded)}
+                                 error=error,thresholded=bing_recovery$thresholded)
+           }
+         }
  
      }
    }
