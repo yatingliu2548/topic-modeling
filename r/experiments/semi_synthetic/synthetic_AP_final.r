@@ -12,7 +12,7 @@ W = NULL
 vocab = NULL
 Epsilon = NULL
 
-for (n in c(c(100, 250, 500, 250, 1000), 2000)){
+for (n in c(c(100, 250, 500, 750, 1000), 2000)){
     for (N in c(25, 50, 100, 200, 300, 400, 500, 750, 1000, 2000, 3000, 5000)){
         #N = ceiling(n_frac * n)
         if (K <5){
