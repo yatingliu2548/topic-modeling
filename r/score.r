@@ -50,6 +50,9 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   M <- rowMeans(D)   #### average frequency at which each word appears in each document
   if (Mquantile >0){
     M_trunk <- sapply(M,function(x){max(quantile(x, Mquantile))})
+  }else{
+	  M_trunk = M
+	  print("Did not truncate")
   }
   
   if(normalize == "norm_score_N"){
