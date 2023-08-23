@@ -9,7 +9,7 @@ source("r/simplex_dist.R")
 
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
-                  Mquantile=0.05, VHMethod = 'SP', normalize="none",
+                  Mquantile=0.00, VHMethod = 'SP', normalize="none",
                   alpha=0.5, max_K=150, returnW=FALSE){
   #' This function computes the estimates for the A and W matrix based on the algorithm proposed in Ke and Wang's work: https://arxiv.org/pdf/1704.07016.pdf
   #' 
