@@ -1,7 +1,7 @@
 
 select_K <- function(eigenvals, p,n, N, method="huy"){
   if (method == "huy"){
-    thresh = 8 * log(min(p, n)) * sqrt( n * log(min(p, n))/ N)
+    thresh = 8 * log(max(p, n)) * sqrt( n * log(max(p, n))/ N)
   }else{
     if(method == "olga"){
       thresh = 4 * sqrt( n * log(p + n)/ N)
