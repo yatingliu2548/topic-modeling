@@ -6,7 +6,9 @@ seed = ceiling(as.numeric(args[1]))
 result_file = args[2]
 K = ceiling(as.numeric(args[3]))
 matlab_path = args[4]
-a_zipf = as.numeric(args[5])
+a_zipf = as.numeric(args[5]
+		    )
+delta_anchor = a_zipf = as.numeric(args[6])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
@@ -32,7 +34,7 @@ for (exp_seed in 1:1){
               VHMethod = "SP"
             }
             test <- run_synthetic_experiment(n, K, p, alpha=0.5, a_zipf=a_zipf,
-                                             n_anchors=n_anchors, delta_anchor=1, N=N,
+                                             n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
                                              seed=100 * seed + exp_seed, VHMethod=VHMethod,
                                              data_generation_method=1,
                                              normalize_counts = TRUE)
@@ -54,7 +56,7 @@ for (exp_seed in 1:1){
             error_temp["VHMethod"] = VHMethod
             error <- rbind(error,
                            error_temp)
-            write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/last_final_synthetic_results",paste0(result_file, K), ".csv")))
+            write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/new_exp_",paste0(result_file, '_delta_anchor', delta_anchor, '_K_' , K), ".csv")))
             
           #}
         }

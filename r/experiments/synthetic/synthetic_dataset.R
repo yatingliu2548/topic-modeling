@@ -24,11 +24,13 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
       A[k, ((k-1)*n_anchors +1) : (k * n_anchors)] = delta_anchor
     }
     A[,(K * n_anchors+1):p ] <- sapply(1/(1: (p-n_anchors * K) + 2.7)^a_zipf, function(u){rexp(K, u)})
+    A = t(A)
+    A[(K * n_anchors+1):p, ] = (1 - apply(A[1:(K * n_anchors),],2,sum)) *  A[(K * n_anchors+1):p, ]/apply(A[(K * n_anchors+1):p, ], 2, sum)
   }else{
-    A <- sapply(1/(1:p + 2.7)^a_zipf, function(u){rexp(K, u)}) 
+    A <- sapply(1/(1:p + 2.7)^a_zipf, function(u){rexp(K, u)})
+    A = t(A)
+    A = A/apply(A, 2, sum) 
   }
-  A = t(A)
-  A = A/apply(A,2,sum)
   D0 = A %*% W
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
   return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
@@ -173,6 +175,55 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   }
   print("Done with Tracy")
   print(error)
+  
+  
+  
+    elapsed_timeTracy <- system.time({
+    if (normalize_counts){
+      score_recovery <- score(t(data$D)/N, K, normalize = "norm", Mquantile = 0.05,
+                max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                returnW=estimateW)
+      # score_recovery <- evalWithTimeout({
+      #   # Some potentially long-running code here
+      #   score(t(data$D)/N, K, normalize = "norm", 
+      #         max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+      #         returnW=estimateW)
+      #   print("Tracy's code finished!")
+      #   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
+      #   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
+      #   
+      # }, timeout = 300, onTimeout = "warning") ### stops if longer than 5min
+
+    }else{
+      # score_recovery <- evalWithTimeout({
+      #   # Some potentially long-running code here
+      #   score(t(data$D), K, normalize = "norm", 
+      #         max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+      #         returnW=estimateW)
+      #   print("Tracy's code finished!")
+      #   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
+      #   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
+      # }, timeout = 300, onTimeout = "warning") ### stops if longer than 5min
+      score_recovery <- score(t(data$D), K, normalize = "norm",
+                              max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                              returnW=estimateW)
+    }
+  })["elapsed"]
+
+
+  if (estimateW){
+      error <- update_error(score_recovery$A_hat, t(score_recovery$W_hat), data$A, t(data$W),
+                            time = elapsed_timeTracy, method = "TopicScore_trunc", error=error,
+                        thresholded = 0)
+  }else{
+      error <- update_error(score_recovery$A_hat, NULL, data$A, t(data$W),
+                            time = elapsed_timeTracy, method = "TopicScore_trunc", error=error,
+                        thresholded = 0)
+  }
+  print("Done with Tracy2")
+  print(error)
+  
+  
   # ### Step 3: Run AWR
   
   
@@ -237,7 +288,7 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
   
    elapsed_timeBing <- system.time({
      bing_recovery <- tryCatch(
-       Bing(data, C0=0.1, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
+       Bing(data, C0=0.01, C1=1.1),  # Replace arg1, arg2, ... with the actual arguments required by tSVD
        error = function(err) {
          # Code to handle the error (e.g., print an error message, log the error, etc.)
          cat("Error occurred while running Bing:", conditionMessage(err), "\n")
