@@ -8,7 +8,7 @@ K = ceiling(as.numeric(args[3]))
 matlab_path = args[4]
 a_zipf = as.numeric(args[5]
 		    )
-delta_anchor = a_zipf = as.numeric(args[6])
+delta_anchor = as.numeric(args[6])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
