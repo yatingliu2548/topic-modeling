@@ -136,6 +136,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
       score_recovery <- score(t(data$D)/N, K, normalize = "norm",
                 max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
                 returnW=estimateW)
+      Khat_olga = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
+      Khat_tracy = select_K(svd(data$D)$d, p,n, N, method="olga")
       # score_recovery <- evalWithTimeout({
       #   # Some potentially long-running code here
       #   score(t(data$D)/N, K, normalize = "norm", 
