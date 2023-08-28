@@ -11,8 +11,13 @@ library(tidytext)
 source("r/experiments/semi_synthetic/synthetic_AP.R")
 #### the purpose here is to generate synthetic examples
 
-synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a_zipf=1,
-                                        n_anchors=0, delta_anchor=1, N=500, seed=123){
+synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e3, a_zipf=1,
+                                       offset_zipf = 2.7,
+                                       n_anchors=0, delta_anchor=1, N=500, 
+                                       seed=123, vary_by_topic=FALSE){
+  ##n=500; K=5; p=5000; alpha=0.5; n_max_zipf=5 * 1e5; a_zipf=1;
+  ##offset_zipf = 2.7;
+  ##n_anchors=5; delta_anchor=1; N=500; seed=123
   
   set.seed(seed)
   W <- rdiric(n, rep(alpha, K))
@@ -23,13 +28,21 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5, a
     for (k in 1:K){
       A[k, ((k-1)*n_anchors +1) : (k * n_anchors)] = delta_anchor
     }
-    A[,(K * n_anchors+1):p ] <- sapply(1/(1: (p-n_anchors * K) + 2.7)^a_zipf, function(u){rexp(K, u)})
+    if(vary_by_topic){
+      for (k in 1:K){
+        resample_index = sample(1: (p-n_anchors * K), (p-n_anchors * K))
+        A[k,(K * n_anchors+1):p] <- sapply(1/(resample_index + offset_zipf)^a_zipf, function(u){rexp(1, u)})
+      }
+      
+    }else{
+      A[,(K * n_anchors+1):p ] <- sapply(1/(1: (p-n_anchors * K) + offset_zipf)^a_zipf, function(u){rexp(K, u)})
+    }
     A = t(A)
-    A[(K * n_anchors+1):p, ] = (1 - apply(A[1:(K * n_anchors),],2,sum)) *  A[(K * n_anchors+1):p, ]/apply(A[(K * n_anchors+1):p, ], 2, sum)
+    A[(K * n_anchors+1):p, ] = A[(K * n_anchors+1):p, ] %*% diag(((1 - apply(A[1:(K * n_anchors),],2,sum)) )/apply(A[(K * n_anchors+1):p, ], 2, sum)) 
   }else{
-    A <- sapply(1/(1:p + 2.7)^a_zipf, function(u){rexp(K, u)})
+    A <- sapply(1/(1:p + offset_zipf)^a_zipf, function(u){rexp(K, u)})
     A = t(A)
-    A = A/apply(A, 2, sum) 
+    A = A %*% diag(1/apply(A, 2, sum)) 
   }
   D0 = A %*% W
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
