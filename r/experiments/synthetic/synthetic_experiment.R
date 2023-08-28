@@ -8,12 +8,12 @@ K = ceiling(as.numeric(args[3]))
 matlab_path = args[4]
 a_zipf = as.numeric(args[5]
 		    )
-delta_anchor = a_zipf = as.numeric(args[6])
+delta_anchor = as.numeric(args[6])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
 
-
+print(paste0("Delta anchor is: ", delta_anchor))
 anchors = c(0, 1, 5)
 tot = sapply(anchors, function(x){x * K})
 p = 10000
@@ -54,7 +54,8 @@ for (exp_seed in 1:1){
             error_temp["exp"] = result_file
             error_temp["exp_n"] = exp_seed
             error_temp["VHMethod"] = VHMethod
-            error <- rbind(error,
+        error_temp["delta_anchor"] = delta_anchor
+	    error <- rbind(error,
                            error_temp)
             write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/new_exp_",paste0(result_file, '_delta_anchor', delta_anchor, '_K_' , K), ".csv")))
             
