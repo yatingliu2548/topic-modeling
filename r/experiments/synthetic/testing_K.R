@@ -8,17 +8,19 @@ K <- ceiling(as.numeric(args[3]))
 #matlab_path <-  args[4]
 alpha_dirichlet <-  as.numeric(args[4])
 n_anchors <-  as.numeric(args[5])
-N <-  as.numeric(args[6])
-n <-  as.numeric(args[7])
+delta_anchor <-  as.numeric(args[6])
+N <-  as.numeric(args[7])
+n <-  as.numeric(args[8])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
 b_zipf <- 2.7
 a_zipf <- 1
 
-for (delta_anchor in 10^(-(1:5))){
+for (K in c(3, 5, 7, 10, 12, 15, 17, 20, 25, 30, 50)){
         for (p in c(1000, 5000, 10000, 15000)){
-            if (K <5){
+            for (vary_by_topic in c(TRUE, FALSE)){
+                 if (K <5){
                 VHMethod = "SVS"
             }else{
                 VHMethod = "SP"
@@ -49,10 +51,12 @@ for (delta_anchor in 10^(-(1:5))){
             error_temp["exp"] = result_file
             error_temp["VHMethod"] = VHMethod
             error_temp["delta_anchor"] = delta_anchor
+            error_temp["vary_by_topic"] = vary_by_topic
             error <- rbind(error,
                             error_temp)
             write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/",paste0(result_file,'_K_' , K), ".csv")))
-
+            }
+           
         }
         
 }
