@@ -1,4 +1,3 @@
-setwd("~/Documents/topic-modeling/")
 source("r/experiments/semi_synthetic/synthetic_AP.R")
 source("r/experiments/synthetic/synthetic_dataset.R")
 
