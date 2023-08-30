@@ -8,14 +8,15 @@ K <- ceiling(as.numeric(args[3]))
 #matlab_path <-  args[4]
 alpha_dirichlet <-  as.numeric(args[4])
 n_anchors <-  as.numeric(args[5])
+N <-  as.numeric(args[6])
+n <-  as.numeric(args[7])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
 b_zipf <- 2.7
-n <- 1000
+a_zipf <- 1
 
 for (delta_anchor in 10^(-(1:5))){
-    for (N in sort(c(500), decreasing=TRUE)){
         for (p in c(1000, 5000, 10000, 15000)){
             if (K <5){
                 VHMethod = "SVS"
@@ -53,7 +54,6 @@ for (delta_anchor in 10^(-(1:5))){
             write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/",paste0(result_file,'_K_' , K), ".csv")))
 
         }
-    }
         
 }
         
