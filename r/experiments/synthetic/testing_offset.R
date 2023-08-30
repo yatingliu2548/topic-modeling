@@ -15,6 +15,7 @@ error <- c()
 
 print(paste0("Delta anchor is: ", delta_anchor))
 
+for (vary_by_topic in c(TRUE, FALSE)){
 for (b_zipf in c(c(2.7, 10, 50, 100, 1000), 10000)){
     for (N in sort(c(500), decreasing=TRUE)){
         for (p in c(1000, 5000, 10000, 15000)){
@@ -27,7 +28,7 @@ for (b_zipf in c(c(2.7, 10, 50, 100, 1000), 10000)){
                                                 a_zipf=a_zipf, offset_zipf = b_zipf,
                                                 n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
                                                 seed=seed, VHMethod=VHMethod,
-                                                data_generation_method=1,
+                                                data_generation_method=1, vary_by_topic = vary_by_topic,
                                                 normalize_counts = TRUE,
                                                 sparse = TRUE)
             error_temp = test$error
@@ -49,7 +50,8 @@ for (b_zipf in c(c(2.7, 10, 50, 100, 1000), 10000)){
             error_temp["exp"] = result_file
             error_temp["VHMethod"] = VHMethod
             error_temp["delta_anchor"] = delta_anchor
-            error <- rbind(error,
+            error_temp["vary_by_topic"] = vary_by_topic
+	    error <- rbind(error,
                             error_temp)
             write_csv(error, paste0(getwd(), paste0("/r/experiments/synthetic/results/",paste0(result_file, '_delta_anchor', delta_anchor, '_K_' , K), ".csv")))
 
@@ -58,7 +60,7 @@ for (b_zipf in c(c(2.7, 10, 50, 100, 1000), 10000)){
         
 }
         
-
+}
 
 
 

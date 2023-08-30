@@ -1,4 +1,15 @@
 #setwd("~/Documents/topic-modeling/")
+
+
+library(VGAM)
+library(tidyverse)
+#library(ggtern)
+library(tm)
+library(topicmodels)
+library(R.matlab)
+library(tidyverse)
+library(reticulate)
+library(tidytext)
 source("r/experiments/semi_synthetic/synthetic_AP.R")
 source("r/experiments/synthetic/synthetic_dataset.R")
 
@@ -9,8 +20,12 @@ error <- c()
 delta_anchor = 1e-3
 n_anchors = 5
 a_zipf = 1
+normalize_counts = TRUE
 #vary_by_topic = FALSE
 zipf_offset = 2.7
+estimateW = F
+estimateK = F
+alpha_thresh = 0.005
 alpha_dirichlet = 1
 N = 500
 K = 5
@@ -27,13 +42,13 @@ for (seed in 1:50){
         
         
         
-        data = synthetic_dataset_creation(n, K, p, alpha=alpha, 
+        data = synthetic_dataset_creation(n, K, p, alpha=alpha_dirichlet, 
                                           n_max_zipf=50000, 
                                           a_zipf=a_zipf,
                                           n_anchors=n_anchors, 
                                           delta_anchor=delta_anchor, 
-                                          N=N, seed=seed + exp,
-                                          offset_zipf=offset_zipf,
+                                          N=N, seed=seed,
+                                          offset_zipf=zipf_offset,
                                           vary_by_topic=vary_by_topic)
         
         
@@ -78,7 +93,9 @@ for (seed in 1:50){
           
         }
         
-        
+       if (p > 20001){
+          error_temp = NULL
+       } 
         
 
         elapsed_timeOurs <- system.time({

@@ -2,14 +2,14 @@ source("r/experiments/semi_synthetic/synthetic_AP.R")
 source("r/experiments/synthetic/synthetic_dataset.R")
 
 args = commandArgs(trailingOnly=TRUE)
-seed = args[1]
+seed =  ceiling(as.numeric(args[1]))
 result_file = args[2]
 K <- ceiling(as.numeric(args[3]))
 #matlab_path <-  args[4]
 alpha_dirichlet <-  as.numeric(args[4])
-n_anchors <-  as.numeric(args[5])
+n_anchors <-  ceiling((args[5]))
 delta_anchor <- as.numeric(args[6])
-N <- as.numeric(args[7])
+N <- ceiling(as.numeric(args[7]))
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
@@ -20,7 +20,7 @@ zipf_offset = 2.7
 
 
 for (n in c(c(1000, 5000, 10000))){
-    for (p in c(500, 1000, 2000, 5000, 7500, 10000, 15000, 20000, 50000)){
+    for (p in c(500, 1000, 2000, 5000, 7500, 10000, 15000)){
             for (vary_by_topic in c(TRUE, FALSE)){
                   if (K <5){
                     VHMethod = "SVS"
