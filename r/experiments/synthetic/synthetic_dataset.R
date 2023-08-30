@@ -14,7 +14,8 @@ source("r/experiments/semi_synthetic/synthetic_AP.R")
 synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e3, a_zipf=1,
                                        offset_zipf = 2.7,
                                        n_anchors=0, delta_anchor=1, N=500, 
-                                       seed=123, vary_by_topic=FALSE){
+                                       seed=123, vary_by_topic=FALSE,
+                                       sparsity = TRUE){
   ##n=500; K=5; p=5000; alpha=0.5; n_max_zipf=5 * 1e5; a_zipf=1;
   ##offset_zipf = 2.7;
   ##n_anchors=5; delta_anchor=1; N=500; seed=123
@@ -23,27 +24,45 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e3, a
   W <- rdiric(n, rep(alpha, K))
   W <- t(W) 
   W <- W /apply(W,2,sum)
-  if (n_anchors >0){
-    A = matrix(0, nrow=K, ncol=p)
-    for (k in 1:K){
-      A[k, ((k-1)*n_anchors +1) : (k * n_anchors)] = delta_anchor
-    }
-    if(vary_by_topic){
+  if (sparsity){
+    if (n_anchors >0){
+      A = matrix(0, nrow=K, ncol=p)
       for (k in 1:K){
-        resample_index = sample(1: (p-n_anchors * K), (p-n_anchors * K))
-        A[k,(K * n_anchors+1):p] <- sapply(1/(resample_index + offset_zipf)^a_zipf, function(u){rexp(1, u)})
+        A[k, ((k-1)*n_anchors +1) : (k * n_anchors)] = delta_anchor
       }
-      
+      if(vary_by_topic){
+        for (k in 1:K){
+          resample_index = sample(1: (p-n_anchors * K), (p-n_anchors * K))
+          A[k,(K * n_anchors+1):p] <- sapply(1/(resample_index + offset_zipf)^a_zipf, function(u){rexp(1, u)})
+        }
+        
+      }else{
+        A[,(K * n_anchors+1):p ] <- sapply(1/(1: (p-n_anchors * K) + offset_zipf)^a_zipf, function(u){rexp(K, u)})
+      }
+      A = t(A)
+      A[(K * n_anchors+1):p, ] = A[(K * n_anchors+1):p, ] %*% diag(((1 - apply(A[1:(K * n_anchors),],2,sum)) )/apply(A[(K * n_anchors+1):p, ], 2, sum)) 
     }else{
-      A[,(K * n_anchors+1):p ] <- sapply(1/(1: (p-n_anchors * K) + offset_zipf)^a_zipf, function(u){rexp(K, u)})
+      A <- sapply(1/(1:p + offset_zipf)^a_zipf, function(u){rexp(K, u)})
+      A = t(A)
+      A = A %*% diag(1/apply(A, 2, sum)) 
     }
-    A = t(A)
-    A[(K * n_anchors+1):p, ] = A[(K * n_anchors+1):p, ] %*% diag(((1 - apply(A[1:(K * n_anchors),],2,sum)) )/apply(A[(K * n_anchors+1):p, ], 2, sum)) 
+    
   }else{
-    A <- sapply(1/(1:p + offset_zipf)^a_zipf, function(u){rexp(K, u)})
-    A = t(A)
-    A = A %*% diag(1/apply(A, 2, sum)) 
+    if (n_anchors >0){
+      A = matrix(0, nrow=K, ncol=p)
+      for (k in 1:K){
+        A[k, ((k-1)*n_anchors +1) : (k * n_anchors)] = delta_anchor
+      }
+      A[,(K * n_anchors+1):p ] <- sapply(1: (p-n_anchors * K), function(u){runif(K, u)})
+      A = t(A)
+      A[(K * n_anchors+1):p, ] = A[(K * n_anchors+1):p, ] %*% diag(((1 - apply(A[1:(K * n_anchors),],2,sum)) )/apply(A[(K * n_anchors+1):p, ], 2, sum)) 
+    }else{
+      A <- sapply(1:p, function(u){runif(K, u)})
+      A = t(A)
+      A = A %*% diag(1/apply(A, 2, sum)) 
+    }
   }
+
   D0 = A %*% W
   X <- sapply(1:n, function(i){rmultinom(1, N, D0[,i])})
   return(list(D=t(X[which(apply(X,1, sum) >0 ),]),
