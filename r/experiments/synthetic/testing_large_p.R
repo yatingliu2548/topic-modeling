@@ -24,21 +24,83 @@ for (seed in 1:50){
         }else{
           VHMethod = "SP"
         }
-        test <- run_synthetic_experiment(n, K, p, alpha=alpha_dirichlet, a_zipf=a_zipf,
-                                         n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
-                                         seed=  seed, 
-                                         VHMethod=VHMethod,
-                                         data_generation_method=1,
-                                         normalize_counts = TRUE, 
-                                         offset_zipf=zipf_offset,
-                                         vary_by_topic=vary_by_topic)
-        error_temp = test$error
-        error_temp["Khat_huy"]=test$Khat_huy
-        error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh
-        error_temp["Khat_olga"]= test$Khat_olga
-        error_temp["Khat_olga_thresh"] = test$Khat_olga_thresh
-        error_temp["Khat_tracy"]=test$Khat_tracy
-        error_temp["Khat_tracy_thresh"] = test$Khat_tracy_thresh
+        
+        
+        
+        data = synthetic_dataset_creation(n, K, p, alpha=alpha, 
+                                          n_max_zipf=50000, 
+                                          a_zipf=a_zipf,
+                                          n_anchors=n_anchors, 
+                                          delta_anchor=delta_anchor, 
+                                          N=N, seed=seed + exp,
+                                          offset_zipf=offset_zipf,
+                                          vary_by_topic=vary_by_topic)
+        
+        
+        
+        if (p<20001){
+          elapsed_timeTracy <- system.time({
+            if (normalize_counts){
+              score_recovery <- score(t(data$D)/N, K, normalize = "norm", Mquantile = 0.00,
+                                      max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                                      returnW=estimateW, estimateK=FALSE)
+              # score_recovery <- evalWithTimeout({
+              #   # Some potentially long-running code here
+              #   score(t(data$D)/N, K, normalize = "norm", 
+              #         max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+              #         returnW=estimateW)
+              #   print("Tracy's code finished!")
+              #   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
+              #   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
+              #   
+              # }, timeout = 300, onTimeout = "warning") ### stops if longer than 5min
+              
+            }else{
+              # score_recovery <- evalWithTimeout({
+              #   # Some potentially long-running code here
+              #   score(t(data$D), K, normalize = "norm", 
+              #         max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+              #         returnW=estimateW)
+              #   print("Tracy's code finished!")
+              #   Khat_tracy = select_K(score_recovery$eigenvalues, p, n, N, method="tracy")
+              #   Khat_olga = select_K(svd(data$D)$d, p,n, N, method="olga")
+              # }, timeout = 300, onTimeout = "warning") ### stops if longer than 5min
+              score_recovery <- score(t(data$D), K, normalize = "norm",
+                                      max_K = min(150, min(dim(data$D)-1)), VHMethod=VHMethod,
+                                      returnW=estimateW, estimateK=FALSE)
+            }
+          })["elapsed"]
+          
+          
+          error_temp <- update_error(score_recovery$A_hat, NULL, data$A, t(data$W), 
+                                time = elapsed_timeTracy, method = "TopicScore", error=NULL,
+                                thresholded = 0)
+          
+        }
+        
+        
+        
+
+        elapsed_timeOurs <- system.time({
+          score_ours <- tryCatch(
+            score(D = t(data$D)/N, K=K, 
+                  normalize = 'huy', 
+                  threshold =TRUE, alpha = alpha_thresh, N=N, max_K = min(min(dim(data$D))-1, 150),
+                  VHMethod=VHMethod, returnW = estimateW, estimateK = FALSE)
+            ,
+            error = function(err) {
+              # Code to handle the error (e.g., print an error message, log the error, etc.)
+              paste0("Error occurred while running Score ", alpha_thresh, " :", conditionMessage(err), "\n")
+              # Return a default value or NULL to continue with the rest of the code
+              return(NULL)
+            }
+          )
+        })["elapsed"]
+        
+        error_temp <- update_error(score_ours$A_hat, NULL, data$A, NULL, 
+                              time=elapsed_timeOurs, method = paste0("Ours_", alpha_thresh), error=error_temp,
+                              thresholded=score_ours$thresholded)
+
         error_temp["N"] = N
         error_temp["n"] = n
         error_temp["p"] = p
