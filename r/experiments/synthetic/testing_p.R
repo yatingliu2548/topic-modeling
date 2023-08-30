@@ -5,20 +5,19 @@ source("r/experiments/synthetic/synthetic_dataset.R")
 args = commandArgs(trailingOnly=TRUE)
 seed = args[1]
 result_file = args[2]
-delta_anchor =  as.numeric(args[3])
-n_anchors =  as.numeric(args[4])
-K =  as.numeric(args[5])
+K <- ceiling(as.numeric(args[3]))
+#matlab_path <-  args[4]
+alpha_dirichlet <-  as.numeric(args[4])
+n_anchors <-  as.numeric(args[5])
+delta_anchor <- as.numeric(args[6])
+N <- as.numeric(args[7])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
 
 
 a_zipf = 1
-#vary_by_topic = FALSE
 zipf_offset = 2.7
-alpha_dirichlet = 1
-N = 500
-tot = sapply(anchors, function(x){x * K})
 
 
 for (n in c(c(1000, 5000, 10000))){
@@ -47,12 +46,12 @@ for (n in c(c(1000, 5000, 10000))){
                   error_temp["N"] = N
                   error_temp["n"] = n
                   error_temp["p"] = p
-                  error_temp["seed"] =  100 * seed
+                  error_temp["seed"] =  seed
                   error_temp["n_anchors"] =  n_anchors
+                  error_temp["delta_anchor"] = delta_anchor
                   error_temp["alpha"] = a_zipf
                   error_temp["alpha_dirichlet"] = alpha_dirichlet
                   error_temp["zipf_offset"] = zipf_offset
-                  error_temp["delta_anchor"] = delta_anchor
                   error_temp["exp"] = result_file
                   error_temp["vary_by_topic"] = vary_by_topic
                   error_temp["VHMethod"] = VHMethod
