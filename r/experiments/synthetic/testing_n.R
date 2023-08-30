@@ -8,6 +8,7 @@ result_file = args[2]
 delta_anchor =  as.numeric(args[3])
 n_anchors =  as.numeric(args[4])
 K =  as.numeric(args[5])
+N =  as.numeric(args[6])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
@@ -17,8 +18,6 @@ a_zipf = 1
 #vary_by_topic = FALSE
 zipf_offset = 2.7
 alpha_dirichlet = 1
-N = 500
-tot = sapply(anchors, function(x){x * K})
 
 
 for (p in c(c(10000))){
