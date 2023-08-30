@@ -377,7 +377,7 @@ run_experiment <- function(dataset, K, N=500, n=100, seed = 1234,
   
   
   #### Step 6: Run method
-  for (alpha in c(0.001, 0.002, 0.003, 0.005, 0.006, 0.007, 0.008, 0.01, 0.05,  0.1, 0.5 , 1, 2, 4, 8)){
+  for (alpha in c(0.001, 0.003, 0.005, 0.007,  0.01, 0.05,  0.1, 0.5 , 1)){
     elapsed_timeOurs <- system.time({
           score_ours <- tryCatch(
             score(D = t(data$D)/N, K=K, normalize = 'huy', 
