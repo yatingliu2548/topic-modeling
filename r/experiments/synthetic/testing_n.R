@@ -2,7 +2,7 @@ source("r/experiments/semi_synthetic/synthetic_AP.R")
 source("r/experiments/synthetic/synthetic_dataset.R")
 
 args = commandArgs(trailingOnly=TRUE)
-seed = args[1]
+seed = ceiling(as.numeric(args[1]))
 result_file = args[2]
 K <- ceiling(as.numeric(args[3]))
 alpha_dirichlet <-  as.numeric(args[4])
