@@ -8,7 +8,7 @@ K <- ceiling(as.numeric(args[3]))
 alpha_dirichlet <-  as.numeric(args[4])
 n_anchors <-  as.numeric(args[5])
 delta_anchor <- as.numeric(args[6])
-N =  as.numeric(args[6])
+N =  as.numeric(args[7])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
