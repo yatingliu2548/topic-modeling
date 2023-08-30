@@ -1,13 +1,13 @@
-setwd("~/Documents/topic-modeling/")
 source("r/experiments/semi_synthetic/synthetic_AP.R")
 source("r/experiments/synthetic/synthetic_dataset.R")
 
 args = commandArgs(trailingOnly=TRUE)
 seed = args[1]
 result_file = args[2]
-delta_anchor =  as.numeric(args[3])
-n_anchors =  as.numeric(args[4])
-K =  as.numeric(args[5])
+K <- ceiling(as.numeric(args[3]))
+alpha_dirichlet <-  as.numeric(args[4])
+n_anchors <-  as.numeric(args[5])
+delta_anchor <- as.numeric(args[6])
 N =  as.numeric(args[6])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
