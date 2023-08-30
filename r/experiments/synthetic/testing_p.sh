@@ -5,7 +5,7 @@
 #SBATCH --error=r/experiments/synthetic/logs/array_%A_%a.err
 #SBATCH --array=1-50
 #SBATCH --time=35:00:00
-#SBATCH --partition=amd
+#SBATCH --partition=caslake
 #SBATCH --ntasks=5
 #SBATCH --mem=20G
 #SBATCH --account=pi-cdonnat
@@ -24,4 +24,4 @@ MATLAB_PATH="/software/matlab-2023a-el8-x86_64/bin/matlab"
 result_file="testing_p_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 echo "result file is ${result_file}"
 cd $SCRATCH/$USER/topic-modeling/
-Rscript r/experiments/synthetic/synthetic_experiment.R $SLURM_ARRAY_TASK_ID $result_file $1 $MATLAB_PATH $2 $3 # 5 topic
+Rscript r/experiments/synthetic/testing_p.R $SLURM_ARRAY_TASK_ID $result_file $1 $2 $3 # 5 topic

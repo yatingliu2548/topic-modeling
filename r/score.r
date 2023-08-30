@@ -10,7 +10,7 @@ source("r/simplex_dist.R")
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
                   Mquantile=0.00, VHMethod = 'SP', normalize="none",
-                  alpha=0.5, max_K=150, returnW=FALSE){
+                  alpha=0.5, max_K=150, returnW=FALSE, estimateK=TRUE){
   #' This function computes the estimates for the A and W matrix based on the algorithm proposed in Ke and Wang's work: https://arxiv.org/pdf/1704.07016.pdf
   #' 
   #'
@@ -102,12 +102,18 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   }else{
     obj = svds(newD, K)
   }
-  if (max_K >= min(dim(newD))){
-    obj_full = svd(newD, min(max_K, min(dim(newD))))
+  
+  if (estimateK){
+    if (max_K >= min(dim(newD))){
+      obj_full = svd(newD, min(max_K, min(dim(newD))))
+    }else{
+      obj_full = svds(newD, max_K)
+    }
+    eigenvalues = obj_full$d
   }else{
-    obj_full = svds(newD, max_K)
+    eigenvalues = obj$d
   }
-  eigenvalues = obj_full$d
+  
   Xi <- obj$u
   
   
