@@ -5,7 +5,7 @@
 #SBATCH --error=r/experiments/synthetic/logs/array_%A_%a.err
 #SBATCH --array=1-50
 #SBATCH --time=35:00:00
-#SBATCH --partition=caslake
+#SBATCH --partition=amd
 #SBATCH --ntasks=5
 #SBATCH --mem=20G
 #SBATCH --account=pi-cdonnat
