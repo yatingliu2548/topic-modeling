@@ -29,7 +29,7 @@ for (n in c(c(100, 250, 500, 750, 1000), 2000)){
                                                 seed=seed, VHMethod=VHMethod,
                                                 data_generation_method=1,
                                                 normalize_counts = TRUE,
-                                                sparse = FALSE)
+                                                sparsity = FALSE)
             error_temp = test$error
             error_temp["Khat_huy"]=test$Khat_huy
             error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh

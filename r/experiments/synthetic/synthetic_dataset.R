@@ -126,7 +126,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                      seed=123, VHMethod="SVS", data_generation_method=1,
                                      normalize_counts=TRUE, estimateW=FALSE, s=20,
                                      offset_zipf=zipf_offset,
-                                     vary_by_topic=vary_by_topic, estimateK=FALSE){
+                                     vary_by_topic=vary_by_topic, 
+				     sparsity=TRUE, estimateK=FALSE){
   
   if (data_generation_method==1){
       data = synthetic_dataset_creation(n, K, p, alpha=alpha, 
@@ -135,7 +136,8 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
                                         delta_anchor=delta_anchor, 
                                         N=N, seed=seed,
                                         offset_zipf=zipf_offset,
-                                        vary_by_topic=vary_by_topic)
+                                        vary_by_topic=vary_by_topic,
+					sparsity = sparsity)
   }else{
       data = synthetic_dataset_creation_2(n, K, p, alpha=alpha, n_max_zipf=5 * 1e5, a_zipf=a_zipf,
                                         n_anchors=n_anchors, delta_anchor=1, N=N, s=s, seed=seed)
