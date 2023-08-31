@@ -23,7 +23,6 @@ synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e3, a
   set.seed(seed)
   W <- rdiric(n, rep(alpha, K))
   W <- t(W) 
-  W <- W /apply(W,2,sum)
   if (sparsity){
     if (n_anchors >0){
       A = matrix(0, nrow=K, ncol=p)
