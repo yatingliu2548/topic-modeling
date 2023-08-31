@@ -52,12 +52,11 @@ synthetic_dataset_creation <- function(n, K, p, alpha_dirichlet = 1,
       for (k in 1:K){
         A[k, ((k-1)*n_anchors +1) : (k * n_anchors)] = delta_anchor
       }
-      A[,(K * n_anchors+1):p ] <- sapply(1: (p-n_anchors * K), function(u){runif(K, u)})
+      A[, (K * n_anchors+1):p ] <- matrix(runif(n=K * (p  - K * n_anchors)), nrow = K)
       A = t(A)
       A[(K * n_anchors+1):p, ] = A[(K * n_anchors+1):p, ] %*% diag(((1 - apply(A[1:(K * n_anchors),],2,sum)) )/apply(A[(K * n_anchors+1):p, ], 2, sum)) 
     }else{
-      A <- sapply(1:p, function(u){runif(K, u)})
-      A = t(A)
+      A <- matrix(runif(n=K * (p)), ncol = K)
       A = A %*% diag(1/apply(A, 2, sum)) 
     }
   }
