@@ -4,13 +4,12 @@ source("r/experiments/synthetic/synthetic_dataset.R")
 args = commandArgs(trailingOnly=TRUE)
 seed <-  ceiling(as.numeric(args[1]))
 result_file <- args[2]
-K <- ceiling(as.numeric(args[3]))
 #matlab_path <-  args[4]
-alpha_dirichlet <-  as.numeric(args[4])
-n_anchors <-  as.numeric(args[5])
-delta_anchor <-  as.numeric(args[6])
-N <-  as.numeric(args[7])
-n <-  as.numeric(args[8])
+alpha_dirichlet <-  as.numeric(args[3])
+n_anchors <-  as.numeric(args[4])
+delta_anchor <-  as.numeric(args[5])
+N <-  as.numeric(args[6])
+n <-  as.numeric(args[7])
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
@@ -31,7 +30,7 @@ for (K in c(3, 5, 7, 10, 12, 15, 17, 20, 25, 30, 50)){
                                                 seed=seed, VHMethod=VHMethod,
                                                 data_generation_method=1,
                                                 normalize_counts = TRUE,
-                                                sparse = TRUE)
+                                                sparsity = TRUE)
             error_temp = test$error
             error_temp["Khat_huy"]=test$Khat_huy
             error_temp["Khat_huy_thresh"] = test$Khat_huy_thresh

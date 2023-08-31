@@ -5,7 +5,7 @@
 #SBATCH --error=r/experiments/synthetic/logs/array_%A_%a.err
 #SBATCH --array=1-50
 #SBATCH --time=35:00:00
-#SBATCH --partition=caslake
+#SBATCH --partition=amd
 #SBATCH --ntasks=5
 #SBATCH --mem=20G
 #SBATCH --account=pi-cdonnat
@@ -16,6 +16,8 @@ echo "My SLURM_ARRAY_JOB_ID: " $SLURM_ARRAY_JOB_ID
 # Add lines here to run your computations
 job_id=$SLURM_ARRAY_JOB_ID
 module load gsl
+module load gcc
+module load aocc
 module load R/4.2.0
 module load matlab
 module load python
