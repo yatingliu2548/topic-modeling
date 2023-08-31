@@ -9,10 +9,12 @@ K <- ceiling(as.numeric(args[3]))
 alpha_dirichlet <-  as.numeric(args[4])
 n_anchors <-  as.numeric(args[5])
 delta_anchor <- as.numeric(args[6])
+
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
-
+n <- 1000
+a_zipf= 2.7
 print(paste0("Delta anchor is: ", delta_anchor))
 
 for (vary_by_topic in c(TRUE, FALSE)){
@@ -24,8 +26,8 @@ for (b_zipf in c(c(2.7, 10, 50, 100, 1000), 10000)){
             }else{
                 VHMethod = "SP"
             }
-            test <- run_synthetic_experiment(n, K, p, alpha=alpha_dirichlet, 
-                                                a_zipf=a_zipf, offset_zipf = b_zipf,
+            test <- run_synthetic_experiment(n, K, p, alpha_dirichlet=alpha_dirichlet, 
+                                                a_zipf=a_zipf,   offset_zipf = b_zipf,
                                                 n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
                                                 seed=seed, VHMethod=VHMethod,
                                                 data_generation_method=1, vary_by_topic = vary_by_topic,

@@ -1,4 +1,5 @@
-#setwd("~/Documents/topic-modeling/")
+
+setwd("~/Documents/topic-modeling/")
 
 
 library(VGAM)
@@ -13,7 +14,7 @@ library(tidytext)
 source("r/experiments/semi_synthetic/synthetic_AP.R")
 source("r/experiments/synthetic/synthetic_dataset.R")
 
-result_file = "experiment_large_p"
+result_file = "experiment_large_p3_"
 error <- c()
 
 

@@ -28,7 +28,8 @@ for (delta_anchor in 10^(-(1:5))){
                                                 a_zipf=a_zipf, offset_zipf = b_zipf,
                                                 n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
                                                 seed=seed, VHMethod=VHMethod,
-                                                data_generation_method=1,vary_by_topic = vary_by_topic,
+                                                data_generation_method=1,
+                                                vary_by_topic = vary_by_topic,
                                                 normalize_counts = TRUE,
                                                 sparsity = TRUE)
             error_temp = test$error

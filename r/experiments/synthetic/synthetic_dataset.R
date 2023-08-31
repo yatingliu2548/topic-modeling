@@ -11,17 +11,17 @@ library(tidytext)
 source("r/experiments/semi_synthetic/synthetic_AP.R")
 #### the purpose here is to generate synthetic examples
 
-synthetic_dataset_creation <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e3, a_zipf=1,
+synthetic_dataset_creation <- function(n, K, p, alpha_dirichlet = 1, 
+                                       n_max_zipf=5 * 1e3, 
+                                       a_zipf=1,
                                        offset_zipf = 2.7,
-                                       n_anchors=0, delta_anchor=1, N=500, 
+                                       n_anchors=0, delta_anchor=1, 
+                                       N=500, 
                                        seed=123, vary_by_topic=FALSE,
                                        sparsity = TRUE){
-  ##n=500; K=5; p=5000; alpha=0.5; n_max_zipf=5 * 1e5; a_zipf=1;
-  ##offset_zipf = 2.7;
-  ##n_anchors=5; delta_anchor=1; N=500; seed=123
   
   set.seed(seed)
-  W <- rdiric(n, rep(alpha, K))
+  W <- rdiric(n, rep(alpha_dirichlet, K))
   W <- t(W) 
   if (sparsity){
     if (n_anchors >0){
@@ -121,7 +121,7 @@ synthetic_dataset_creation_2 <- function(n, K, p, alpha=0.5, n_max_zipf=5 * 1e5,
 
 
 
-run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
+run_synthetic_experiment <- function(n, K, p, alpha_dirichlet=0.5, a_zipf=1,
                                      n_anchors=0, delta_anchor=1, N=500,
                                      seed=123, VHMethod="SVS", data_generation_method=1,
                                      normalize_counts=TRUE, estimateW=FALSE, s=20,
@@ -130,17 +130,17 @@ run_synthetic_experiment <- function(n, K, p, alpha=0.5, a_zipf=1,
 				     sparsity=TRUE, estimateK=FALSE){
   
   if (data_generation_method==1){
-      data = synthetic_dataset_creation(n, K, p, alpha=alpha, 
+      data = synthetic_dataset_creation(n, K, p, alpha_dirichlet=alpha_dirichlet, 
                                         n_max_zipf=50000, a_zipf=a_zipf,
                                         n_anchors=n_anchors, 
                                         delta_anchor=delta_anchor, 
                                         N=N, seed=seed,
-                                        offset_zipf=zipf_offset,
-                                        vary_by_topic=vary_by_topic,
-					sparsity = sparsity)
+                                        offset_zipf=offset_zipf,
+                                        vary_by_topic=vary_by_topic, sparsity = sparsity)
   }else{
-      data = synthetic_dataset_creation_2(n, K, p, alpha=alpha, n_max_zipf=5 * 1e5, a_zipf=a_zipf,
-                                        n_anchors=n_anchors, delta_anchor=1, N=N, s=s, seed=seed)
+      data = synthetic_dataset_creation_2(n, K, p, alpha_dirichlet=alpha_dirichlet, 
+                                          n_max_zipf=5 * 1e5, a_zipf=a_zipf,
+                                          n_anchors=n_anchors, delta_anchor=1, N=N, s=s, seed=seed)
   }
 
   #### Run check

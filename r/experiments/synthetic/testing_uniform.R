@@ -23,9 +23,10 @@ for (n in c(c(100, 250, 500, 750, 1000), 2000)){
             }else{
                 VHMethod = "SP"
             }
-            test <- run_synthetic_experiment(n, K, p, alpha=alpha_dirichlet, 
+            test <- run_synthetic_experiment(n, K, p, alpha_dirichlet=alpha_dirichlet, 
                                                 a_zipf=a_zipf,
-                                                n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
+                                                n_anchors=n_anchors, 
+                                                delta_anchor=delta_anchor, N=N,
                                                 seed=seed, VHMethod=VHMethod,
                                                 data_generation_method=1,
                                                 normalize_counts = TRUE,

@@ -14,16 +14,8 @@ N <- ceiling(as.numeric(args[7]))
 #matlab_path = DEFAULT_MATLAB
 error <- c()
 
-
-delta_anchor = 1e-3
-n_anchors = 5
-a_zipf = 1
-#vary_by_topic = FALSE
 zipf_offset = 2.7
-alpha_dirichlet = 1
-N = 500
-tot = sapply(anchors, function(x){x * K})
-
+a_zipf = 2.7
 
 for (n in c(c(1000, 5000, 10000))){
     for (p in c(500, 1000, 2000, 5000, 7500, 10000, 15000)){

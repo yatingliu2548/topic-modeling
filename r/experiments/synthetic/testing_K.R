@@ -24,12 +24,14 @@ for (K in c(3, 5, 7, 10, 12, 15, 17, 20, 25, 30, 50)){
             }else{
                 VHMethod = "SP"
             }
-            test <- run_synthetic_experiment(n, K, p, alpha=alpha_dirichlet, 
+            test <- run_synthetic_experiment(n, K, p, alpha_dirichlet=alpha_dirichlet, 
                                                 a_zipf=a_zipf, offset_zipf = b_zipf,
-                                                n_anchors=n_anchors, delta_anchor=delta_anchor, N=N,
+                                                n_anchors=n_anchors,
+                                                delta_anchor=delta_anchor, N=N,
                                                 seed=seed, VHMethod=VHMethod,
                                                 data_generation_method=1,
                                                 normalize_counts = TRUE,
+                                                vary_by_topic = vary_by_topic,
                                                 sparsity = TRUE)
             error_temp = test$error
             error_temp["Khat_huy"]=test$Khat_huy
