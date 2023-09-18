@@ -10,7 +10,7 @@ r/.DS_Store
 *.mat
 *.csv
 *.pdf
-
+*.png
 
 # Local files
 *.pyc
