@@ -1,0 +1,1066 @@
+---
+title: "Using `alto` on vaginal microbiome data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using `alto` on vaginal microbiome data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+  knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+  )
+```
+  
+```{r setup}
+  library(alto)
+  library(dplyr)
+  library(magrittr)
+  library(ggplot2)
+  library(tibble)
+  library(stringr)
+  library(tidyr)
+```
+  
+  
+  This document showcases the `alto` package functions applied to vaginal microbiome data.
+  
+  ## Loading the data
+  
+  We use the data published with the article ["Replication and refinement of a vaginal microbial signature of preterm birth in two racially distinct cohorts of US women"](https://www.pnas.org/content/114/37/9966.short) by Calahan et al., 2017, PNAS.
+  
+  A .zip file containing the related data can be downloaded from the [Stanford data catalog](https://stacks.stanford.edu/file/druid:yb681vm1809/RepRefine_Scripts.tar.gz).
+  
+  For convenience, the data file (i.e. the tables contained in the `processed.rda` file) has been attached to the `alto` package as `vm_data`. For details, type `?vm_data`.
+  
+```{r show-names-of-provided-data}
+ 
+load("~/Documents/alto/data/vm_data.rda")
+names(vm_data)
+  
+```
+  
+  First, we do some pre-processing of the data. Specifically, we change the `colnames` to replace ASV DNA sequences by human-friendly names built from the taxonomy table.
+  
+```{r human-friendly-ASV-names}
+  
+# we create the human-friendly ASV names
+# by concatenating Genus and Species and an identifying number
+# as a given species can be represented by several ASVs
+vm_data$taxonomy <-
+vm_data$taxonomy %>%
+as.data.frame() %>%
+group_by(Genus, Species) %>%
+mutate(
+ASV_name =
+paste0(
+ifelse(is.na(Genus),"[unknown Genus]", Genus), " (",
+ifelse(is.na(Species),"?", Species), ") ",
+row_number()
+)
+) %>%
+ungroup()
+
+# then, we replace the colnames of the count matrix by these new names.
+# Note that the tax table rows are ordered as the count matrix columns,
+# allowing us to assign without matching first.
+colnames(vm_data$counts) <-  vm_data$taxonomy$ASV_name
+
+```
+
+
+
+## Using `alto` on these data
+
+Our first step is to run the lda models for varying number of topics, i.e. from 1 to 18 topics.
+For this, we use the `run_lda_models` function. This can take a while on a personal computer.
+For example, it takes about 10 minutes on the authors' laptops.
+
+```{r run-lda-models}
+lda_varying_params_lists <-  list()
+####
+train_index = sample(1:nrow(vm_data$counts), ceiling(nrow(vm_data$counts)/2))
+test_index = (1:nrow(vm_data$counts))[-c(train_index)]
+
+for (k in 1:12) {
+  lda_varying_params_lists[[paste0("k",k)]] <- list(k = k)
+}
+
+lda_models  <- 
+  run_lda_models(
+    data = vm_data$counts[train_index,],
+    lda_varying_params_lists = lda_varying_params_lists,
+    lda_fixed_params_list = list(method = "VEM"),
+    dir = "microbiome_lda_models_train/",
+    reset = TRUE,
+    verbose = TRUE
+  )
+
+lda_models_test  <- 
+  run_lda_models(
+    data = vm_data$counts[test_index,],
+    lda_varying_params_lists = lda_varying_params_lists,
+    lda_fixed_params_list = list(method = "VEM"),
+    dir = "microbiome_lda_models_test/",
+    reset = TRUE,
+    verbose = TRUE
+  )
+
+
+```
+
+We can now align the topics from each consecutive models:
+
+```{r align-topics}
+
+aligned_topics_product <- 
+  align_topics(
+    models = lda_models,
+    method = "product") 
+
+aligned_topics_transport <- 
+  align_topics(
+    models = lda_models,
+    method = "transport") 
+
+```
+
+
+
+```{r alignment-viz}
+plot(aligned_topics_product)
+plot(aligned_topics_transport)
+```
+     
+
+```{r}
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[2]] = lda_models$k7
+topic_to_compare[[1]] = lda_models$k7
+names(topic_to_compare) <- c("Train", "Test")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+
+
+```
+
+
+
+## Alignement visualization
+
+The alignments can be visualized with the `plot` function.
+
+```{r alignment-viz}
+plot(aligned_topics_product)
+plot(aligned_topics_transport)
+```
+
+
+
+## Key number of topics
+
+The number of key topics is computed with the function `compute_number_of_key_topics`. The function `plot_number_of_key_topics` can then be used to visualize that number across models.
+
+```{r key-number-of-topics}
+compute_number_of_paths(aligned_topics_product) %>% 
+  plot_number_of_paths() + 
+  ggtitle("Method: product")
+compute_number_of_paths(aligned_topics_transport) %>% 
+  plot_number_of_paths() + 
+  ggtitle("Method: transport")
+```
+
+The number of key topics shows a small plateau around K = 12 with both methods (product and transport). As in the simulations, the number of key topics are lower and the plateau is stronger when key topics are identified by the product than by the transport alignment. The fact that the plateau is small is likely indicative that the data generation process does not strictly follow the LDA model assumption. 
+
+Note: for convenience, the `plot` function includes options for labeling the topics with their path ID, and with their composition. Type `?plot_alignment` for details about these options.
+
+```{r plot-with-add-leaves-and-id-numbers}
+
+aligned_topics_transport_12 <- align_topics(lda_models[1:12], 
+                                            method = "transport")
+plot(aligned_topics_transport_12, add_leaves = TRUE, label_topics = TRUE)
+
+```
+
+We can also evaluate the coherence and ancestry scores of these topics with the `plot` function and the `color_by` option.
+
+## Alignment with diagnostics scores
+
+```{r coherence}
+plot(aligned_topics_product, color_by = "coherence")
+plot(aligned_topics_transport, color_by = "coherence")
+```
+
+Most of the identified topics around $K=12$ are coherent across $K$.
+
+
+```{r ancestry}
+plot(aligned_topics_product, color_by = "refinement")
+plot(aligned_topics_transport, color_by = "refinement")
+```
+
+Interestingly, by $K=7$, the identified topics correspond to the four Lactobacillus community state types (CST) and to three non-Lactobacillus topics. Among these, one topic, dominated by a specific strain of Gardnerella and Atopobium, remains coherent across models. The two remaining topics at $K=7$ have little overlap and high refinement scores, indicative that these topics successfully identify two distinct groups of communities, which are revealed as robust topics as $K$ is increased. 
+
+The function `plot_beta` allows to visualize the betas for a selection (or all) models.
+```{r}
+plot_beta <- function(x, models = "all",
+                      filter_by = "beta",
+                      x_axis = "label",
+                      threshold = 0.001, n_features = NULL,
+                      beta_aes = "size", color_by = "path") {
+
+  filter_by <- match.arg(filter_by, choices = c("beta", "distinctiveness"))
+  beta_aes <- match.arg(beta_aes, choices = c("size", "alpha"))
+  color_by <- match.arg(color_by, choices = c("topic", "path", "refinement", "coherence"))
+  x_axis <- match.arg(x_axis, choices = c("label","index"))
+
+  beta <-
+    plot_beta_layout(x, models, filter_by, threshold, n_features, color_by) %>%
+    format_beta(., x_axis = x_axis)
+
+  # we further trim beta to improve the visualization
+  # by removing the betas that are 1 order of magnitude lower
+  # than what would be obtained by distributing the betas within the selected words
+  beta <-
+    beta %>%
+    filter(b > max(threshold, 1/length(unique(beta$w))/10))
+
+  g <-
+    ggplot(beta, aes(x = x, y = w)) + # col
+    guides(size = "none") # col = "none",
+
+  if (beta_aes == "size") {
+    g <- g +
+      geom_point(aes(size = b, col = topic_col)) +
+      #scale_color_identity() +
+      scale_size(range = c(0, 5), limits = c(0, 1))
+  } else {
+    g <- g +
+      geom_tile(aes(alpha = b, fill = topic_col)) +
+      #scale_fill_identity() +
+      scale_alpha(range = c(0, 1), limits = c(0, 1))
+  }
+
+  if (color_by %in% c("topic", "path")) {
+    g <- g +
+      ggplot2::scale_color_discrete(color_by) +
+      ggplot2::scale_fill_discrete(color_by)
+      # mutate(col = hue_pal()(nlevels(topic_col))[as.integer(topic_col)])
+  } else {
+    max_score <- ifelse(color_by == "refinement", n_models(x), 1)
+    g <- g +
+      ggplot2::scale_color_gradient(color_by, low = "brown1", high = "cornflowerblue", limits = c(0, max_score)) +
+      ggplot2::scale_fill_gradient(color_by, low = "brown1", high = "cornflowerblue", limits = c(0, max_score))
+      # mutate(col = colorRampPalette(colors = c("brown1", "cornflowerblue"))(11)[round(topic_col,1)*10+1])
+  }
+
+  g +
+    facet_grid(. ~ m, scales = "free", space = "free") +
+    labs(x = "", y = "") +
+    # theme_bw() +
+    theme(
+      panel.border = ggplot2::element_rect(color = "black", fill = NA),
+      panel.spacing.x = unit(0, "pt"),
+      #strip.text.y = element_text(angle = 0, hjust = 0, color = "black"),
+      strip.background = ggplot2::element_rect(color = "black")
+    )
+}
+
+```
+
+```{r beta-plot}
+#plot_beta(aligned_topics_product, models = c("k3", "k7","k12"), threshold = 0.005)
+plot_beta(aligned_topics_transport, models = c("k3", "k7","k12"), threshold = 0.005)
+```
+
+By $K=18$ topics are sparse and share little overlap between them (Fig \ref{fig:microbiome_figure}d), which may reflect over-fitting.
+
+The `plot_beta` function also has a `color_by` option, which allows to visualize the coherence of topics.
+
+```{r}
+plot_beta(aligned_topics_product, 
+          models = c("k3", "k7","k12"), 
+          threshold = 0.005, 
+          color_by = "coherence")
+```
+
+
+
+
+
+```{r align-topics-viz-figure, echo = FALSE, eval = FALSE}
+
+
+
+figure_full = ggpubr::ggarrange(
+  g_key_topics_product,
+  g_key_topics_transport,
+  g_refinement_product,
+  g_refinement_transport,
+  g_robustness_product, 
+  g_robustness_transport,
+  g_branches_product,
+  g_branches_transport,
+  g_beta_product,
+  g_beta_transport,
+  ncol = 2,
+  nrow = 5,
+  heights = c(1.5,2,2,2,3)
+)
+
+ggsave(figure_full, filename = "microbiome_figure.png", height = 22, width = 18, units = "cm", scale = 2)
+
+
+```
+
+
+
+
+```{r align-topics-viz-figure-2, echo = FALSE, eval = FALSE}
+
+
+make_figure <- function(aligned_topics_product,
+                        aligned_topics_transport){
+  
+  
+  n_paths_combined <- 
+    bind_rows(
+      compute_number_of_paths(aligned_topics_product) %>% 
+        mutate(method = "product"),
+      compute_number_of_paths(aligned_topics_transport) %>% 
+        mutate(method = "transport")
+    )
+  
+  
+  g_key_topics <- 
+    ggplot(n_paths_combined, 
+           aes(x = n_topics,
+               y = n_paths,
+               col = method)) +
+    geom_abline(slope = 1, intercept = 0, col = "gray90", size = 2) +
+    geom_line() +
+    geom_point(size = 1) +
+    theme_minimal() +
+    xlab("# of topics in model") +
+    ylab("# of paths") +
+    scale_x_continuous(breaks = 1:max(n_paths_combined$n_topics), minor_breaks = NULL) +
+    scale_y_continuous(breaks = 1:max(n_paths_combined$n_topics), minor_breaks = NULL) +
+    scale_color_manual("", values = c("coral","blue3")) +
+    theme(
+      legend.position = "top", 
+      #legend.background = element_rect(fill = "white"),
+      legend.title = element_blank(),
+      legend.box.margin = margin(t = -10, b = -10, unit = "pt")
+    )
+  
+  
+  topics <- 
+    bind_rows(
+      aligned_topics_product@topics %>% mutate(method = "product"),
+      aligned_topics_transport@topics %>% mutate(method = "transport"),
+    ) %>% 
+    mutate(method = method %>% factor(., levels = c("transport","product"))) %>% 
+    group_by(method, m) %>% mutate(K = n(), r = refinement) %>% ungroup() 
+  
+  model_summary <- 
+    topics %>% 
+    group_by(method, K) %>%
+    summarize(
+      minr = min(r),
+      maxr = max(r), 
+      r = median(r),
+      .groups = "drop"
+    )
+  
+  g_refinement_distribution <- 
+    ggplot(model_summary,
+           aes(x = K, y = r)) + 
+    geom_hline(yintercept = 0, col = "gray") +
+    geom_ribbon(aes(ymin = minr, ymax = maxr), fill = "gray", alpha = 0.5) +
+    geom_line(data = model_summary, col = "black", size = 1) +
+    geom_point(data = model_summary, col = "black", size = 2) +
+    geom_jitter(data = topics, aes(col = path), height = 0, width = 0.05, size = 1) +
+    facet_wrap(method ~ ., dir = "v") + 
+    scale_x_continuous(breaks = sort(unique(topics$K)), minor_breaks = NULL) +
+    scale_y_log10() +
+    scale_color_discrete(breaks = sort(unique(model_summary$K))) +
+    guides(col = "none")  +
+    xlab("# of topics in model") +
+    ylab("refinement score")
+  
+  
+  g_coherence_transport <- 
+    plot_alignment(
+      aligned_topics_transport, 
+      color_by = "co", 
+      model_name_repair_fun = function(x) str_remove_all(x, "k")
+    ) + 
+    theme_minimal() +
+    theme(legend.position = "right")
+  
+  
+  g_paths_transport <- 
+    plot_alignment(
+      aligned_topics_transport, 
+      model_name_repair_fun = function(x) str_remove_all(x, "k")
+    ) +
+    theme_minimal() 
+  
+  
+  g_beta_transport <- 
+    plot_beta(
+      aligned_topics_transport, 
+      models = c("k3", "k7","k12",last(aligned_topics_transport@topics$m %>% levels())), 
+      threshold = 0.003
+    )
+  
+  figure = 
+    ggpubr::ggarrange(
+      g_key_topics,
+      ggpubr::ggarrange(
+        g_paths_transport,
+        g_coherence_transport,
+        ncol = 2, nrow = 1, 
+        widths = c(4,4.5),
+        labels = c("b","c")
+      ),
+      g_refinement_distribution,
+      g_beta_transport,
+      ncol = 2, nrow = 2,
+      heights = c(1, 1.3),
+      widths = c(3,8.5),
+      labels = c("a","","d","e")
+    )
+  
+  # ggpubr::ggarrange(
+  #   ggpubr::ggarrange(
+  #     ggpubr::ggarrange(
+  #       g_key_topics,
+  #       g_refinement_distribution,
+  #       ncol = 1, nrow = 2, 
+  #       heights = c(1, 1.2),
+  #       labels = "auto"
+  #     ),
+  #     g_coherence_transport,
+  #     g_paths_transport,
+  #     ncol = 3, nrow = 1,
+  #     widths = c(4,5,4),
+  #     labels = c("","b","c")),
+  #   g_beta_transport,
+  #   ncol = 1,
+  #   nrow = 2,
+  #   heights = c(1, 1.1),
+  #   labels = c("","d")
+  # )
+  
+  figure
+}
+
+aligned_topics_product_18 <- align_topics(lda_models[1:18], method = "product")
+aligned_topics_transport_18 <- align_topics(lda_models[1:18], method = "transport")
+
+figure_1_18 <- make_figure(aligned_topics_product = aligned_topics_product_18, 
+                           aligned_topics_transport = aligned_topics_transport_18)
+
+
+ggsave(figure_1_18, filename = "microbiome_figure.png", height = 14, width = 18, units = "cm", scale = 1.5)
+
+figure_1_18
+```
+
+
+
+
+# Modifications to work with Topic Score
+
+
+```{r}
+#setwd("~/Documents/topic-modeling")
+source("r/score.R")
+
+
+run_topic_models <- function(data, train_index, #test_index, 
+                             list_params=1:20, threshold = FALSE,
+                             normalize="none", VHMethod = 'SP',
+                             Mquantile = 0.00,
+                             alpha = 0.005, max_K=150){
+  ####
+  n_total = 1:ncol(data$counts)
+  active_train = which(apply(data$counts[train_index,], 2, sum)>0)
+  X = as.matrix(data$counts)
+  x_train = t(diag(1/ apply(X[train_index,active_train],1, sum)) %*% X[train_index, active_train])
+  #active_test = which(apply(data$counts[test_index,], 2, sum)>0)
+  #x_test = t(diag(1/ apply(data$counts[test_index, active_test],1, sum)) %*% data$counts[test_index, active_test])
+
+  topic_models <- vector("list", length(list_params))  
+  #topic_models_test <- vector("list", length(list_params)) 
+  it = 1
+  for (k in list_params){
+    
+    tm <- score(as.matrix(x_train), k, scatterplot=FALSE, 
+                 K0=NULL, m=NULL, N=mean(apply(data$counts, 1, sum)), threshold=threshold,
+                 Mquantile=Mquantile, VHMethod = VHMethod, normalize=normalize,
+                 alpha=alpha, max_K=max_K, returnW=TRUE, estimateK=FALSE)
+    A_hat = matrix(0, ncol(data$counts), k)
+    A_hat[active_train, ] = tm$A_hat
+    #A_hat = tm$A_hat
+    topic_models[[it]] <- list(
+                    beta = t(A_hat) %>% magrittr::set_rownames(rownames(data)),
+                    gamma =  t(tm$W_hat) %>% magrittr::set_colnames(colnames(data))
+                  )
+    it <- it + 1
+  }
+  names(topic_models) <- sapply(list_params,function(x){paste0("k",x)})
+  #names(topic_models_test) <- sapply(list_params,function(x){paste0("k",x)})
+  return(topic_models)
+  
+}
+
+topic_models <- run_topic_models(vm_data, train_index, list_params=3:12, 
+                                 threshold = FALSE,
+                                 normalize="none", VHMethod = 'SP',
+                                 Mquantile = 0.00,
+                                 alpha = 0.005, max_K=150)
+
+topic_models_test <- run_topic_models(vm_data, test_index, list_params=3:12, threshold = FALSE,
+                             normalize="none", VHMethod = 'SP',
+                             Mquantile = 0.00,
+                             alpha = 0.005, max_K=150)
+aligned_topics_transport <- 
+  align_topics(
+    models = topic_models,
+    method = "product") 
+
+plot(aligned_topics_transport, add_leaves = TRUE, label_topics = TRUE)
+
+
+compute_number_of_paths(aligned_topics_transport) %>% 
+  plot_number_of_paths() + 
+  ggtitle("Method: transport")
+
+```
+
+
+```{r}
+
+match = data.frame(exp((lda_models$k3$beta))%*% t(exp((lda_models$k3$beta))))
+colnames(match)= 1:ncol(match)
+match["X"] = 1:nrow(match)
+ggplot(pivot_longer(match, cols=-c("X")))+
+  geom_tile(aes(x=X, y=name, fill=value))
+```
+
+
+```{r}
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[2]] = topic_models$k3
+topic_to_compare[[1]] = topic_models_test$k3
+names(topic_to_compare) <- c("Train", "Test")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+
+
+```
+
+
+```{r}
+
+
+aligned_topics_product <- 
+  align_topics(
+    models = topic_models,
+    method = "product") 
+
+plot(aligned_topics_product, add_leaves = TRUE, label_topics = TRUE)
+
+
+compute_number_of_paths(aligned_topics_product) %>% 
+  plot_number_of_paths() + 
+  ggtitle("Method: product")
+
+
+```
+
+```{r}
+plot(aligned_topics_product, color_by = "coherence")
+
+```
+
+
+
+
+```{r}
+
+topic_models <- run_topic_models(vm_data, train_index, list_params=2:15,
+                                 threshold = FALSE,
+                                 normalize="none", VHMethod = 'SP',
+                                 Mquantile = 0.05,
+                                 alpha = 0.005, max_K=150)
+
+topic_models_test <- run_topic_models(vm_data, test_index, list_params=2:15, threshold = FALSE,
+                             normalize="none", VHMethod = 'SP',
+                             Mquantile = 0.05,
+                             alpha = 0.005, max_K=150)
+
+
+# aligned_topics_transport_huy <- 
+#   align_topics(
+#     models = topic_models_huy,
+#     method = "transport") 
+# 
+# plot(aligned_topics_transport_huy, add_leaves = TRUE, label_topics = TRUE)
+```
+
+```{r}
+
+res = c()
+for (exp in 1:50){
+  print("exp is")
+  print(exp)
+  train_index = sample(1:nrow(vm_data$counts), ceiling(nrow(vm_data$counts)/2))
+  test_index = (1:nrow(vm_data$counts))[-c(train_index)]
+  
+  for (k in 1:18) {
+    lda_varying_params_lists[[paste0("k",k)]] <- list(k = k)
+  }
+  
+  lda_models  <- 
+    run_lda_models(
+      data = vm_data$counts[train_index,],
+      lda_varying_params_lists = lda_varying_params_lists,
+      lda_fixed_params_list = list(method = "VEM"),
+      dir = "microbiome_lda_models_train/",
+      reset = TRUE,
+      verbose = TRUE
+    )
+  
+  lda_models_test  <- 
+    run_lda_models(
+      data = vm_data$counts[test_index,],
+      lda_varying_params_lists = lda_varying_params_lists,
+      lda_fixed_params_list = list(method = "VEM"),
+      dir = "microbiome_lda_models_test/",
+      reset = TRUE,
+      verbose = TRUE
+    )
+  
+  topic_models <- run_topic_models(vm_data, train_index, list_params=3:15,
+                                   threshold = FALSE,
+                                   normalize="none", VHMethod = 'SP',
+                                   Mquantile = 0.00,
+                                   alpha = 0.005, max_K=150)
+  
+  topic_models_test <- run_topic_models(vm_data, test_index, list_params=3:15, threshold = FALSE,
+                               normalize="none", VHMethod = 'SP',
+                               Mquantile = 0.00,
+                               alpha = 0.005, max_K=150)
+
+
+  
+  
+  alphas= c(0.005)
+  topic_models_huy <- vector("list", length(alphas))
+  topic_models_huy_test <- vector("list", length(alphas))
+  it = 1
+  for(alpha in alphas){
+    topic_models_huy[[it]] <- run_topic_models(vm_data, train_index, list_params=3:18, threshold = TRUE,
+                               normalize="huy", VHMethod = 'SP',
+                               Mquantile = 0.00,
+                               alpha = alpha, max_K=150)
+  
+  
+  
+    topic_models_huy_test[[it]] <- run_topic_models(vm_data, test_index, list_params=3:18, threshold = TRUE,
+                               normalize="huy", VHMethod = 'SP',
+                               Mquantile = 0.00,
+                               alpha = alpha, max_K=150)
+    it = it + 1
+  }
+
+  thres = 0.1
+  
+  for (k in 3:18){
+    it = 1
+    for (alpha in alphas){
+        match = data.frame(((topic_models_huy[[it]][[paste0("k",k)]]$beta))%*% t(((topic_models_huy_test[[it]][[paste0("k",k)]]$beta))))
+    #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+        permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
+        match_permuted <- match[, permutation]
+        res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
+                              "max" = max(diag(as.matrix(match_permuted))),
+                              "mean" = mean(diag(as.matrix(match_permuted))), 
+                              "median" = median(diag(as.matrix(match_permuted))), 
+                              "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
+                              "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
+                              "k" = k,
+                              "method" = paste0("huy", alpha),
+                              "res1" = sum(diag(as.matrix(match_permuted))>0.1),
+                              "res15" = sum(diag(as.matrix(match_permuted))>0.15),
+                              "res2" = sum(diag(as.matrix(match_permuted))>0.2),
+                              "res2.5" = sum(diag(as.matrix(match_permuted))>0.25),
+                               "res3" = sum(diag(as.matrix(match_permuted))>0.3),
+                              "res3.5" = sum(diag(as.matrix(match_permuted))>0.35),
+                              "res45" = sum(diag(as.matrix(match_permuted))>0.4),
+                              "res4" = sum(diag(as.matrix(match_permuted))>0.45),
+                              "res5" = sum(diag(as.matrix(match_permuted))>0.5),
+                              "res6" = sum(diag(as.matrix(match_permuted))>0.6),
+                              "res7" = sum(diag(as.matrix(match_permuted))>0.7),
+                              "res8" = sum(diag(as.matrix(match_permuted))>0.8),
+                               "res9" = sum(diag(as.matrix(match_permuted))>0.9),
+                              "exp" = exp,
+                               "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
+        res = rbind(res, res_temp)
+        it = it + 1
+    }
+  
+    
+    match = data.frame(((topic_models[[paste0("k",k)]]$beta))%*% t(((topic_models_test[[paste0("k",k)]]$beta))))
+    #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+    permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
+    match_permuted <- match[, permutation]
+    res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
+                          "max" = max(diag(as.matrix(match_permuted))),
+                          "mean" = mean(diag(as.matrix(match_permuted))), 
+                          "median" = median(diag(as.matrix(match_permuted))), 
+                          "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
+                          "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
+                          "k" = k,
+                          "method" = "score",
+                              "res" = sum(diag(as.matrix(match_permuted))>thres),
+                              "res2" = sum(diag(as.matrix(match_permuted))>0.2),
+                               "res3" = sum(diag(as.matrix(match_permuted))>0.3),
+                              "res4" = sum(diag(as.matrix(match_permuted))>0.4),
+                              "res5" = sum(diag(as.matrix(match_permuted))>0.5),
+                              "res6" = sum(diag(as.matrix(match_permuted))>0.6),
+                                                        "exp" = exp,
+                           "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
+    res = rbind(res, res_temp)
+    
+    match = data.frame((exp(lda_models[[paste0("k",k)]]$beta))%*% t((exp(lda_models_test[[paste0("k",k)]]$beta))))
+    #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+    permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
+    match_permuted <- match[, permutation]
+    res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
+                          "max" = max(diag(as.matrix(match_permuted))),
+                          "mean" = mean(diag(as.matrix(match_permuted))), 
+                          "median" = median(diag(as.matrix(match_permuted))), 
+                          "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
+                          "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
+                          "k" = k,
+                          "method" = "lda",
+                              "res" = sum(diag(as.matrix(match_permuted))>thres),
+                              "res2" = sum(diag(as.matrix(match_permuted))>0.2),
+                               "res3" = sum(diag(as.matrix(match_permuted))>0.3),
+                              "res4" = sum(diag(as.matrix(match_permuted))>0.4),
+                              "res5" = sum(diag(as.matrix(match_permuted))>0.5),
+                              "res6" = sum(diag(as.matrix(match_permuted))>0.6),
+                                                        "exp" = exp,
+                           "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
+    res = rbind(res, res_temp)
+    
+  }
+  write.csv(res,"~/Documents/topic-modeling/r/experiments/real/results_vm_data_2.csv")
+
+  
+}
+
+
+
+```
+
+```{r}
+
+match = data.frame(((topic_models$k5$beta))%*% t(((topic_models_test$k5$beta))))
+colnames(match)= 1:ncol(match)
+match["X"] = 1:nrow(match)
+ggplot(pivot_longer(match, cols=-c("X")))+
+  geom_tile(aes(x=X, y=name, fill=value))
+
+```
+
+```{r}
+library(combinat)
+library(clue)
+k =12
+match = data.frame(((topic_models_huy[[paste0("k",k)]]$beta))%*% t(((topic_models_huy_test[[paste0("k",k)]]$beta))))
+#match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
+match_permuted <- match[, permutation]
+print(c(min(diag(as.matrix(match_permuted))), max(diag(as.matrix(match_permuted))),
+        mean(diag(as.matrix(match_permuted))), median(diag(as.matrix(match_permuted)))))
+print(sort(diag(as.matrix(match_permuted))))
+
+colnames(match_permuted)= 1:ncol(match_permuted)
+
+match_permuted["X"] = 1:nrow(match_permuted)
+ggplot(pivot_longer(match_permuted, cols=-c("X")))+
+  geom_tile(aes(x=as.factor(X), y=name, fill=value))
+
+res = c()
+thres = 0.15
+for (k in 3:12){
+  it = 1
+  for (alpha in alphas){
+      match = data.frame(((topic_models_huy[[it]][[paste0("k",k)]]$beta))%*% t(((topic_models_huy_test[[it]][[paste0("k",k)]]$beta))))
+  #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+      permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
+      match_permuted <- match[, permutation]
+      res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
+                            "max" = max(diag(as.matrix(match_permuted))),
+                            "mean" = mean(diag(as.matrix(match_permuted))), 
+                            "median" = median(diag(as.matrix(match_permuted))), 
+                            "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
+                            "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
+                            "k" = k,
+                            "method" = paste0("huy", alpha),
+                            "res" = sum(diag(as.matrix(match_permuted))>thres),
+                             "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
+      res = rbind(res, res_temp)
+      it = it + 1
+  }
+
+  
+  match = data.frame(((topic_models[[paste0("k",k)]]$beta))%*% t(((topic_models_test[[paste0("k",k)]]$beta))))
+  #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+  permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
+  match_permuted <- match[, permutation]
+  res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
+                        "max" = max(diag(as.matrix(match_permuted))),
+                        "mean" = mean(diag(as.matrix(match_permuted))), 
+                        "median" = median(diag(as.matrix(match_permuted))), 
+                        "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
+                        "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
+                        "k" = k,
+                        "method" = "score",
+                        "res" = sum(diag(as.matrix(match_permuted))>thres),
+                         "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
+  res = rbind(res, res_temp)
+  
+  match = data.frame((exp(lda_models[[paste0("k",k)]]$beta))%*% t((exp(lda_models_test[[paste0("k",k)]]$beta))))
+  #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+  permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
+  match_permuted <- match[, permutation]
+  res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
+                        "max" = max(diag(as.matrix(match_permuted))),
+                        "mean" = mean(diag(as.matrix(match_permuted))), 
+                        "median" = median(diag(as.matrix(match_permuted))), 
+                        "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
+                        "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
+                        "k" = k,
+                        "method" = "lda",
+                         "res" = sum(diag(as.matrix(match_permuted))>thres),
+                         "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
+  res = rbind(res, res_temp)
+  
+}
+
+ggplot(res, aes(x=k, y=mean, colour=method))+
+  #geom_line()+
+  #geom_errorbar(aes(ymin=q25, ymax=q75))+
+  geom_point()
+  # geom_line(aes(y=mean))
+
+ggplot(res, aes(x=k, y=q25/off_diag, colour=method))+
+  geom_line()+
+  geom_hline(aes(yintercept=1))+
+  geom_point()
+```
+
+```{r}
+
+topic_to_compare <- vector("list", 2)
+#topic_to_compare[[1]] = topic_models$k4
+#topic_to_compare[[2]] = topic_models_test$k4
+topic_to_compare[[2]] = lda_models$k12
+topic_to_compare[[1]] = lda_models_test$k12
+names(topic_to_compare) <- c("Train", "Test")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+
+```
+```{r}
+
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[1]] = topic_models_huy[[1]]$k6
+topic_to_compare[[2]] = topic_models_huy_test[[1]]$k6
+#topic_to_compare[[2]] = lda_models$k8
+#topic_to_compare[[1]] = lda_models_test$k8
+#names(topic_to_compare) <- c("Train", "Test")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+
+```
+
+
+
+```{r}
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[2]] = lda_models$k12
+topic_to_compare[[1]] = lda_models_test$k12
+names(topic_to_compare) <- c("Train", "Test")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+
+```
+
+```{r}
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[2]] = topic_models_huy$k5
+topic_to_compare[[1]] = topic_models_huy_test$k5
+names(topic_to_compare) <- c("Train", "Test")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+
+```
+
+
+```{r}
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[2]] = topic_models$k5
+topic_to_compare[[1]] = topic_models_test$k5
+names(topic_to_compare) <- c("Train", "Test")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+
+```
+
+
+```{r}
+compute_number_of_paths(aligned_topics_transport_huy) %>% 
+  plot_number_of_paths() + 
+  ggtitle("Method: transport")
+
+```
+
+
+
+```{r}
+
+aligned_topics_product_huy <- 
+  align_topics(
+    models = topic_models_huy,
+    method = "product") 
+
+plot(aligned_topics_product_huy, add_leaves = TRUE, label_topics = TRUE)
+
+compute_number_of_paths(aligned_topics_product_huy) %>% 
+  plot_number_of_paths() + 
+  ggtitle("Method: product")
+
+```
+
+```{r}
+
+plot(aligned_topics_product_huy, color_by = "coherence")
+
+
+```
+
+
+```{r}
+### Compare all sorts of models
+
+
+k = 7
+
+topic_to_compare <- vector("list", 3)
+topic_to_compare[[1]] = lda_models$k10
+topic_to_compare[[3]] = topic_models$k10
+topic_to_compare[[2]] = topic_models_huy$k10
+names(topic_to_compare) <- c("LDA", "score", "huy")
+
+aligned_topics_product_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "transport") 
+
+plot(aligned_topics_product_comp, add_leaves = TRUE, label_topics = TRUE)
+
+```
+```{r}
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[1]] = lda_models$k10
+topic_to_compare[[2]] = topic_models$k10
+names(topic_to_compare) <- c("LDA", "score")
+
+aligned_topics_product_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "product") 
+plot(aligned_topics_product_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_product_comp, color_by = "coherence")
+```
+
+
+
+
+
+```{r}
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[2]] = lda_models$k12
+topic_to_compare[[1]] = topic_models_huy$k12
+names(topic_to_compare) <- c("LDA", "huy")
+
+aligned_topics_transport_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "t") 
+plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_transport_comp, color_by = "coherence")
+```
+
+
+```{r}
+
+topic_to_compare <- vector("list", 2)
+topic_to_compare[[1]] = topic_models$k10
+topic_to_compare[[2]] = topic_models_huy$k10
+names(topic_to_compare) <- c("Score", "huy")
+
+aligned_topics_product_comp <- 
+  align_topics(
+    models = topic_to_compare,
+    method = "product") 
+plot(aligned_topics_product_comp, add_leaves = TRUE, label_topics = TRUE)
+plot(aligned_topics_product_comp, color_by = "coherence")
+
+
+```
+

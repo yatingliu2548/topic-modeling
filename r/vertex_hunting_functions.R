@@ -28,7 +28,6 @@ successiveProj <- function(R, K){
     index <- which(l2Norms == max(l2Norms))
     
     if (length(index) >1){
-      #print("yoho")
       r = rankMatrix(R[valid_indices[index], ])[1]
       if (r < length(index)){
         ### only select 1
@@ -63,7 +62,7 @@ vertices_est_SP <- function(R,m){
   library(quadprog)
   K <- dim(R)[2] + 1
   
-  obj <- kmeans(R,m,iter.max=K*100,nstart = K*10)
+  obj <- kmeans(R,m,iter.max=K*100, nstart = K*10)
   theta <- as.matrix(obj$centers)
   return(successiveProj(theta, K))
 }
@@ -75,12 +74,12 @@ vertices_est <- function(R, K0, m){
   #Step 2a
   print(paste0("min is ", min(m, nrow(R))))
   print(c(m, dim(R)))
-  obj <- kmeans(R, min(m, nrow(R)), iter.max=K*100, nstart = K*10)
+  print("K0 is:")
+  print(K0)
+  obj <- kmeans(R, centers = min(m, nrow(R)-1), iter.max=K*100, nstart = 1)
   
   theta <- as.matrix(obj$centers)
   theta_original <- theta
-  plot(R[,1],R[,2])
-  points(theta[,1], theta[,2], col=2,lwd=4)
   
   #Step 2b'
   inner <- theta%*%t(theta)
@@ -91,6 +90,7 @@ vertices_est <- function(R, K0, m){
   
   if (K0 > 2){
     for (k0 in 3:K0){
+      print(k0)
       inner <- theta%*%t(theta)
       distance <- rep(1,k0-1)%*%t(diag(inner))-2*theta0%*%t(theta)
       ave_dist <- colMeans(distance)
@@ -129,8 +129,8 @@ vertices_est <- function(R, K0, m){
 ArchetypeA <- function(R,K){
   library(reticulate)
   use_condaenv("r-reticulate")
-  source_python("NMF.py")
-  resultfromAA= acc_palm_nmf(X=R, r=K,proj_method='wolfe', m=5, maxiter=1000, 
+  source_python(paste0(getwd(), "/NMF.py"))
+  resultfromAA=  acc_palm_nmf(X=R, r=K,proj_method='wolfe', m=5, maxiter=1000, 
                              c1 =1, c2 = 1, method = 'fista', fixed_max_size=5)
   return(list(V=resultfromAA$V,Weigh_hat=resultfromAA$weight))
 }

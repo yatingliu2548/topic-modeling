@@ -1,5 +1,5 @@
 library('rARPACK')
-library('Matrix')
+#library('Matrix')
 library(roxygen2)
 library(quadprog)
 
@@ -95,7 +95,8 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   newD <- switch(normalize, 
                  "norm" = diag(sqrt(M_trunk^(-1))) %*% newD,
                  "norm_score_N" = diag(sqrt(M2^(-1)))%*% newD,
-                 "huy" = newD %*% t(newD) - n/N * diag(M),
+                 "TTS" = newD %*% t(newD)  - n/N * diag(M),
+                 "TTS_not_centered" = newD %*% t(newD),
                  "none" = newD)
   if (K >= min(dim(newD))){
     obj = svd(newD, min(K, min(dim(newD))))
@@ -119,43 +120,60 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   #Step 1: SVD
   Xi[,1] <- abs(Xi[,1]) ### to get rid of some small irregularities, but should be positive and bounded away from 0 (this is guaranteed by Perron's theorem)
-  R <- apply(as.matrix(Xi[,2:K]),2,function(x) x/Xi[,1])
+  if (K==1){
+    R = Xi
+  }else{
+    R <- apply(as.matrix(Xi[, 2:K]),2, function(x) x/ Xi[,1])
+  }
+  
   
   #Step 2: Post-SVD normalization
   print("Start VH")
   if (VHMethod == 'SVS'){
     vertices_est_obj <- vertices_est(R, K0, m)
-    V <- vertices_est_obj$V
+    V <- as.matrix(vertices_est_obj$V, ncol=ncol(R))
     theta <- vertices_est_obj$theta
-  } else if (VHMethod == 'SP'){
-    vertices_est_obj <- successiveProj(R, K)
-    V <- vertices_est_obj$V
+  } else if (VHMethod == 'SP' || (VHMethod == "AA" & K<3)){
+    if (K<3){
+      i1 = which.max(R)
+      i2 = which.min(R)
+      V <- as.matrix(R[c(i1, i2),], ncol=ncol(R))
+    }else{
+      vertices_est_obj <- successiveProj(R, K)
+      V <- as.matrix(vertices_est_obj$V, ncol=ncol(R))
+    }
     theta <- NULL
   } else if (VHMethod == 'SVS-SP'){
     vertices_est_obj <- vertices_est_SP(R, m)
-    V <- vertices_est_obj$V
+    V <- as.matrix(vertices_est_obj$V, ncol=ncol(R))
     theta <- NULL
   }else if (VHMethod == 'AA'){
-    vertices_est_obj <- ArchetypeA(r_to_py(R),as.integer(K))
-    V <-vertices_est_obj$V
+    vertices_est_obj <- ArchetypeA(r_to_py(R), as.integer(K))
+    V<-vertices_est_obj$V
     theta<-NULL
 
   }
   
-  if (scatterplot){
+  if (scatterplot & K>2){
     par(mar=c(1,1,1,1))
-    plot(R[,1],R[,2])
-    points(V[,1],V[,2],col=2,lwd=5)
+    ggplot(data.frame(R), aes(x=X1, y=X2))+
+      geom_point( size=3.5)+
+      geom_point(data=data.frame(V), colour="red", size=3.5)
   }
   
   
   #Step 3: Topic matrix estimation
   print("Start Step 3")
-  if(rankMatrix(cbind(V,rep(1,K)))[1]<K){
-    Pi <- cbind(R, rep(1,new_p)) %*% MASS::ginv(cbind(V,rep(1,K)))
+  if (K == 1){
+    Pi = R %*% diag(1/V)
   }else{
-    Pi <- cbind(R, rep(1,new_p)) %*% solve(cbind(V,rep(1,K)))
+    if(rankMatrix(cbind(V,rep(1,nrow(V))))[1]<K || min(dim(V)) < max(dim(V))){
+      Pi <- cbind(R, rep(1,new_p)) %*% MASS::ginv(cbind(V,rep(1,K)))
+    }else{
+      Pi <- cbind(R, rep(1,new_p)) %*% solve(cbind(V, rep(1,K)))
+    }
   }
+  
 
   Pi <- pmax(Pi,matrix(0,dim(Pi)[1],dim(Pi)[2])) ### sets negative entries to 0 
   temp <- rowSums(Pi)
@@ -165,10 +183,10 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   if (normalize %in% c("norm", "norm_score_N" )){
     A_hat <- switch(normalize, 
                     "norm" = diag(sqrt(M_trunk)),
-                    "norm_score_N" = diag(sqrt(M2))) %*% (Xi[,1]*Pi)
+                    "norm_score_N" = diag(sqrt(M2))) %*% (Xi[,1] * Pi)
     
   }else{
-    A_hat <- Xi[,1]*Pi
+    A_hat <- Xi[,1] * Pi
   }
 
   #Step  3c: normalize each column to have a unit l1 norm
@@ -176,7 +194,11 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   A_hat <- t(apply(A_hat,1,function(x) x/temp))
   
   A_hat_final = matrix(0, p, K )
-  if(threshold){
+  
+  if (K==1){
+    W_hat = matrix(1, nrow=1, ncol=n)
+  }else{
+    if(threshold){
       A_hat_final[setJ, ] = A_hat
       if(returnW){
         print("Start estimation of W")
@@ -192,6 +214,8 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
         W_hat <- NULL
       }
     }
+  }
+
   
   
   
