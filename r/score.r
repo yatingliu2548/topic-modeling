@@ -5,7 +5,7 @@ library(quadprog)
 
 source("r/vertex_hunting_functions.R")
 source("r/simplex_dist.R")
-
+library(Matrix)
 
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
@@ -42,11 +42,14 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   #' @export
   #'
   #' 
-  
+  if(typeof(D) != "sparseMatrix"){
+    D <- as(D, "sparseMatrix")
+  }
   p <- dim(D)[1]
   n <- dim(D)[2]
   print(c(n, p, K, N))
   
+
   M <- rowMeans(D)   #### average frequency at which each word appears in each document
   if (Mquantile >0){
     M_trunk <- sapply(M,function(x){max(quantile(x, Mquantile))})
@@ -91,13 +94,19 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     setJ = 1:length(M)
   }
   
-  
   newD <- switch(normalize, 
-                 "norm" = diag(sqrt(M_trunk^(-1))) %*% newD,
-                 "norm_score_N" = diag(sqrt(M2^(-1)))%*% newD,
-                 "TTS" = newD %*% t(newD)  - n/N * diag(M),
+                 "norm" = Diagonal(x=sqrt(M_trunk^(-1))) %*% newD,
+                 "norm_score_N" = Diagonal(x=sqrt(M2^(-1)))%*% newD,
+                 "TTS" = newD %*% t(newD)  - n/N * Diagonal(x=M),
                  "TTS_not_centered" = newD %*% t(newD),
                  "none" = newD)
+  
+  # newD <- switch(normalize, 
+  #                "norm" = diag(sqrt(M_trunk^(-1))) %*% newD,
+  #                "norm_score_N" = diag(sqrt(M2^(-1)))%*% newD,
+  #                "TTS" = newD %*% t(newD)  - n/N * diag(M),
+  #                "TTS_not_centered" = newD %*% t(newD),
+  #                "none" = newD)
   if (K >= min(dim(newD))){
     obj = svd(newD, min(K, min(dim(newD))))
   }else{

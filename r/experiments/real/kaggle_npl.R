@@ -22,40 +22,41 @@ library(clue)
 library(slam)
 
 setwd("C:/Users/建新/OneDrive - The University of Chicago/NMF/topic-modeling-main/topic-modeling-main/")
+setwd("~/Documents/topic-modeling/")
 source("./r/vertex_hunting_functions.R")
 source('./r/score.R')
 source('./r/evaluation_metrics.r')
 
 
-#train = read_csv("C://Users//建新//OneDrive - The University of Chicago//NMF//archive//train.csv")
+train = read_csv("~/Downloads/archive (4)/train.csv")
 #test = read_csv("C://Users//建新//OneDrive - The University of Chicago//NMF//archive//test.csv")
 
-#train <- train %>%
-#  mutate(text = paste(TITLE, ": ", ABSTRACT, sep = ""))
+train <- train %>%
+  mutate(text = paste(TITLE, ": ", ABSTRACT, sep = ""))
 
-#docs <- Corpus(VectorSource(train$text))
-#docs <- tm_map(docs, content_transformer(tolower))
-#docs <- tm_map(docs, removePunctuation)
-#docs <- tm_map(docs, removeNumbers)
-#docs <- tm_map(docs, removeWords, stopwords("en"))
-#docs <- tm_map(docs, stripWhitespace)
+docs <- Corpus(VectorSource(train$text))
+docs <- tm_map(docs, content_transformer(tolower))
+docs <- tm_map(docs, removePunctuation)
+docs <- tm_map(docs, removeNumbers)
+docs <- tm_map(docs, removeWords, stopwords("en"))
+docs <- tm_map(docs, stripWhitespace)
 
-#dtm <- DocumentTermMatrix(docs)
+dtm <- DocumentTermMatrix(docs)
 
-dtm=read.csv("C://Users//建新//OneDrive - The University of Chicago//NMF//dtm.csv")
+#dtm=read.csv("C://Users//建新//OneDrive - The University of Chicago//NMF//dtm.csv")
 
-train=read.csv("C://Users//建新//OneDrive - The University of Chicago//NMF//research_data.csv")
+#train=read.csv("C://Users//建新//OneDrive - The University of Chicago//NMF//research_data.csv")
 columns_to_retain <- which(train$Quantitative.Biology == 0 & train$Quantitative.Finance ==0)
 
 train=train[columns_to_retain, ]
 train=train[columns_to_retain, ]
 dtm=dtm[columns_to_retain,]
 
-meanN=mean(train$N)
-D=dtm/meanN
+meanN=100 #mean(apply(as.data(dtm, 2, sy)))
+D=t(dtm)/meanN
 
 
-K=4
+K=6
 seed=1234
 lda<- LDA(dtm, k = K, control = list(seed = seed), method = 'VEM')
 #ap_topics <- tidy(lda, matrix = "beta")
@@ -63,7 +64,9 @@ lda<- LDA(dtm, k = K, control = list(seed = seed), method = 'VEM')
 Ahat_lda = exp(t(lda@beta))
 What_lda= t(lda@gamma)
 
-score_recovery <- score(t(D), K, normalize = "norm", max_K = min(150, min(dim(D)-1)), VHMethod="SP", returnW=TRUE)
+score_recovery <- score(D, K, normalize = "norm", 
+                        max_K = min(150, min(dim(D)-1)), 
+                        VHMethod="SP", returnW=TRUE)
 
 p=dim(D)[2]
 n=dim(D)[1]
