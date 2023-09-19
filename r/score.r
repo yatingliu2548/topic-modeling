@@ -43,14 +43,14 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   #'
   #' 
   if(typeof(D) != "sparseMatrix"){
-    D <- as(D, "sparseMatrix")
+    D <- as(as.numeric(as.matrix(D)), "sparseMatrix")
   }
   p <- dim(D)[1]
   n <- dim(D)[2]
   print(c(n, p, K, N))
   
 
-  M <- rowMeans(D)   #### average frequency at which each word appears in each document
+  M <- as.numeric(rowMeans(D)) #### average frequency at which each word appears in each document
   if (Mquantile >0){
     M_trunk <- sapply(M,function(x){max(quantile(x, Mquantile))})
   }else{
@@ -191,8 +191,8 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   #Step 3b 
   if (normalize %in% c("norm", "norm_score_N" )){
     A_hat <- switch(normalize, 
-                    "norm" = diag(sqrt(M_trunk) * Xi[,1] ),
-                    "norm_score_N" = diag(sqrt(M2)* Xi[,1] )) %*% (Pi)
+                    "norm" = Diagonal(x=sqrt(M_trunk) * Xi[,1] ),
+                    "norm_score_N" = Diagonal(x=sqrt(M2)* Xi[,1] )) %*% (Pi)
     
   }else{
     A_hat <- Xi[,1] * Pi
