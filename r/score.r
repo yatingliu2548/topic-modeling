@@ -10,7 +10,8 @@ library(Matrix)
 
 score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FALSE,
                   Mquantile=0.00, VHMethod = 'SP', normalize="none",
-                  alpha=0.5, max_K=150, returnW=FALSE, estimateK=TRUE){
+                  alpha=0.5, max_K=150, returnW=FALSE, estimateK=TRUE,
+                  as.sparse = TRUE){
   #' This function computes the estimates for the A and W matrix based on the algorithm proposed in Ke and Wang's work: https://arxiv.org/pdf/1704.07016.pdf
   #' 
   #'
@@ -42,13 +43,13 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   #' @export
   #'
   #' 
-  if(typeof(D) != "sparseMatrix"){
+  if(typeof(D) != "sparseMatrix" & as.sparse){
     D <- as(D, "sparseMatrix")
   }
   p <- dim(D)[1]
   n <- dim(D)[2]
   print(c(n, p, K, N))
-  
+
 
   M <- rowMeans(D)   #### average frequency at which each word appears in each document
   if (Mquantile >0){
@@ -90,23 +91,29 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
     
   }else{
     new_p = p
-    newD=D
+    newD = D
     setJ = 1:length(M)
   }
   
-  newD <- switch(normalize, 
-                 "norm" = Diagonal(x=sqrt(M_trunk^(-1))) %*% newD,
-                 "norm_score_N" = Diagonal(x=sqrt(M2^(-1)))%*% newD,
-                 "TTS" = newD %*% t(newD)  - n/N * Diagonal(x=M),
-                 "TTS_not_centered" = newD %*% t(newD),
-                 "none" = newD)
+  #transpose_newD=  t(newD)
+  if (as.sparse){
+    newD <- switch(normalize, 
+                   "norm" = Diagonal(x=sqrt(M_trunk^(-1))) %*% newD,
+                   "norm_score_N" = Diagonal(x=sqrt(M2^(-1)))%*% newD,
+                   "TTS" = newD %*% t(newD)  - n/N * Diagonal(x=M),
+                   "TTS_not_centered" = newD %*% t(newD),
+                   "none" = newD)
+  }else{
+    newD <- switch(normalize,
+                   "norm" = diag(sqrt(M_trunk^(-1))) %*% newD,
+                   "norm_score_N" = diag(sqrt(M2^(-1)))%*% newD,
+                   "TTS" = newD %*% t(newD)  - n/N * diag(M),
+                   "TTS_not_centered" = newD %*% t(newD),
+                   "none" = newD)
+  }
+
   
-  # newD <- switch(normalize, 
-  #                "norm" = diag(sqrt(M_trunk^(-1))) %*% newD,
-  #                "norm_score_N" = diag(sqrt(M2^(-1)))%*% newD,
-  #                "TTS" = newD %*% t(newD)  - n/N * diag(M),
-  #                "TTS_not_centered" = newD %*% t(newD),
-  #                "none" = newD)
+
   if (K >= min(dim(newD))){
     obj = svd(newD, min(K, min(dim(newD))))
   }else{
@@ -190,9 +197,16 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   
   #Step 3b 
   if (normalize %in% c("norm", "norm_score_N" )){
-    A_hat <- switch(normalize, 
-                    "norm" = diag(sqrt(M_trunk) * Xi[,1] ),
-                    "norm_score_N" = diag(sqrt(M2)* Xi[,1] )) %*% (Pi)
+    if (as.sparse){
+      A_hat <- switch(normalize, 
+                      "norm" = Diagonal(x=sqrt(M_trunk) * Xi[,1] ),
+                      "norm_score_N" = Diagonal(x=sqrt(M2)* Xi[,1] )) %*% (Pi)
+    }else{
+      A_hat <- switch(normalize, 
+                      "norm" = diag(sqrt(M_trunk) * Xi[,1] ),
+                      "norm_score_N" =diag(sqrt(M2)* Xi[,1] )) %*% (Pi)
+    }
+
     
   }else{
     A_hat <- Xi[,1] * Pi
