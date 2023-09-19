@@ -51,7 +51,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   print(c(n, p, K, N))
 
 
-  M <- rowMeans(D)   #### average frequency at which each word appears in each document
+  M <- as.numeric(rowMeans(D)) #### average frequency at which each word appears in each document
   if (Mquantile >0){
     M_trunk <- sapply(M,function(x){max(quantile(x, Mquantile))})
   }else{
