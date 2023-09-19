@@ -21,18 +21,22 @@ library(combinat)
 library(clue)
 library(slam)
 
-setwd("C:/Users/建新/OneDrive - The University of Chicago/NMF/topic-modeling-main/topic-modeling-main/")
+setwd("C:/Users/arvinyfw/topic-modeling")
 setwd("~/Documents/topic-modeling/")
 source("./r/vertex_hunting_functions.R")
 source('./r/score.R')
 source('./r/evaluation_metrics.r')
 
 
-train = read_csv("~/Downloads/archive (4)/train.csv")
+train = read_csv("C:/Users/arvinyfw/Downloads/archive/train.csv")
 #test = read_csv("C://Users//建新//OneDrive - The University of Chicago//NMF//archive//test.csv")
 
 train <- train %>%
   mutate(text = paste(TITLE, ": ", ABSTRACT, sep = ""))
+
+
+seed=1234
+K=6
 
 docs <- Corpus(VectorSource(train$text))
 docs <- tm_map(docs, content_transformer(tolower))
@@ -46,18 +50,16 @@ dtm <- DocumentTermMatrix(docs)
 #dtm=read.csv("C://Users//建新//OneDrive - The University of Chicago//NMF//dtm.csv")
 
 #train=read.csv("C://Users//建新//OneDrive - The University of Chicago//NMF//research_data.csv")
-columns_to_retain <- which(train$Quantitative.Biology == 0 & train$Quantitative.Finance ==0)
+columns_to_retain <- which(train$`Quantitative Biology` == 0 & train$`Quantitative Finance` ==0)
 
 train=train[columns_to_retain, ]
 train=train[columns_to_retain, ]
 dtm=dtm[columns_to_retain,]
 
-meanN=100 #mean(apply(as.data(dtm, 2, sy)))
+train$doc_word_length <- sapply(strsplit(as.character(train$text), "\\s+"), length)
+meanN=mean(train$doc_word_length ) #mean(apply(as.data(dtm, 2, sy)))
 D=t(dtm)/meanN
 
-
-K=6
-seed=1234
 lda<- LDA(dtm, k = K, control = list(seed = seed), method = 'VEM')
 #ap_topics <- tidy(lda, matrix = "beta")
 
@@ -68,8 +70,8 @@ score_recovery <- score(D, K, normalize = "norm",
                         max_K = min(150, min(dim(D)-1)), 
                         VHMethod="SP", returnW=TRUE)
 
-p=dim(D)[2]
-n=dim(D)[1]
+p=dim(D)[1]
+n=dim(D)[2]
 N=meanN
 
 #Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
@@ -79,7 +81,7 @@ Ahat_tracy=score_recovery$A_hat
 What_tracy=score_recovery$W_hat
 
 alpha=0.005
-ours=score(D = t(D), K=K, normalize = 'huy',
+ours=score(D = D, K=K, normalize = 'TTS',
            threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(D))-1, 150),
            VHMethod="SP", returnW=TRUE)
 
@@ -88,7 +90,7 @@ Ahat_ours=ours$A_hat
 What_ours=ours$W_hat
 
 
-y_train=train[,5:(5+K-1)]
+y_train=train[,4:(4+K-1)]
 y_train=apply(y_train, 1, function(x) x / sum(x))
 
 y_real=apply(y_train, 1, which.max)
@@ -125,8 +127,10 @@ cross_entropy <- function(q, p) {
   return(ce)
 }
 
-# Apply the cross_entropy function to each pair of rows from mat1 and mat2
-cross_entropy_values <- mapply(cross_entropy, split(t(What_lda_permuted), row(t(What_lda_permuted))), split(t(y_train), row(t(y_train))))
+
+
+# Apply the cross_entropy fu3nction to each pair of rows from mat1 and mat2
+cross_entropy_values<- mapply(cross_entropy, split(t(What_lda_permuted), row(t(What_lda_permuted))), split(t(y_train), row(t(y_train))))
 # Print the cross entropy values
 print(mean(cross_entropy_values))
 
@@ -144,7 +148,7 @@ print(mean(cross_entropy_values))
 Ahat_lda_permuted=Ahat_lda[,permutation_lda]
 Ahat_ours_permuted=Ahat_ours[,permutation_ours]
 Ahat_tracy_permuted=Ahat_tracy[,permutation_tracy]
-dictionary=names(dtm)
+dictionary=dtm$dimnames$Terms
 display_word_weighting <- function(beta, dictionary, words_to_display = 5) {
 
   topic_amt <- nrow(beta)
@@ -176,3 +180,7 @@ top_words_tracy=data.frame(display_word_weighting(t(Ahat_tracy_permuted), dictio
 colnames(top_words_tracy)=names(y_real)
 print(top_words_tracy)
 
+
+#save results
+
+cross_entropy_K<- matrix(0,words_to_display,topic_amt)
