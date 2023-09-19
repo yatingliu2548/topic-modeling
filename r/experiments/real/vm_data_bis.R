@@ -13,6 +13,7 @@ library(clue)
 
 setwd("~/Documents/topic-modeling")
 source("r/score.R")
+source("r/align_topics.R")
 source("r/experiments/real/run_topic_scores.R")
 
 # we create the human-friendly ASV names
@@ -63,7 +64,9 @@ apply(vm_data$counts, 1, sum)
 res = c()
 m = "all"
 selected_samples = 1:nrow(vm_data$counts)
+X = asinh(X)
 for (exp in 1:50){
+   
   #for (m in c(5, 10, 20)){
     print("exp is")
     print(exp)
@@ -79,7 +82,7 @@ for (exp in 1:50){
     
     lda_models  <-
       run_lda_models(
-        data = X[train_index,],
+        data = ceiling(X)[train_index,],
         lda_varying_params_lists = lda_varying_params_lists,
         lda_fixed_params_list = list(method = "VEM"),
         dir = "microbiome_lda_models_train/",
@@ -89,7 +92,7 @@ for (exp in 1:50){
 
     lda_models_test  <-
       run_lda_models(
-        data = X[test_index,],
+        data = ceiling(X)[test_index,],
         lda_varying_params_lists = lda_varying_params_lists,
         lda_fixed_params_list = list(method = "VEM"),
         dir = "microbiome_lda_models_test/",
@@ -97,10 +100,10 @@ for (exp in 1:50){
         verbose = TRUE
       )
     
-    topic_models <- run_topic_models(X, train_index, list_params=1:15,
-                                     threshold = FALSE,
-                                     normalize="norm", VHMethod = 'SP',
-                                     Mquantile = 0.05,
+    topic_models <- run_topic_models(X, train_index, list_params=3:15,
+                                     threshold = TRUE,
+                                     normalize="TTS", VHMethod = 'SP',
+                                     Mquantile = 0.00,
                                      alpha = 0.005, max_K=150)
     
     topic_models_test <- run_topic_models(X, test_index, list_params=3:15, threshold = FALSE,
@@ -112,33 +115,33 @@ for (exp in 1:50){
     
     
     alphas= c(0.005)
-    topic_models_huy <- vector("list", length(alphas))
-    topic_models_huy_test <- vector("list", length(alphas))
-    topic_models_huyNC <- vector("list", length(alphas))
-    topic_models_huyNC_test <- vector("list", length(alphas))
+    topic_models_TTS <- vector("list", length(alphas))
+    topic_models_TTS_test <- vector("list", length(alphas))
+    topic_models_TTSNC <- vector("list", length(alphas))
+    topic_models_TTSNC_test <- vector("list", length(alphas))
     it = 1
     for(alpha in alphas){
-      topic_models_huy[[it]] <- run_topic_models(X, train_index, list_params=1:15, threshold = TRUE,
-                                                 normalize="huy", VHMethod = 'SP',
+      topic_models_TTS[[it]] <- run_topic_models(X, train_index, list_params=2:15, threshold = TRUE,
+                                                 normalize="TTS", VHMethod = 'SP',
                                                  Mquantile = 0.00,
                                                  alpha = alpha, max_K=150)
       
       
       
-      topic_models_huy_test[[it]] <- run_topic_models(X, test_index, list_params=1:15, threshold = TRUE,
-                                                      normalize="huy", VHMethod = 'SP',
+      topic_models_TTS_test[[it]] <- run_topic_models(X, test_index, list_params=2:15, threshold = TRUE,
+                                                      normalize="TTS", VHMethod = 'SP',
                                                       Mquantile = 0.00,
                                                       alpha = alpha, max_K=150)
       
-      topic_models_huyNC[[it]] <- run_topic_models(X, train_index, list_params=3:15, threshold = TRUE,
-                                                 normalize="huy_not_centered", VHMethod = 'SP',
+      topic_models_TTSNC[[it]] <- run_topic_models(X, train_index, list_params=2:15, threshold = TRUE,
+                                                 normalize="TTS_not_centered", VHMethod = 'SP',
                                                  Mquantile = 0.00,
                                                  alpha = alpha, max_K=150)
       
       
       
-      topic_models_huyNC_test[[it]] <- run_topic_models(X, test_index, list_params=3:15, threshold = TRUE,
-                                                      normalize="huy_not_centered", VHMethod = 'SP',
+      topic_models_TTSNC_test[[it]] <- run_topic_models(X, test_index, list_params=2:15, threshold = TRUE,
+                                                      normalize="TTS_not_centered", VHMethod = 'SP',
                                                       Mquantile = 0.00,
                                                       alpha = alpha, max_K=150)
       it = it + 1
@@ -148,10 +151,10 @@ for (exp in 1:50){
     for (k in 3:15){
       it = 1
       for (alpha in alphas){
-        match = data.frame((exp(topic_models_huy[[it]][[paste0("k",k)]]$beta))%*% t((exp(topic_models_huy_test[[it]][[paste0("k",k)]]$beta))))
-        #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-        permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-        match_permuted <- match[, permutation]
+        alignment <- align_topics(exp(topic_models_TTS[[it]][[paste0("k",k)]]$beta),
+                                  exp(topic_models_TTS_test[[it]][[paste0("k",k)]]$beta), 
+                                  dist="l1", do.plot=FALSE)
+        match_permuted <- alignment$match
         res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
                               "max" = max(diag(as.matrix(match_permuted))),
                               "mean" = mean(diag(as.matrix(match_permuted))), 
@@ -161,7 +164,7 @@ for (exp in 1:50){
                               "k" = k,
                               "m" = m,
                               "n_tot" = length(selected_samples),
-                              "method" = paste0("huy", alpha),
+                              "method" = paste0("TTS", alpha),
                               "res1" = sum(diag(as.matrix(match_permuted))>0.1),
                               "res15" = sum(diag(as.matrix(match_permuted))>0.15),
                               "res2" = sum(diag(as.matrix(match_permuted))>0.2),
@@ -180,10 +183,10 @@ for (exp in 1:50){
         res = rbind(res, res_temp)
         
         
-        match = data.frame((exp(topic_models_huyNC[[it]][[paste0("k",k)]]$beta))%*% t((exp(topic_models_huyNC_test[[it]][[paste0("k",k)]]$beta))))
-        #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-        permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-        match_permuted <- match[, permutation]
+        alignment <- align_topics(exp(topic_models_TTSNC[[it]][[paste0("k",k)]]$beta),
+                                  exp(topic_models_TTSNC_test[[it]][[paste0("k",k)]]$beta), 
+                                  dist="l1", do.plot=FALSE)
+        match_permuted <- alignment$match
         res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
                               "max" = max(diag(as.matrix(match_permuted))),
                               "mean" = mean(diag(as.matrix(match_permuted))), 
@@ -193,7 +196,7 @@ for (exp in 1:50){
                               "k" = k,
                               "m" = m,
                               "n_tot" = length(selected_samples),
-                              "method" = paste0("huyNC", alpha),
+                              "method" = paste0("TTSNC", alpha),
                               "res1" = sum(diag(as.matrix(match_permuted))>0.1),
                               "res15" = sum(diag(as.matrix(match_permuted))>0.15),
                               "res2" = sum(diag(as.matrix(match_permuted))>0.2),
@@ -215,10 +218,10 @@ for (exp in 1:50){
       }
       
       
-      match = data.frame((exp(topic_models[[paste0("k",k)]]$beta))%*% t((exp(topic_models_test[[paste0("k",k)]]$beta))))
-      #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-      permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-      match_permuted <- match[, permutation]
+      alignment <- align_topics(exp(topic_models[[paste0("k",k)]]$beta),
+                                exp(topic_models_test[[paste0("k",k)]]$beta), 
+                                dist="l1", do.plot=FALSE)
+      match_permuted <- alignment$match
       res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
                             "max" = max(diag(as.matrix(match_permuted))),
                             "mean" = mean(diag(as.matrix(match_permuted))), 
@@ -246,10 +249,10 @@ for (exp in 1:50){
                             "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
       res = rbind(res, res_temp)
       
-      match = data.frame((exp(lda_models[[paste0("k",k)]]$beta))%*% t((exp(lda_models_test[[paste0("k",k)]]$beta))))
-      #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-      permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-      match_permuted <- match[, permutation]
+      alignment <- align_topics(exp(lda_models[[paste0("k",k)]]$beta),
+                                exp(lda_models_test[[paste0("k",k)]]$beta), 
+                                dist="l1", do.plot=FALSE)
+      match_permuted <- alignment$match
       res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
                             "max" = max(diag(as.matrix(match_permuted))),
                             "mean" = mean(diag(as.matrix(match_permuted))), 
@@ -278,13 +281,14 @@ for (exp in 1:50){
       res = rbind(res, res_temp)
       
     }
-    write.csv(res,"~/Documents/topic-modeling/r/experiments/real/results_vm_data_NC_2.csv")
+    write.csv(res,"~/Documents/topic-modeling/r/experiments/real/results_vm_data_NC_transformed_l1.csv")
     
   #}
   
   
 }
 
+STOP
 
 
 
@@ -304,7 +308,8 @@ plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
 
 
 library(tidyverse)
-res <- read_csv("~/Documents/topic-modeling/r/experiments/real/results_vm_data_2.csv")
+theme_set(theme_bw(base_size = 14))
+res <- read_csv("~/Documents/topic-modeling/r/experiments/real/results_vm_data_NC_monday.csv")
 
 res <- read_csv("~/Documents/topic-modeling/r/experiments/real/spleen_results.csv")
 
@@ -312,7 +317,32 @@ res <- read_csv("~/Documents/topic-modeling/r/experiments/real/spleen_results.cs
 res[,2:ncol(res)] %>%
   group_by(method, k) %>%
   summarise(c=n())
-                
+
+
+my_colors <- c(
+  "dodgerblue", "red","orchid3")
+
+ggplot(res[,2:ncol(res)] %>%
+         #filter(exp<13) %>%
+         group_by(method, k,m) %>%
+         summarise_all(mean) %>%
+         filter(method !="TTSNC0.005", m=="all"), 
+       aes(x=k, y=mean, colour=method
+           ))+
+  #geom_smooth(alpha=0.2, se = FALSE)+
+  geom_line(position=position_dodge(width=0.5))+
+  geom_point(position=position_dodge(width=0.5), size=3)+
+  geom_errorbar(aes(ymin=q25, ymax=q75),
+                position=position_dodge(width=0.5), alpha=0.5)+
+  scale_color_manual(values = my_colors, breaks = c( "TTS0.005", "score", "lda"),
+                     labels=c('TTM (this paper)', 
+                              'Topic Score (Ke et al)', 
+                              'LDA \n(Blei et al)')) +
+  labs(colour="Method") + 
+  #facet_wrap(.~ k, scales = "free_x") + 
+  ylab("Average Topic Resolution") +
+  xlab("Number of Topics") 
+
                 
 ggplot(res[,1:ncol(res)] %>%
          group_by(method, k, m) %>%
@@ -360,4 +390,12 @@ ggplot(res[,1:ncol(res)] %>%
   xlab("Topics")  
 
 
+
+test = data.frame(x = 1:ncol(X),
+                  y = sort(apply(asinh(X), 2, sum), decreasing=TRUE))
+library(tidyverse)
+ggplot(test, aes(x=x, y=y)) + 
+  geom_point() +
+  scale_x_log10()+
+  scale_y_log10()
 
