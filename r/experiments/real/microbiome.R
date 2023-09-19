@@ -1,17 +1,4 @@
-library(tidyverse)
-library(alto)
-library(dplyr)
-library(magrittr)
-library(ggplot2)
-library(tibble)
-library(stringr)
-library(tidyr)
-library(clue)
-library(combinat)
-library(combinat)
-library(clue)
 
-theme_set(theme_bw(base_size = 14))
 
 
 library(phyloseq)
@@ -86,97 +73,116 @@ count_matrix <- data.frame(t(data.frame(otu_table(ps))))
 data = count_matrix
 print(dim(data))
 lda_varying_params_lists <-  list()
-for (k in 1:10) {
+for (k in 1:15) {
   lda_varying_params_lists[[paste0("k",k)]] <- list(k = k)
 }
 ####
+library(tidyverse)
+library(alto)
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+library(tibble)
+library(stringr)
+library(tidyr)
+library(clue)
+library(combinat)
+library(combinat)
+library(clue)
+
+theme_set(theme_bw(base_size = 14))
 setwd("~/Documents/topic-modeling")
 source("r/score.R")
+source("r/align_topics.R")
 source("r/experiments/real/run_topic_scores.R")
 
 
 library(alto)
-lda_models_full  <- 
-  run_lda_models(
-    data = data[1:nrow(data),],
-    lda_varying_params_lists = lda_varying_params_lists,
-    lda_fixed_params_list = list(method = "VEM"),
-    dir = "metagenomics_lda_models_full/",
-    reset = TRUE,
-    verbose = TRUE
-  )
+# lda_models_full  <- 
+#   run_lda_models(
+#     data = data[1:nrow(data),],
+#     lda_varying_params_lists = lda_varying_params_lists,
+#     lda_fixed_params_list = list(method = "VEM"),
+#     dir = "metagenomics_lda_models_full/",
+#     reset = TRUE,
+#     verbose = TRUE
+#   )
+# 
+# topic_models_full <- run_topic_models(as.matrix(data), 1:nrow(data), list_params=3:30,
+#                                       threshold = FALSE,
+#                                       normalize="norm", VHMethod = 'SP',
+#                                       Mquantile = 0.00,
+#                                       alpha = 0.005, max_K=150)
+# 
+# 
+# alpha = 0.005
+# 
+# topic_models_huy_full <- run_topic_models(as.matrix(data),  1:nrow(data), list_params=3:4,
+#                                           threshold = FALSE,
+#                                           normalize="huy_not_centered", VHMethod = 'SP',
+#                                           Mquantile = 0.00,
+#                                           alpha = 0.005, max_K=150)
+# 
+# test = as.data.frame(exp(lda_models_full$k7$beta))
+# test["index"]=1:nrow(test)
+# ggplot(pivot_longer(test, cols=-c("index")), aes(x=index, y=name, fill=value)) + geom_tile()
+# 
+# sort(apply(exp(lda_models_full$k7$beta), 2, max))
+# 
+# ggplot(data=data.frame(x=apply(ceiling(asinh(X)), 1, sum) ))+
+#   geom_histogram(aes(x=x))
+# 
+# 
+# aligned_topics_transport_comp <- 
+#   align_topics(
+#     models = topic_models_full[1:10],
+#     method = "transport", reg=0.1) 
+# plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+# 
+# aligned_topics_transport_comp <- 
+#   align_topics(
+#     models = lda_models_full[1:10],
+#     method = "transport", reg=0.1) 
+# plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+# 
+# 
+# 
+# 
+# aligned_topics_transport_comp <- 
+#   align_topics(
+#     models = topic_models_huy_full[1:10],
+#     method = "transport", reg=0.01) 
+# plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+# 
+# aligned_topics_transport_comp <- 
+#   align_topics(
+#     models = lda_models_full[1:7],
+#     method = "transport") 
+# plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
+# 
+# 
+# 
+# topic_models_huy_TRANSF_full <- run_topic_models(ceiling(asinh(as.matrix(data))),
+#                                                  1:nrow(data), list_params=1:15,
+#                                           threshold = TRUE,
+#                                           normalize="huy_not_centered", VHMethod = 'SP',
+#                                           Mquantile = 0.00,
+#                                           alpha = alpha, max_K=150)
+# 
+# 
+# topic_models_TRANSF_full <- run_topic_models(ceiling(asinh(as.matrix(data))),
+#                                              1:nrow(data), list_params=3:50,
+#                                       threshold = FALSE,
+#                                       normalize="none", VHMethod = 'SP',
+#                                       Mquantile = 0.00,
+#                                       alpha = 0.005, max_K=150)
+# save.image("microbiome_full.RData")
 
-topic_models_full <- run_topic_models(as.matrix(data), 1:nrow(data), list_params=3:30,
-                                      threshold = FALSE,
-                                      normalize="norm", VHMethod = 'SP',
-                                      Mquantile = 0.00,
-                                      alpha = 0.005, max_K=150)
 
-
+set.seed(19930108)
 alpha = 0.005
-
-topic_models_huy_full <- run_topic_models(as.matrix(data),  1:nrow(data), list_params=3:4,
-                                          threshold = FALSE,
-                                          normalize="huy_not_centered", VHMethod = 'SP',
-                                          Mquantile = 0.00,
-                                          alpha = 0.005, max_K=150)
-
-test = as.data.frame(exp(lda_models_full$k7$beta))
-test["index"]=1:nrow(test)
-ggplot(pivot_longer(test, cols=-c("index")), aes(x=index, y=name, fill=value)) + geom_tile()
-
-sort(apply(exp(lda_models_full$k7$beta), 2, max))
-
-ggplot(data=data.frame(x=apply(ceiling(asinh(X)), 1, sum) ))+
-  geom_histogram(aes(x=x))
-
-
-aligned_topics_transport_comp <- 
-  align_topics(
-    models = topic_models_full[1:10],
-    method = "transport", reg=0.1) 
-plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
-
-aligned_topics_transport_comp <- 
-  align_topics(
-    models = lda_models_full[1:10],
-    method = "transport", reg=0.1) 
-plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
-
-
-
-
-aligned_topics_transport_comp <- 
-  align_topics(
-    models = topic_models_huy_full[1:10],
-    method = "transport", reg=0.01) 
-plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
-
-aligned_topics_transport_comp <- 
-  align_topics(
-    models = lda_models_full[1:7],
-    method = "transport") 
-plot(aligned_topics_transport_comp, add_leaves = TRUE, label_topics = TRUE)
-
-
-
-topic_models_huy_TRANSF_full <- run_topic_models(ceiling(asinh(as.matrix(data))),
-                                                 1:nrow(data), list_params=1:15,
-                                          threshold = TRUE,
-                                          normalize="huy_not_centered", VHMethod = 'SP',
-                                          Mquantile = 0.00,
-                                          alpha = alpha, max_K=150)
-
-
-topic_models_TRANSF_full <- run_topic_models(ceiling(asinh(as.matrix(data))),
-                                             1:nrow(data), list_params=3:50,
-                                      threshold = FALSE,
-                                      normalize="none", VHMethod = 'SP',
-                                      Mquantile = 0.00,
-                                      alpha = 0.005, max_K=150)
-save.image("microbiome_full.RData")
-
-for (exp in 1:10){
+res = c()
+for (exp in 1:30){
   train_index = sample(1:nrow(data), ceiling(nrow(data)/2))
   test_index = (1:nrow(data))[-train_index]
   
@@ -201,53 +207,57 @@ for (exp in 1:10){
     )
   
   
-  topic_models <- run_topic_models(as.matrix(data), train_index, list_params=3:50,
+  topic_models <- run_topic_models(as.matrix(data), train_index, list_params=1:50,
                                    threshold = FALSE,
-                                   normalize="none", VHMethod = 'SP',
+                                   normalize="norm", VHMethod = 'SP',
                                    Mquantile = 0.00,
-                                   alpha = 0.005, max_K=150)
+                                   alpha = 0.005, max_K=150,
+                                   as.sparse = FALSE)
   
-  topic_models_test <- run_topic_models(as.matrix(data), test_index, list_params=3:50, 
+  topic_models_test <- run_topic_models(as.matrix(data), test_index, list_params=1:50, 
                                         threshold = FALSE,
-                                        normalize="none", VHMethod = 'SP',
+                                        normalize="norm", VHMethod = 'SP',
                                         Mquantile = 0.00,
-                                        alpha = 0.005, max_K=150)
+                                        alpha = 0.005, max_K=150,
+                                        as.sparse = FALSE)
   
-  topic_models_huy <- run_topic_models(as.matrix(data),  train_index, list_params=3:50,
-                                             threshold = TRUE,
-                                             normalize="huy", VHMethod = 'SP',
+  topic_models_huy <- run_topic_models(as.matrix(data),  train_index, list_params=1:50,
+                                             threshold = FALSE,
+                                             normalize="TTS", VHMethod = 'SP',
                                              Mquantile = 0.00,
-                                             alpha = alpha, max_K=150)
+                                             alpha = alpha, max_K=150,
+                                       as.sparse = FALSE)
   
   
   
-  topic_models_huy_test <- run_topic_models(as.matrix(data), test_index, list_params=3:50, 
-                                                  threshold = TRUE,
-                                                  normalize="huy", VHMethod = 'SP',
+  topic_models_huy_test <- run_topic_models(as.matrix(data), test_index, list_params=1:50, 
+                                                  threshold = FALSE,
+                                                  normalize="TTS", VHMethod = 'SP',
                                                   Mquantile = 0.00,
-                                                  alpha = alpha, max_K=150)
+                                                  alpha = alpha, max_K=150, as.sparse = FALSE)
   
   
-  topic_models_huyNC <- run_topic_models(as.matrix(data),train_index, list_params=3:50,
-                                               threshold = TRUE,
-                                               normalize="huy_not_centered", VHMethod = 'SP',
+  topic_models_huyNC <- run_topic_models(as.matrix(data),train_index, list_params=1:50,
+                                               threshold = FALSE,
+                                               normalize="TTS_not_centered", VHMethod = 'SP',
                                                Mquantile = 0.00,
-                                               alpha = alpha, max_K=150)
+                                               alpha = alpha, max_K=150, as.sparse = FALSE)
   
   
   
-  topic_models_huyNC_test <- run_topic_models(as.matrix(data), test_index, list_params=3:50, 
-                                                    threshold = TRUE,
-                                                    normalize="huy_not_centered", VHMethod = 'SP',
+  topic_models_huyNC_test <- run_topic_models(as.matrix(data), test_index, list_params=1:50, 
+                                                    threshold = FALSE,
+                                                    normalize="TTS_not_centered", VHMethod = 'SP',
                                                     Mquantile = 0.00,
-                                                    alpha = alpha, max_K=150)
+                                                    alpha = alpha, max_K=150,
+                                              as.sparse = FALSE)
   
   for (k in 3:50){
     it = 1
-      match = data.frame(((topic_models_huy[[paste0("k",k)]]$beta))%*% t(((topic_models_huy_test[[paste0("k",k)]]$beta))))
-      #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-      permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-      match_permuted <- match[, permutation]
+      alignment <- align_topics(exp(topic_models_huy[[paste0("k",k)]]$beta),
+                                exp(topic_models_huy_test[[paste0("k",k)]]$beta), 
+                                dist="l1", do.plot=FALSE)
+      match_permuted <- alignment$match
       res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
                             "max" = max(diag(as.matrix(match_permuted))),
                             "mean" = mean(diag(as.matrix(match_permuted))), 
@@ -255,7 +265,7 @@ for (exp in 1:10){
                             "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
                             "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
                             "k" = k,
-                            "method" = paste0("huy", alpha),
+                            "method" = paste0("TTS", alpha),
                             "res1" = sum(diag(as.matrix(match_permuted))>0.1),
                             "res15" = sum(diag(as.matrix(match_permuted))>0.15),
                             "res2" = sum(diag(as.matrix(match_permuted))>0.2),
@@ -274,10 +284,11 @@ for (exp in 1:10){
                             "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
       res = rbind(res, res_temp)
       
-      match = data.frame(((topic_models_huyNC[[paste0("k",k)]]$beta))%*% t(((topic_models_huyNC_test[[paste0("k",k)]]$beta))))
-      #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-      permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-      match_permuted <- match[, permutation]
+
+      alignment <- align_topics(exp(topic_models_huyNC[[paste0("k",k)]]$beta),
+                                exp(topic_models_huyNC_test[[paste0("k",k)]]$beta), 
+                                dist="l1", do.plot=FALSE)
+      match_permuted <- alignment$match
       res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
                             "max" = max(diag(as.matrix(match_permuted))),
                             "mean" = mean(diag(as.matrix(match_permuted))), 
@@ -285,7 +296,7 @@ for (exp in 1:10){
                             "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
                             "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
                             "k" = k,
-                            "method" = paste0("huyNC", alpha),
+                            "method" = paste0("TTSNC", alpha),
                             "res1" = sum(diag(as.matrix(match_permuted))>0.1),
                             "res15" = sum(diag(as.matrix(match_permuted))>0.15),
                             "res2" = sum(diag(as.matrix(match_permuted))>0.2),
@@ -305,10 +316,11 @@ for (exp in 1:10){
       res = rbind(res, res_temp)
       
   
-    match = data.frame(((topic_models[[paste0("k",k)]]$beta))%*% t(((topic_models_test[[paste0("k",k)]]$beta))))
-    #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-    permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-    match_permuted <- match[, permutation]
+
+    alignment <- align_topics(exp(topic_models[[paste0("k",k)]]$beta),
+                              exp(topic_models_test[[paste0("k",k)]]$beta), 
+                              dist="l1", do.plot=FALSE)
+    match_permuted <- alignment$match
     res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
                           "max" = max(diag(as.matrix(match_permuted))),
                           "mean" = mean(diag(as.matrix(match_permuted))), 
@@ -335,37 +347,40 @@ for (exp in 1:10){
                           "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
     res = rbind(res, res_temp)
     
-    match = data.frame((exp(lda_models[[paste0("k",k)]]$beta))%*% t((exp(lda_models_test[[paste0("k",k)]]$beta))))
-    #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-    permutation <- solve_LSAP(as.matrix(match), maximum=TRUE) 
-    match_permuted <- match[, permutation]
-    res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
-                          "max" = max(diag(as.matrix(match_permuted))),
-                          "mean" = mean(diag(as.matrix(match_permuted))), 
-                          "median" = median(diag(as.matrix(match_permuted))), 
-                          "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
-                          "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
-                          "k" = k,
-                          "method" = "lda",
-                          "res1" = sum(diag(as.matrix(match_permuted))>0.1),
-                          "res15" = sum(diag(as.matrix(match_permuted))>0.15),
-                          "res2" = sum(diag(as.matrix(match_permuted))>0.2),
-                          "res2.5" = sum(diag(as.matrix(match_permuted))>0.25),
-                          "res3" = sum(diag(as.matrix(match_permuted))>0.3),
-                          "res3.5" = sum(diag(as.matrix(match_permuted))>0.35),
-                          "res45" = sum(diag(as.matrix(match_permuted))>0.4),
-                          "res4" = sum(diag(as.matrix(match_permuted))>0.45),
-                          "res5" = sum(diag(as.matrix(match_permuted))>0.5),
-                          "res6" = sum(diag(as.matrix(match_permuted))>0.6),
-                          "res7" = sum(diag(as.matrix(match_permuted))>0.7),
-                          "res8" = sum(diag(as.matrix(match_permuted))>0.8),
-                          "res9" = sum(diag(as.matrix(match_permuted))>0.9),
-                          "exp" = exp,
-                          "m" = m,
-                          "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
-    res = rbind(res, res_temp)
-    write_csv(res, "~/Documents/topic-modeling/r/experiments/real/microbiome_full.csv")
-    save.image("microbiome_exp.RData")
+    if (k <16){
+      
+      alignment <- align_topics(exp(lda_models[[paste0("k",k)]]$beta),
+                                exp(lda_models_test[[paste0("k",k)]]$beta), 
+                                dist="l1", do.plot=FALSE)
+      match_permuted <- alignment$match
+      res_temp = data.frame("min"=min(diag(as.matrix(match_permuted))), 
+                            "max" = max(diag(as.matrix(match_permuted))),
+                            "mean" = mean(diag(as.matrix(match_permuted))), 
+                            "median" = median(diag(as.matrix(match_permuted))), 
+                            "q25" = quantile(diag(as.matrix(match_permuted)), 0.25),
+                            "q75" = quantile(diag(as.matrix(match_permuted)), 0.75),
+                            "k" = k,
+                            "method" = "lda",
+                            "res1" = sum(diag(as.matrix(match_permuted))>0.1),
+                            "res15" = sum(diag(as.matrix(match_permuted))>0.15),
+                            "res2" = sum(diag(as.matrix(match_permuted))>0.2),
+                            "res2.5" = sum(diag(as.matrix(match_permuted))>0.25),
+                            "res3" = sum(diag(as.matrix(match_permuted))>0.3),
+                            "res3.5" = sum(diag(as.matrix(match_permuted))>0.35),
+                            "res45" = sum(diag(as.matrix(match_permuted))>0.4),
+                            "res4" = sum(diag(as.matrix(match_permuted))>0.45),
+                            "res5" = sum(diag(as.matrix(match_permuted))>0.5),
+                            "res6" = sum(diag(as.matrix(match_permuted))>0.6),
+                            "res7" = sum(diag(as.matrix(match_permuted))>0.7),
+                            "res8" = sum(diag(as.matrix(match_permuted))>0.8),
+                            "res9" = sum(diag(as.matrix(match_permuted))>0.9),
+                            "exp" = exp,
+                            "m" = m,
+                            "off_diag" = (sum(match_permuted) - sum(diag(as.matrix(match_permuted))))/(ncol(match_permuted)^2 - ncol(match_permuted)) )
+      res = rbind(res, res_temp)
+    }
+    write_csv(res, "~/Documents/topic-modeling/r/experiments/real/microbiome_l1_dist.csv")
+    #save.image("microbiome_exp_l1.RData")
   }
   
 

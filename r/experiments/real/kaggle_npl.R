@@ -61,17 +61,12 @@ train=train[columns_to_retain, ]
 train=train[columns_to_retain, ]
 dtm=dtm[columns_to_retain,]
 
-<<<<<<< HEAD
-meanN=100 #mean(apply(as.data(dtm, 2, sy)))
-
-
-
 D=t(dtm2)/meanN
-=======
+
 train$doc_word_length <- sapply(strsplit(as.character(train$text), "\\s+"), length)
 meanN=mean(train$doc_word_length ) #mean(apply(as.data(dtm, 2, sy)))
 D=t(dtm)/meanN
->>>>>>> 23204b47e8c81111ece034dcf6bfd6e21d053bac
+
 
 lda<- LDA(dtm, k = K, control = list(seed = seed), method = 'VEM')
 #ap_topics <- tidy(lda, matrix = "beta")
@@ -81,44 +76,25 @@ What_lda= t(lda@gamma)
 
 score_recovery <- score(D, K, normalize = "norm", threshold =FALSE, 
                         max_K = min(150, min(dim(D)-1)), 
-<<<<<<< HEAD
                         VHMethod="SP", estimateK=FALSE, 
                         returnW=TRUE)
-=======
-                        VHMethod="SP", returnW=TRUE)
-
-p=dim(D)[1]
-n=dim(D)[2]
-N=meanN
-
-#Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
-#Khat_olga = select_K(svd(dtm)$d, p,n, N, method="olga")
->>>>>>> 23204b47e8c81111ece034dcf6bfd6e21d053bac
 
 Ahat_tracy=score_recovery$A_hat
 What_tracy=score_recovery$W_hat
 
 alpha=0.005
 ours=score(D = D, K=K, normalize = 'TTS',
-<<<<<<< HEAD
            threshold =TRUE, alpha = alpha, 
            N=meanN, max_K = min(min(dim(D))-1, 150),
            VHMethod="SP", returnW=TRUE, estimateK=FALSE)
-=======
-           threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(D))-1, 150),
-           VHMethod="SP", returnW=TRUE)
->>>>>>> 23204b47e8c81111ece034dcf6bfd6e21d053bac
 
 
 Ahat_ours=ours$A_hat
 What_ours=ours$W_hat
 
 
-<<<<<<< HEAD
-y_train=train[,4:(5+K-2)]
-=======
+
 y_train=train[,4:(4+K-1)]
->>>>>>> 23204b47e8c81111ece034dcf6bfd6e21d053bac
 y_train=apply(y_train, 1, function(x) x / sum(x))
 
 y_real=apply(y_train, 1, which.max)

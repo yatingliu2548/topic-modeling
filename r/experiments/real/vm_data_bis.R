@@ -64,6 +64,7 @@ apply(vm_data$counts, 1, sum)
 res = c()
 m = "all"
 selected_samples = 1:nrow(vm_data$counts)
+X = vm_data$counts
 X = asinh(X)
 for (exp in 1:50){
    
@@ -74,7 +75,6 @@ for (exp in 1:50){
     #selected_samples = which(vm_data$sample_info$SubjectID %in% selected_subjects)
     #X = vm_data$counts[selected_samples, ]
     #train_index = sample(1:nrow(X), ceiling(length(selected_samples)/2))
-    X = vm_data$counts
     train_index = sample(1:nrow(X), ceiling(nrow(X)/2))
     test_index = (1:nrow(X))[-c(train_index)]
     
