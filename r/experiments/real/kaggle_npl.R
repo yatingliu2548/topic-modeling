@@ -26,6 +26,7 @@ setwd("~/Documents/topic-modeling/")
 source("./r/vertex_hunting_functions.R")
 source('./r/score.R')
 source('./r/evaluation_metrics.r')
+source("./r/score.R")
 
 
 train = read_csv("~/Downloads/archive (4)/train.csv")
@@ -38,10 +39,14 @@ docs <- Corpus(VectorSource(train$text))
 docs <- tm_map(docs, content_transformer(tolower))
 docs <- tm_map(docs, removePunctuation)
 docs <- tm_map(docs, removeNumbers)
-docs <- tm_map(docs, removeWords, stopwords("en"))
 docs <- tm_map(docs, stripWhitespace)
+docs <- tm_map(docs, removeWords, stopwords("en"))
+library(SnowballC)
+docs <- tm_map(docs, content_transformer(wordStem), language = "english")
 
 dtm <- DocumentTermMatrix(docs)
+dtm2 = as(dtm, 'sparseMatrix')
+meanN=median(rowSums(dtm2))
 
 #dtm=read.csv("C://Users//建新//OneDrive - The University of Chicago//NMF//dtm.csv")
 
@@ -53,7 +58,10 @@ train=train[columns_to_retain, ]
 dtm=dtm[columns_to_retain,]
 
 meanN=100 #mean(apply(as.data(dtm, 2, sy)))
-D=t(dtm)/meanN
+
+
+
+D=t(dtm2)/meanN
 
 
 K=6
@@ -64,53 +72,67 @@ lda<- LDA(dtm, k = K, control = list(seed = seed), method = 'VEM')
 Ahat_lda = exp(t(lda@beta))
 What_lda= t(lda@gamma)
 
-score_recovery <- score(D, K, normalize = "norm", 
+score_recovery <- score(D, K, normalize = "norm", threshold =FALSE, 
                         max_K = min(150, min(dim(D)-1)), 
-                        VHMethod="SP", returnW=TRUE)
-
-p=dim(D)[2]
-n=dim(D)[1]
-N=meanN
-
-#Khat_tracy = select_K(score_recovery$eigenvalues, p,n, N, method="tracy")
-#Khat_olga = select_K(svd(dtm)$d, p,n, N, method="olga")
+                        VHMethod="SP", estimateK=FALSE, 
+                        returnW=TRUE)
 
 Ahat_tracy=score_recovery$A_hat
 What_tracy=score_recovery$W_hat
 
 alpha=0.005
-ours=score(D = t(D), K=K, normalize = 'huy',
-           threshold =TRUE, alpha = alpha, N=N, max_K = min(min(dim(D))-1, 150),
-           VHMethod="SP", returnW=TRUE)
+ours=score(D = D, K=K, normalize = 'TTS',
+           threshold =TRUE, alpha = alpha, 
+           N=meanN, max_K = min(min(dim(D))-1, 150),
+           VHMethod="SP", returnW=TRUE, estimateK=FALSE)
 
 
 Ahat_ours=ours$A_hat
 What_ours=ours$W_hat
 
 
-y_train=train[,5:(5+K-1)]
+y_train=train[,4:(5+K-2)]
 y_train=apply(y_train, 1, function(x) x / sum(x))
 
 y_real=apply(y_train, 1, which.max)
 
 
-#match topic
-match_lda = data.frame((y_train)%*% t(What_lda))
-#match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
-permutation_lda <- solve_LSAP(as.matrix(match_lda), maximum=TRUE)
-match_permuted_lda <- match_lda[, permutation_lda]
-What_lda_permuted=What_lda[permutation_lda,]
 
 
-match_tracy = data.frame((y_train)%*% t(What_tracy))
+
 #match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+alignment <- align_topics(exp(lda_models$k12$beta), 
+                                exp(lda_models_test$k12$beta), dist = "l1",
+                          do.plot=TRUE)
+match_permuted_lda <- alignment$match
+What_lda_permuted=alignment$B_permuted
+
+
+A_normalized <- normalize_rows(y_train)
+B_normalized <- normalize_rows(What_tracy)
+match_tracy = data.frame(A_normalized %*% t(B_normalized))
 permutation_tracy <- solve_LSAP(as.matrix(match_tracy), maximum=TRUE)
+
+colnames(match_tracy)= 1:ncol(match_tracy)
+
+match_tracy["X"] = 1:nrow(match_tracy)
+ggplot(pivot_longer(match_tracy, cols=-c("X")))+
+  geom_tile(aes(x=X, y=name, fill=value))
+#match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
 match_permuted_tracy <- match_tracy[, permutation_tracy]
 What_tracy_permuted=What_tracy[permutation_tracy,]
 
-match_ours= data.frame((y_train)%*% t(What_ours))
-#match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
+
+A_normalized <- normalize_rows(y_train)
+B_normalized <- normalize_rows(What_ours)
+match_ours=  data.frame(A_normalized %*% t(B_normalized))
 permutation_ours <- solve_LSAP(as.matrix(match_ours), maximum=TRUE)
+colnames(match_ours)= 1:ncol(match_ours)
+
+match_ours["X"] = 1:nrow(match_ours)
+ggplot(pivot_longer(match_ours, cols=-c("X")))+
+  geom_tile(aes(x=X, y=name, fill=value))
+#match = data.frame((exp(lda_models$k12$beta))%*% t((exp(lda_models_test$k12$beta))))
 match_permuted_ours<- match_ours[, permutation_ours]
 What_ours_permuted=What_ours[permutation_ours,]
 
@@ -144,19 +166,21 @@ print(mean(cross_entropy_values))
 Ahat_lda_permuted=Ahat_lda[,permutation_lda]
 Ahat_ours_permuted=Ahat_ours[,permutation_ours]
 Ahat_tracy_permuted=Ahat_tracy[,permutation_tracy]
-dictionary=names(dtm)
+dictionary=dtm$dimnames$Terms
+
+
 display_word_weighting <- function(beta, dictionary, words_to_display = 5) {
 
   topic_amt <- nrow(beta)
-  word_df <- matrix(0,words_to_display,topic_amt)
+  word_df <- matrix(0, words_to_display,topic_amt)
 
   for (k in 1:topic_amt) {
     # Get indices of top words
-    indices <- tail(order(beta[k,]), n=words_to_display)
+    indices <- sort(beta[k,], decreasing = TRUE, index.return=TRUE)
 
 
-    for (i in 1:length(indices)) {
-      word_df[i,k] <- dictionary[indices[i]]
+    for (i in 1:words_to_display) {
+      word_df[i,k] <- paste0(dictionary[indices$ix[i]], " (",round( beta[k,indices$ix[i]], 4), ")")
 
     }
 
@@ -164,15 +188,17 @@ display_word_weighting <- function(beta, dictionary, words_to_display = 5) {
   return(word_df)
 }
 
-top_words_lda=data.frame(display_word_weighting(t(Ahat_lda_permuted), dictionary,5))
+top_words_lda=data.frame(display_word_weighting(t(Ahat_lda_permuted), dictionary,10))
 colnames(top_words_lda)=names(y_real)
 print(top_words_lda)
 
-top_words_ours=data.frame(display_word_weighting(t(Ahat_ours_permuted), dictionary,5))
+top_words_ours=data.frame(display_word_weighting(t(Ahat_ours_permuted), dictionary,20))
 colnames(top_words_ours)=names(y_real)
 print(top_words_ours)
+xtable(top_words_ours)
 
-top_words_tracy=data.frame(display_word_weighting(t(Ahat_tracy_permuted), dictionary,5))
+top_words_tracy=data.frame(display_word_weighting(t(Ahat_tracy_permuted), dictionary,20))
 colnames(top_words_tracy)=names(y_real)
 print(top_words_tracy)
-
+xtable(top_words_tracy
+       )
