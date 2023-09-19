@@ -43,7 +43,7 @@ score <- function(D, K, scatterplot=FALSE, K0=NULL, m=NULL, N=NULL, threshold=FA
   #'
   #' 
   if(typeof(D) != "sparseMatrix"){
-    D <- as(as.numeric(as.matrix(D)), "sparseMatrix")
+    D <- as(as.matrix(D), "sparseMatrix")
   }
   p <- dim(D)[1]
   n <- dim(D)[2]
