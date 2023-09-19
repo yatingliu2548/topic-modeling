@@ -12,11 +12,14 @@ align_topics<- function(A, B, dist="cosine", do.plot=TRUE){
     A_normalized <- normalize_rows(A)
     B_normalized <- normalize_rows(B)
     match = A_normalized %*% t(B_normalized)
+    match=  data.frame(match)
+    permutation <- solve_LSAP(as.matrix(match), maximum=TRUE)
   }else{
     match = cdist(A, B, metric = "euclidean", p = 1)
+    match=  data.frame(match)
+    permutation <- solve_LSAP(as.matrix(match), maximum=FALSE)
   }
-  match=  data.frame(match)
-  permutation <- solve_LSAP(as.matrix(match), maximum=TRUE)
+
   match_permuted <- match[, permutation]
   if (do.plot){
     par(mar=c(1,1,1,1))
